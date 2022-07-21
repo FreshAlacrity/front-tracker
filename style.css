@@ -1,0 +1,93 @@
+
+*, *:before, *:after {
+  /* see https://css-tricks.com/box-sizing/ */
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: georgia, palatino, serif;
+  padding: 0;
+  margin: 0;
+  background: black;
+  color: white;
+}
+
+body {
+  padding: 1em;
+  margin: 3vw 0;
+  text-align: center;
+}
+
+.container {
+  /* see https://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0;
+  margin: 0 1em;
+  justify-content: space-between;
+  gap: 0.5em;
+  /* don't seem to work? */
+  align-items: stretch;
+  align-content: stretch;
+}
+
+.tile {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  font-size: 0.7em;
+  min-width: 6em;
+  min-height: 6em;
+  display: inline-block;
+  overflow: hidden;
+  
+  /* positions icon + name */
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center; 
+  justify-content: center;
+  flex-direction: column;
+}
+
+.icon {
+  opacity: 30%;
+  width: 6em;
+  height: 6em;
+  border: 2px solid currentColor;
+  border-radius: 4em;
+  background-repeat: no-repeat;
+  background-size: cover;
+  pointer-events: none;
+  filter: grayscale(100%);
+}
+
+.available .icon {
+  min-width: 6em;
+  min-height: 6em;
+  opacity: 60%;
+  filter: none;
+}
+
+.present .icon {
+  filter: none;
+  opacity: 100%;
+}
+
+.present {
+  font-size: 1rem;
+  min-width: 6em;
+  min-height: 6em;
+  opacity: 100%;
+}
+
+.name {
+  padding: 0.1em;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.note {
+  padding-top: 2rem; 
+}
