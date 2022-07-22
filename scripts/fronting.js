@@ -573,11 +573,13 @@ const hexVals = [
 "#C67171"  
 ];
 
-//      = To Do =
+
+//      = Next =
 // mark unavailable component digits etc (since it's easier to split into those by tapping fronters)
-// move to GitHub, archive and remove older versions from CodePen
-//  - [x] GitHub repo started
-//  - [x] move code
+
+//      = To Do =
+// style present digits by % to fit on one line
+// known issues: sort order doesn't always put present headmates first (fixed?)
 // search by name + digits
 // output as ?active=24,5,6 and generate a link (output to search bar?)
 // load from URL parameter
@@ -588,11 +590,13 @@ const hexVals = [
 // refactor to use an object to store current, past, and future states
 
 //          = Later =
+// ? silhouette for headmates that don't have portraits
+   // suggest picrews from headmates who share digits
 // shift click multiple portraits to merge
 // CTRL + click headmates to split; pulls up a popup that shows split options/previews the split (that disappears when CTRL is released - split to digits - or an option is clicked)
 // search by emojis (use the emoji list in the spreadsheet to allow search by near miss)
 // toggle show/hide: 
-  /// digits
+  // digits
   // emojis (if portraits aren't shown, make them big?)
   // fursona view (images + names)
 // double click? to pull up details (including Picrew)
@@ -624,10 +628,9 @@ function elementByCallsign(callsign) {
 function sortOrder(callsign, headmate) {
   let num = callsign.length;
   if (!headmate.status.available) {
-    num += (10 ** cap);
-  }
-  if (!headmate.status.present) {
-    num += (10 ** cap);
+    num += (20 ** (cap + 1));
+  } else if (!headmate.status.present) {
+    num += (10 ** (cap + 1));
   }
   return num;
 }
