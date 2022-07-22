@@ -576,6 +576,7 @@ const hexVals = [
 
 //      = Next =
 // mark unavailable component digits etc (since it's easier to split into those by tapping fronters)
+  // add resting status for digits
 
 //      = To Do =
 // style present digits by % to fit on one line
@@ -595,10 +596,13 @@ const hexVals = [
 // shift click multiple portraits to merge
 // CTRL + click headmates to split; pulls up a popup that shows split options/previews the split (that disappears when CTRL is released - split to digits - or an option is clicked)
 // search by emojis (use the emoji list in the spreadsheet to allow search by near miss)
+// change classes: replace present and available classes with ones for for not available + not fronting
 // toggle show/hide: 
   // digits
   // emojis (if portraits aren't shown, make them big?)
   // fursona view (images + names)
+  // only fronters
+  // only available members
 // double click? to pull up details (including Picrew)
 // output possible duties to address?
 // track what front combinations happen most often
@@ -613,18 +617,22 @@ let totalNum = 0;
 let fronting = [];
 let headmates = {};
 
+// @later fetch by ID from HTML
 let container = document.createElement("div");
 container.classList.add("container");
 document.body.appendChild(container);
 
+// @todo change to search box, move to top
 let note = document.createElement("div");
 note.classList.add("note");
 document.body.appendChild(note);
+
 
 function elementByCallsign(callsign) {
   return document.getElementById("tile-" + callsign);
 }
 
+// returns a flexbox sort order integer
 function sortOrder(callsign, headmate) {
   let num = callsign.length;
   if (!headmate.status.available) {
@@ -651,39 +659,39 @@ function sortByCallsign(arr) {
   });
 }
 
+function checkStatus(callsign, string, bool = true) {
+  return (headmates[callsign].status[string] == bool);
+}
+function setStatus(callsign, string, bool = true) {
+  headmates[callsign].status[string] = bool;
+}
+function bulkSetStatus(list, string, bool) {
+  list.forEach(a => {
+    setStatus(a, string, bool);
+  })
+}
+
 function onClick(event) {
   
-  function checkStatus(callsign, string, bool = true) {
-    return (headmates[callsign].status[string] == bool);
-  }
-  function setStatus(callsign, string, bool) {
-    headmates[callsign].status[string] = bool;
-  }
-  function bulkSetStatus(list, string, bool) {
-    list.forEach(a => {
-      setStatus(a, string, bool);
-    })
-  }
   function unmerge(callsign) {
     callsign.split('').forEach(d => {        
-      setStatus(d, "present", true);    
-      setStatus(d, "available", true);
+      setStatus(d, "present", true);
     });
     setStatus(callsign, "present", false);  
   }
+
   function toggleOn(callsign) {
     setStatus(callsign, "present", true);
     
     // for digits:
-    setStatus(callsign, "available", true);
+    setStatus(callsign, "resting", false);
     
+    // make sure only headmates that can coexist are present:
     let bigSibs = headmates[callsign].in;
     let lilSibs = headmates[callsign].components;  
     let sideSibs = headmates[callsign].siblings;
     let all = [].concat(sideSibs, lilSibs, bigSibs);
     all = sortByCallsign(all).reverse();
-    // @todo test
-    //.slice() // makes shallow copy
     all.forEach(s => {
       if (s.length > 1 && checkStatus(s, "present")) {
         unmerge(s);
@@ -691,15 +699,17 @@ function onClick(event) {
       setStatus(s, "present", false);
     });
   }
+
   function toggleOff(callsign) {
     setStatus(callsign, "present", false);  
     if (callsign.length == 1) {
-      setStatus(callsign, "available", false); 
+      setStatus(callsign, "resting", true); 
     } else {
       unmerge(callsign);
     }
   }
   
+  // update headmate statuses
   let cs = event.target.id.slice("tile-".length);
   if (event.target.classList.contains("present")) {
     toggleOff(cs);
@@ -708,20 +718,20 @@ function onClick(event) {
   }
    
   // reset availability
-  for (const [callsign, p] of Object.entries(headmates)) {
-    if (callsign.length > 1) {
-      setStatus(callsign, 'available', true);
-    }
-  }
+  bulkSetStatus(Object.keys(headmates), "available", true)
   
-  // @todo deprioritize/show with less emphasis the headmates who cannot (also) be present
+  // deprioritize/show with less emphasis the headmates who cannot (also) be present
   for (const [callsign, p] of Object.entries(headmates)) {    
-    if (callsign.length == 1 && !p.status.available) {
-      // mark unavailable any fusions with unavailable digits
+    if (callsign.length == 1 && p.status.resting) {
+      // mark resting digits unavailable
+      setStatus(callsign, 'available', false);
+      // mark unavailable any fusions with resting digits
       bulkSetStatus(p.in, 'available', false);
     } else if (callsign.length > 1 && p.status.present) {
       // mark unavailable siblings of present fusions
       bulkSetStatus(p.siblings, 'available', false);
+      // mark unavailable components of present fusions
+      bulkSetStatus(p.components, 'available', false);
     }
   }
   
@@ -809,7 +819,8 @@ function fillInHeadmates() {
       siblings: [],
       status: { 
         available: true, 
-        present: false
+        present: false,
+        resting: false
       }
     };
     let key = callsign + '';
