@@ -1,15 +1,29 @@
 # Front Tracker
  
+ CS - Callsign
+
 ## To Do
 
 ### Next
-- mark unavailable component digits etc (since it's easier to split into those by tapping fronters)
-  - add resting status for digits
+- import data from system.js (exported from PK)
+  - offer copypasta commands for setting up new system members
+    - pk;m new CS
+    - CS: text and text -CS proxies
+  - assert and check:
+    - members with avatar urls should have a picrew link in their description (with some exceptions)
+    - all members should have CS: text and text -CS proxies
+    - all named members should have Name: text and text -Name proxies
+    - all members should have preferred pronouns listed
+    - all members with displaynames should have their names set to private
+
+
 
 ### Then
+- pull from and update url parameter
+  - upload to GitHub site? or get a domain + hosting?
+- search by name, digits etc
 - style present digits by % to fit on one line
 - known issues: sort order doesn't always put present headmates first (not fixed; to reproduce )
-- search by name + digits
 - output as ?active=24,5,6 and generate a link (output to search bar?)
 - load from URL parameter
 - style: size up the present fronters to be all on one row (when possible) and add some space below that
@@ -19,6 +33,7 @@
 - refactor to use an object to store current, past, and future states
 
 ### Later
+- add resting status for digits (maybe)
 - ? silhouette for headmates that don't have portraits
    - suggest picrews from headmates who share digits
 - shift click multiple portraits to merge
