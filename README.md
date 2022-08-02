@@ -1,28 +1,43 @@
 # Front Tracker
- 
- CS - Callsign
+
+CS - Callsign
 
 ## To Do
 
 ### Next
-- import data from system.js (exported from PK)
-  - offer copypasta commands for setting up new system members
-    - pk;m new CS
-    - CS: text and text -CS proxies
-  - assert and check:
-    - members with avatar urls should have a picrew link in their description (with some exceptions)
-    - all members should have CS: text and text -CS proxies
-    - all named members should have Name: text and text -Name proxies
-    - all members should have preferred pronouns listed
-    - all members with displaynames should have their names set to private
-
+- hook into the PK api using Fetch?
+- alt account names on coin backs
+- toggle mode that shows alt account names + image urls
+  - toggle both front and back classes on all the things of that type?
+  - have it do that if you hit the ' or ` keys?
+  - make them flip over like coins to have fursonas on the other side
+  - list people without alts last? or grey out their images?
+- fix CSS so the tiles are different sizes again
+- function for setting up new system members
+  - pk;m new CS
+  - CS: text and text -CS proxies
+- assert and check:
+  - members with avatar urls should have a picrew link in their description (with some exceptions)
+  - all members should have CS: text and text -CS proxies
+  - all named members should have Name: text and text -Name proxies
+  - all members should have preferred pronouns listed
+  - all members with displaynames should have their names set to private
 
 
 ### Then
+- more strategic background colors
+  - use HSL?
+  - lighter colors for Moth fusions
+  - darker for Thorn fusions
+  - more saturated for Lucky fusions
+  - less saturated for Val fusions
+  - that leaves Faun (Red?), Clover (Orange?), Ruth (Purple?), Kent (Green?), Giles (Blue?)
+  - consider also colors that mean something: https://blog.datawrapper.de/gendercolor/
 - pull from and update url parameter
-  - upload to GitHub site? or get a domain + hosting?
+  - first upload to GitHub site somewhere, /front/ ?
 - search by name, digits etc
 - style present digits by % to fit on one line
+  - style other icons to be that size or smaller
 - known issues: sort order doesn't always put present headmates first (not fixed; to reproduce )
 - output as ?active=24,5,6 and generate a link (output to search bar?)
 - load from URL parameter

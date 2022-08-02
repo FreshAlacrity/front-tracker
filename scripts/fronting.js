@@ -580,49 +580,112 @@ function onClick(event) {
   note.textContent = `${totalNum} shown & fronting: ${fronting.join(', ')}`;
 }
 
-// currently called inside fillInHeadmates
-function addHeadmateTile(num, headmate) {
-  let tile = document.createElement("div");
-  tile.addEventListener("click", onClick);
-  tile.classList.add("tile");
-  tile.id = "tile-" + num;
-  
-  let icon = document.createElement("div");
-  icon.classList.add("icon");
-  icon.style.backgroundColor = hexVals[(num * 61) % hexVals.length];
-  
-  if (headmate.status.present) {
-    tile.style.order = num.length;
-    tile.classList.add("present");
-    tile.classList.add("available");
+function addPluralKitDetails() {
+  exported.members.forEach(m => {
+    let callsign = ''
+    if (m.display_name) {
+      callsign = m.display_name.split(" ")[0]
+    } else if (parseInt(m.name)) {
+      callsign = m.name
+    }
+
+    callsign = callsign.replace('-','')
+
+    if (callsign in headmates) {
+      // main registry
+      headmates[callsign].pk = m;
+    } else if (callsign.slice(-1) == "'") {
+      // registered alt?
+      if (callsign.slice(0, -1) in headmates) {
+        headmates[callsign.slice(0, -1)].pk_alt = m;
+      } else {
+        //console.log(callsign + ' alt found but no matching headmate?')
+      }
+    } else {
+      // irregular headmate
+      // @later handle these
+      //console.log(callsign + ' not found')
+    }
+  })
+}
+function getDisplayname(callsign) {
+  // @later maybe set this up another way?
+  // it's really just Sweet William with a space in his name
+  let m = headmates[callsign];
+  if (m && m.pk && m.pk.display_name) {
+    let parts = m.pk.display_name.split(' ')
+    let isWord = /^\w+$/ // /\w/ // for if we want parentheticals
+    if (parts[3] && isWord.test(parts[3])) {
+      return parts.slice(0, 4).join(' ')
+    } else {
+      return parts.slice(0, 3).join(' ')
+    }
   } else {
-    tile.style.order = sortOrder(num, headmate);
-    tile.classList.add("available");
+    return callsign + ''
   }
-  tile.title = num;
-    
-  let name = document.createElement("div");
-  name.classList.add("name");  
-  name.textContent = num;
-  
-  if (headmateAttributes[num]) {
-    let a = headmateAttributes[num];
-    if (a.nickname) {
-      tile.title += ' | ' + a.nickname;
-      name.innerHTML += '&nbsp|&nbsp' + a.nickname;
-    }
-    if (a.profile_image) {
-      icon.style.backgroundImage = `url('${a.profile_image}')`;      
-    }
-    // @later
-    //pk_id: "cbkpk"
-    
+}
+function getAvatarURL(callsign) {
+  let m = headmates[callsign];
+  if (m && m.pk && m.pk.avatar_url) {
+    return m.pk.avatar_url
+  } else {
+    return ''
   }
-  tile.title += '\n' + status;
-  
-  tile.appendChild(icon);
-  tile.appendChild(name);
-  container.appendChild(tile);
+}
+function getMemberPageURL() {
+  // @todo
+}
+function addHeadmateTile(num, headmate) {
+  function makeCoin() {    
+    let coin = document.createElement("div");
+    coin.addEventListener("click", onClick);
+    coin.classList.add("flip-coin");
+    coin.id = "tile-" + num;
+    if (headmate.status.present) {
+      coin.style.order = num.length;
+      coin.classList.add("present");
+      coin.classList.add("available");
+    } else {
+      coin.style.order = sortOrder(num, headmate);
+      coin.classList.add("available");
+    }
+    container.appendChild(coin);
+    
+    let coinFaces = document.createElement("div");
+    coinFaces.classList.add("flip-coin-inner");
+    coin.appendChild(coinFaces);
+    return coinFaces;
+  }
+  function coinFace(type = "front") {
+    let coinFront = document.createElement("div");
+    coinFront.classList.add("flip-coin-" + type);
+    
+    let icon = document.createElement("div");
+    icon.classList.add("icon");
+    icon.style.backgroundColor = hexVals[(num * 61) % hexVals.length];  
+    coinFront.appendChild(icon);
+    coinFront.title = num;
+      
+    let name = document.createElement("div");
+    name.classList.add("name");  
+    name.textContent = num;
+    
+    name.innerHTML = getDisplayname(num)
+    coinFront.appendChild(name);
+
+    icon.style.backgroundImage = `url('${getAvatarURL(num)}')`  
+    coinFront.title += '\n' + status;
+    return coinFront;
+  }
+    
+  let coin = makeCoin();
+  coin.appendChild(coinFace("front"));
+  coin.appendChild(coinFace("back"));
+}
+function addAllHeadmateTiles() {
+  for (const [callsign, value] of Object.entries(headmates)) {
+    addHeadmateTile(callsign, value)
+  }
 }
 
 // sorts digits within a callsign
@@ -655,7 +718,7 @@ function fillInHeadmates() {
     if (status == "present") {
       n.status.present = true;
     }
-    addHeadmateTile(callsign, headmates[key]);
+    //addHeadmateTile(callsign, headmates[key]);
     count++;
   }
   
@@ -767,9 +830,13 @@ function fillInHeadmates() {
   return count;
 }
 
-totalNum = fillInHeadmates();
-note.textContent = `${totalNum} shown & fronting: ${fronting.join(', ')}`;
-
+function init() {
+  totalNum = fillInHeadmates()
+  addPluralKitDetails()
+  addAllHeadmateTiles()
+  note.textContent = `${totalNum} shown & fronting: ${fronting.join(', ')}`
+}
+init()
 
 // make a printout to check values
 function printDetails(printIf = [1, 12]) {
@@ -789,5 +856,5 @@ function printDetails(printIf = [1, 12]) {
   });
   console.log(printout);
 }
-//printDetails();
+//printDetails()
 
