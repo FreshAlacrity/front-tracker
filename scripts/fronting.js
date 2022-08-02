@@ -835,6 +835,7 @@ function init() {
   addPluralKitDetails()
   addAllHeadmateTiles()
   note.textContent = `${totalNum} shown & fronting: ${fronting.join(', ')}`
+  testAPI()
 }
 init()
 
