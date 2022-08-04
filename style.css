@@ -40,7 +40,7 @@ body {
 .flip-coin {
   background-color: transparent;
   min-width: 6em;
-  min-height: 7em;
+  min-height: 9em;
   perspective: 1000px; /* Remove this if you don't want the 3D effect */
 }
 
@@ -64,16 +64,12 @@ body {
   transform: rotateY(180deg);
 }
 
-.flip-coin-front {
-}
-
-
 .flip-coin-front, .flip-coin-back {
   pointer-events: none;
   text-align: center;
   margin: 0;
   padding: 0;
-  font-size: 0.7rem;
+  font-size: 1rem; /* had at 0.7 */
   display: inline-block;
   overflow: hidden;
   
