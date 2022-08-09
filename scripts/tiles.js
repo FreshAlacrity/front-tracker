@@ -1,7 +1,8 @@
 
 function getAvatarURL(callsign) {
   let m = headmates[callsign];
-  if (m && m.pk && m.pk.avatar_url) {
+  let isAlt = (callsign.slice(-1) === "'")
+  if (!isAlt && m && m.pk && m.pk.avatar_url) {
 
     return m.pk.avatar_url
   } else {
