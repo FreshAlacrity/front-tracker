@@ -9,7 +9,12 @@ function getAvatarURL(callsign) {
     return ''
   }
 }
-
+function getBgColor(callsign) {
+  let baseHue = []; // @todo set color 'homes' per digit
+  // @todo average the hue values
+  let hue = Math.floor(Math.random()*361)
+  return `hsl(${hue}, 20%, 40%)`;
+}
 function addHeadmateTile(num, headmate) {
   function makeCoin() {
     let coin = document.createElement("div");
@@ -39,7 +44,7 @@ function addHeadmateTile(num, headmate) {
     icon.id = "icon-" + num;
     icon.addEventListener("dblclick", onDoubleClick);
     icon.classList.add("icon");
-    icon.style.backgroundColor = hexVals[(num * 61) % hexVals.length];
+    icon.style.backgroundColor = getBgColor(num);
     coinFront.appendChild(icon);
     coinFront.title = num;
 

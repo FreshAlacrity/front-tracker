@@ -1,9 +1,6 @@
 
 function onClick(event) {
   if (window.event.ctrlKey) {
-    //ctrl was held down during the click
-    console.log("CTRL + click detected!");
-  
     function updateTargetStatus(targetCS, isPresent) {      
       function unmerge(callsign) {
         callsign.split('').forEach(d => {
@@ -31,6 +28,7 @@ function onClick(event) {
         });
       }
       function toggleOff(callsign) {
+        console.log("Toggle Off called for " + callsign);
         setStatus(callsign, "present", false);
         if (callsign.length == 1) {
           setStatus(callsign, "resting", true);
@@ -44,7 +42,6 @@ function onClick(event) {
         toggleOn(targetCS);
       }
     }
-
     function updateTileClasses() {
       for (const [callsign, value] of Object.entries(headmates)) {
         let e = elementByCallsign(callsign);
@@ -57,9 +54,11 @@ function onClick(event) {
     }
 
     let callsign = event.target.id.slice("tile-".length);
-    let isPresent = event.target.classList.contains("present");
+    // it's generally icons being clicked now but icon- is the same length
+    let isPresent = elementByCallsign(callsign).classList.contains("present");
+    
     updateTargetStatus(callsign, isPresent);
-    resetAvailability();
+    setAvailability();
     updateTileClasses();
   }
 }

@@ -13,52 +13,53 @@ CS - Callsign
 ## To Do
 
 ### Next
-- unique ID for front and back icons and names
-- click to show back or front
-  - do flip animation (for members that can flip)
-- PK API
-  - fetch member data to display BEFORE checking things
+- [ ] unique ID for front and back icons and names
+  - don't use the ##' format because ' isn't a valid part of html IDs
+- PK
   - function for making a new alt member
     - does the current one do that?
     - detect new alt and make private and set member of alt group
-  - set name function
+  - set name function onChange
     - CS: text and text -CS equivalent name proxies
   - function to take Descriptions apart and put them back together
-- figure out why sort order for digits is off
-- alt account names on coin backs
-  - toggle mode that shows alt account names + image urls
-    - toggle both front and back classes on all the things of that type?
-    - have it do that if you hit the ' or ` keys?
-    - make them flip over like coins to have fursonas on the other side
-    - list people without alts last? or grey out their images?
-- shift click to fuse
-  - when the first headmate is shift-clicked:
-    - sort all their fusions right after current fronters/push those to the front of the list
-  - shift clicking a second digit fuses the two
-- send that first API request through immediately
-  - add a save button
-- click to bring up a description
-  - first just slap on the stringified JSON
-  - then make every value an editable text field
-
+- known issue: sort order for digits is off
+  - [ ] check: is this because the sort order is being applied to the wrong element?
+- [x] toggle mode that shows alt account names + image urls
+  - [ ] alt account names on coin backs
+  - [ ] alt account profile images on coin backs
+  - [ ] stop tiles with no back from flipping
+  - [ ] have it do that if you hit the ' or ` keys?
+  - [ ] in alt mode list people without alts last? and/or grey out their images?
+- [ ] send that first API request through immediately
 
 ### Then
-- known issues: sort order
-- output as ?active=24,5,6
-  - generate a link (output to search bar?)
-  - 'Log Switch' button
-    - load from last switch if there's no URL param
-    - https://pluralkit.me/api/endpoints/#switches
-  - load from URL parameter    
-    - first upload to GitHub site somewhere, /front/ ?
-  - reset button (back to 1,2,3,4,5,6,7,8,9)
-  - button to log switches to PK
-- names off to right side with details?
-- register a member with PK when selected as fronting if they're not yet registered
-- suggest Picrews
-
+- shift click to fuse
+  - when the first headmate is shift-clicked:
+    - [ ] sort all their fusions right after current fronters/push those to the front of the list
+  - [ ] shift clicking a second digit fuses the two
+- [ ] click to bring up a description
+  - first just slap the stringified JSON onto a floating DIV
+  - then make every value an editable text field
+- [ ] known issues: sort order
+- [ ] register a member with PK when selected as fronting if they're not yet registered
+- [ ] suggest Picrews
+- [x] output as list 5,6,24
+  - [ ]update the url parameter ( ?active=5,6,24 )
+  - [ ] load from URL parameter
+  - [ ] 'Log Switch' button
+    - [ ] load from last switch if there's no URL param
+    - [ ] see https://pluralkit.me/api/endpoints/#switches
+  - [ ] reset button (back to 1,2,3,4,5,6,7,8,9)
 
 ### Later
+- [ ] when there's no token entered:
+  - [ ] make name fields un-editable
+  - [ ] double click should go to public page
+  - [ ] hide 'log switch' button
+- [ ] upload to GitHub site somewhere, /front/ ?
+  - first make the token a url parameter and do above changes
+- add password/parameter to show Alt accounts?
+- alternate style for mobile: names off to right side with details?
 - more strategic background colors
   - hue based on average of digits, and lightness based on total spread of digits (Z's idea)
   - use HSL?
