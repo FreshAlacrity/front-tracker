@@ -58,12 +58,9 @@ body {
   transform-style: preserve-3d;
 }
 
-/* Do an horizontal flip when you move the mouse over the flip box container */
-/*
-.flip-coin:hover .flip-coin-inner {
+.flipped {
   transform: rotateY(180deg);
 }
-*/
 
 .flip-coin-back {
   transform: rotateY(180deg);

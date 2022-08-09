@@ -13,9 +13,14 @@ CS - Callsign
 ## To Do
 
 ### Next
+- unique ID for front and back icons and names
+- click to show back or front
+  - do flip animation (for members that can flip)
 - PK API
   - fetch member data to display BEFORE checking things
-  - new alt member function
+  - function for making a new alt member
+    - does the current one do that?
+    - detect new alt and make private and set member of alt group
   - set name function
     - CS: text and text -CS equivalent name proxies
   - function to take Descriptions apart and put them back together
