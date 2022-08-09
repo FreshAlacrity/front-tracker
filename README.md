@@ -2,42 +2,60 @@
 
 CS - Callsign
 
+
 ## Notes
+- CTRL + click to front or un-front a member
+- double click to open up PK dash page for the member
 - Locally there's an auth.js file with just `let pkToken = "token-here"` - that isn't being synched to GitHub so if we need to set this up again we'll need to make a new one of those (later make this a URL parameter)
 - Remember that the PK API limits requests etc pretty strongly; if we want to do a major batch update it may be easier to do that by importing an export type file (remember that those are .json files and not .js files)
+
 
 ## To Do
 
 ### Next
-- send that first API request through immediately
-- click to bring up a description
-  - first just slap on the stringified JSON
-  - then make every value an editable text field
-  - add a save button
-- if a member is clicked and has no PK registered, make one and print to console commands for setting an avatar?
 - PK API
   - fetch member data to display BEFORE checking things
   - new alt member function
   - set name function
     - CS: text and text -CS equivalent name proxies
   - function to take Descriptions apart and put them back together
-- assert and check:
-  - members with avatar urls should have a picrew link in their description (with some exceptions)
-  - all members should have CS: text and text -CS proxies
-  - all named members should have Name: text and text -Name proxies
-  - all members should have preferred pronouns listed
-  - all members should have their names set to private
+- figure out why sort order for digits is off
 - alt account names on coin backs
   - toggle mode that shows alt account names + image urls
     - toggle both front and back classes on all the things of that type?
     - have it do that if you hit the ' or ` keys?
     - make them flip over like coins to have fursonas on the other side
     - list people without alts last? or grey out their images?
-- fix CSS so the tiles are different sizes again
+- shift click to fuse
+  - when the first headmate is shift-clicked:
+    - sort all their fusions right after current fronters/push those to the front of the list
+  - shift clicking a second digit fuses the two
+- send that first API request through immediately
+  - add a save button
+- click to bring up a description
+  - first just slap on the stringified JSON
+  - then make every value an editable text field
 
 
 ### Then
+- known issues: sort order
+- output as ?active=24,5,6
+  - generate a link (output to search bar?)
+  - 'Log Switch' button
+    - load from last switch if there's no URL param
+    - https://pluralkit.me/api/endpoints/#switches
+  - load from URL parameter    
+    - first upload to GitHub site somewhere, /front/ ?
+  - reset button (back to 1,2,3,4,5,6,7,8,9)
+  - button to log switches to PK
+- names off to right side with details?
+- register a member with PK when selected as fronting if they're not yet registered
+- suggest Picrews
+
+
+### Later
 - more strategic background colors
+  - hue based on average of digits, and lightness based on total spread of digits (Z's idea)
   - use HSL?
   - lighter colors for Moth fusions
   - darker for Thorn fusions
@@ -45,22 +63,11 @@ CS - Callsign
   - less saturated for Val fusions
   - that leaves Faun (Red?), Clover (Orange?), Ruth (Purple?), Kent (Green?), Giles (Blue?)
   - consider also colors that mean something: https://blog.datawrapper.de/gendercolor/
-- pull from and update url parameters
-  - first upload to GitHub site somewhere, /front/ ?
+- style: size up the present fronters to be all on one row (when possible) and add some space below that
+- refactor to use an object to store current, past, and future states re: fronters (for Undo)
 - search by name, digits etc
 - style present digits by % to fit on one line
   - style other icons to be that size or smaller
-- known issues: sort order doesn't always put present headmates first (not fixed; to reproduce )
-- output as ?active=24,5,6 and generate a link (output to search bar?)
-- load from URL parameter
-- style: size up the present fronters to be all on one row (when possible) and add some space below that
-- show emojis
-- connect to PluralKit API
-- names off to right side with details?
-- refactor to use an object to store current, past, and future states
-
-
-### Later
 - set the auth token up as a URL parameter
 - add resting status for digits (maybe)
 - ? silhouette for headmates that don't have portraits

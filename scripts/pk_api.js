@@ -22,7 +22,7 @@ async function delayedFetch(url, data) {
     await new Promise(resolve => setTimeout(resolve, waitFor));  
     console.log("Sending API request " + num);
     let result = await fetch(url, data);
-    currentRequests++
+    currentRequests--
     return result;
   }
 }
@@ -68,6 +68,7 @@ async function newMember(callsign) {
     body: JSON.stringify({
       name: callsign,
       display_name: `${callsign} | Unnamed`,
+      pronouns: 'they/them',
       "proxy_tags": [
         { "prefix": null, "suffix": " -" + callsign },
         { "prefix": callsign + ": ", "suffix": null }
@@ -77,9 +78,12 @@ async function newMember(callsign) {
       }
     })
   }
+  // if alt, add parenthetical to name with nickname from main
+  // if alt, set entirely private
+  // if alt, add to group zdytf
   try {
     let res = await delayedFetch(url, data)
-    return await res.json();
+    return res.json();
   } catch (error) {
     console.log(error);
   }
@@ -97,7 +101,8 @@ async function editMember(id = 'pbbdj', obj) {
   }
   try {
     let res = await delayedFetch(url, etc)
-    let data = await res.json()
+    let data = res.json()
+    // why is the return value empty here?
     console.log('Member edited: ' + JSON.stringify(data, null, 2));
     return data;
   } catch (error) {

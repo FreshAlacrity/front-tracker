@@ -437,22 +437,13 @@ const hexVals = [
   "#C67171"
 ];
 
-let baseNum = 9;
-let cap = 4; // n-fusion maximum
-let totalNum = 0;
-let fronting = [];
-let headmates = {};
-
-// @later fetch by ID from HTML
-let container = document.createElement("div");
-container.classList.add("container");
-document.body.appendChild(container);
-
-// @todo change to search box, move to top
-let note = document.createElement("div");
-note.classList.add("note");
-document.body.appendChild(note);
-
+var baseNum = 9;
+var cap = 4; // n-fusion maximum
+var totalNum = 0;
+var fronting = [];
+var headmates = {};
+var container = document.getElementById("fronters"); 
+var note = document.getElementById("fronters-note"); 
 
 function elementByCallsign(callsign) {
   return document.getElementById("tile-" + callsign);
@@ -521,8 +512,9 @@ function resetAvailability() {
     }
   }
   fronting = sortByCallsign(fronting);
-  note.textContent = `${totalNum} shown & fronting: ${fronting.join(', ')}`;
+  note.textContent = `fronting: ${fronting.join(', ')}`;
 }
+
 function onClick(event) {
   if (window.event.ctrlKey) {
     //ctrl was held down during the click
@@ -587,80 +579,40 @@ function onClick(event) {
     updateTileClasses();
   }
 }
-
-
-async function checkMemberObject(m, autofix = false) {
-  // check name format, i.e. CS | Nickname
-  // check that the name is the nickname in that format
-  // if there's a trailing '
-  // later check if member of group with id 'zdytf'
-  // - set to private
-  // else
-  // - name set private
-  // proxies: name if not Unnamed and also callsign
-
-  if (!m.display_name) {
-    m.display_name = `${m.name} | Unnamed`
-    if (autofix) {
-      setDisplayName(m.id, m.display_name)
-    }
-  }
-  return m
-}
-
-function addPluralKitDetails(memberList = exported.members, autofix = false) {
-  function getShortDisplayname(displayName) {
-    // @later maybe set this up another way?
-    // it's really just Sweet William with a space in his name
-    let parts = displayName.split(' ')
-    let isWord = /^\w+$/ // /\w/ // for if we want parentheticals
-    if (parts[3] && isWord.test(parts[3])) {
-      return parts.slice(0, 4).join(' ')
-    } else {
-      return parts.slice(0, 3).join(' ')
-    }
-  }
-  memberList.forEach(m => {
-    checkMemberObject(m).then(m => {
-      let callsign = m.display_name.split(" ")[0];
-      callsign = callsign.replace('-', '') // for Altar etc
-
-      if (callsign in headmates) {
-        // main registry
-        headmates[callsign].pk = m;
-        headmates[callsign].nickname = getShortDisplayname(m.display_name);
-        addHeadmateTile(callsign, headmates[callsign]) // @todo just update this here
-      } else if (callsign.slice(-1) == "'") {
-        // registered alt?
-        if (callsign.slice(0, -1) in headmates) {
-          let altCs = [callsign.slice(0, -1)]
-          headmates[altCs].pk_alt = m;
-          headmates[altCs].alt_name = getShortDisplayname(m.display_name);
-
-        } else {
-          // catches unassigned alts
-          //console.log(callsign + ' alt found but no matching headmate?')
-        }
-      } else {
-        // irregular headmate
-        // @later handle these
-        //console.log(callsign + ' not found')
-      }
+function onDoubleClick(event) {  
+  // @later add public (if no auth key): https://dash.pluralkit.me/profile/m/cbkpk
+  // @todo have it detect alt mode (or open alt on CTRL + double click?)
+  let callsign = event.target.id.slice("icon-".length);
+  if (headmates.hasOwnProperty(callsign) && headmates[callsign].pk) {
+    console.log(JSON.stringify(headmates[callsign].pk, null, 2));
+    window.open(`https://dash.pluralkit.me/dash/m/${headmates[callsign].pk.id}`, "_blank");
+  } else {    
+    // @todo catch and make new member
+    alert(`${callsign} doesn't have a registered proxy. Creating one now...`);
+    console.log(`${callsign} doesn't have a registered proxy. Creating one now...`);
+    newMember(callsign).then(m => {
+      headmates[callsign].pk = m
+      console.log(`New member object: ${JSON.stringify(headmates[callsign].pk, null, 2)}`);
+      // @todo update the tile
+      addPluralKitDetails(m)
     })
-  })
+  }
+}
+function nameChange(event) {
+  
+  //editMember(id, { display_name: newName })
 }
 
 function getAvatarURL(callsign) {
   let m = headmates[callsign];
   if (m && m.pk && m.pk.avatar_url) {
+
     return m.pk.avatar_url
   } else {
     return ''
   }
 }
-function getMemberPageURL() {
-  // @todo
-}
+
 function addHeadmateTile(num, headmate) {
   function makeCoin() {
     let coin = document.createElement("div");
@@ -687,19 +639,17 @@ function addHeadmateTile(num, headmate) {
     coinFront.classList.add("flip-coin-" + type);
 
     let icon = document.createElement("div");
+    icon.id = "icon-" + num;
+    icon.addEventListener("dblclick", onDoubleClick);
     icon.classList.add("icon");
     icon.style.backgroundColor = hexVals[(num * 61) % hexVals.length];
     coinFront.appendChild(icon);
     coinFront.title = num;
 
     let name = document.createElement("div");
-    name.classList.add("name");
-    name.textContent = num;
-
-    name.innerHTML = headmate.nickname ?? num;
+    name.id = "nickname-for-" + num;
+    name.innerHTML = headmate.html_name ?? num;
     coinFront.appendChild(name);
-
-    icon.style.backgroundImage = `url('${getAvatarURL(num)}')`
 
     coinFront.title += '\n' + status;
     return coinFront;
@@ -709,63 +659,106 @@ function addHeadmateTile(num, headmate) {
   coin.appendChild(coinFace("front"));
   coin.appendChild(coinFace("back"));
 }
-
 function addAllHeadmateTiles() {
   for (const [callsign, value] of Object.entries(headmates)) {
     addHeadmateTile(callsign, value)
   }
 }
+function updateHeadmateTile(num, headmate) {
+  // @todo update name
+  if (num[num.length -1] === "'") {
+    // @todo
+    //console.log("Can't yet add alt account icon or name for " + num);
+  } else {
+    // update name
+    let name = document.getElementById("nickname-for-" + num);
+    if (name) {
+      name.innerHTML = headmate.html_name ?? num;
+    }
 
-// sorts digits within a callsign
-function sortCallsign(callsign) {
-  let key = callsign + '';
-  if (key.length > 1) {
-    key = sortByCallsign(key.split('')).join('');
+    // update profile image
+    let icon = document.getElementById("icon-" + num);
+    if (icon) {
+      icon.style.backgroundImage = `url('${getAvatarURL(num)}')`
+    }
   }
-  return key;
+}
+function updateAllHeadmateTiles() {
+  for (const [callsign, value] of Object.entries(headmates)) {
+    updateHeadmateTile(callsign, value)
+  }
+}
+
+function addPluralKitDetails(m, autofix = false) {
+  function getHTMLname(displayName, callsign) {
+    // @later maybe set this up another way?
+    // it's really just Sweet William with a space in his name
+    let parts = displayName.split(' ')
+    let isWord = /^\w+$/ // /\w/ // for if we want parentheticals
+    let name = '';
+    name += parts[0]
+    if (parts[1] != "|") {
+      name = parts[1] + ' ' + name + ' ' + parts[1];
+    }
+    name += "<br>";
+    // @todo get this working
+    name += `<span class="name" contenteditable="true" onchange="nameChange()" id="name-${callsign}">`
+    name += parts[2];
+    if (parts[3] && isWord.test(parts[3])) {
+      name += ' ' + parts[3];
+    }
+    name += "</span>";
+    return name;
+  }
+  
+  let callsign = m.display_name.split(" ")[0];
+  callsign = callsign.replace('-', '') // for Altar etc
+
+  if (callsign in headmates) {
+    // main registry
+    headmates[callsign].pk = m;
+    headmates[callsign].html_name = getHTMLname(m.display_name, callsign);
+  } else if (callsign.slice(-1) == "'") {
+    // registered alt?
+    if (callsign.slice(0, -1) in headmates) {
+      let altCs = [callsign.slice(0, -1)]
+      headmates[altCs].pk_alt = m;
+      headmates[altCs].alt_name = getHTMLname(m.display_name, callsign);
+
+    } else {
+      // catches unassigned alts
+      //console.log(callsign + ' alt found but no matching headmate?')
+    }
+  } else {
+    // irregular headmate
+    // @later handle these
+    //console.log(callsign + ' not found')
+  }
+  updateHeadmateTile(callsign, headmates[callsign])
 }
 
 
+function loadFromPK() {
+  console.log("Loading all members from PK");
+  getAllMembers().then(d => {
+    //console.log(JSON.stringify(d, null, 2))
+    d.forEach(m => { checkMemberObject(m).then(addPluralKitDetails) })
+  });
+}
 function init() {
+  
+  // fill in a list of all possible members
   headmates = makeInitialList()
-  addPluralKitDetails() // load from system.js file
-  //addAllHeadmateTiles() // @todo split this into tile making and tile updating functions
 
-  if (false) { // @todo load from PK  
-    getAllMembers.then(list => {
-      addPluralKitDetails(list) // add , true to autofix in the future
-      // @todo update headmate tiles
-    })
-  }
+  // add tiles for all possible members
+  addAllHeadmateTiles()
 
-  note.textContent = `${totalNum} shown & fronting: ${fronting.join(', ')}`
+  // load in info from system.js file
+  exported.members.forEach(m => { addPluralKitDetails(m) });
+
+  // load in from PK
+  loadFromPK();
+
+  note.textContent = `fronting: ${fronting.join(', ')}`
 }
 init()
-
-// make a printout to check values
-function printDetails(printIf = [1, 12]) {
-  let printout = `-------------------\n\n`;
-  printIf.forEach(a => {
-    printout += `Callsign: ${a}\n\n`
-    if (headmates[a + '']) {
-      for (const [key, value] of Object.entries(headmates[a + ''])) {
-        if (value.length > 0) {
-          printout += `${key}: ${value.join(', ')}\n\n`;
-        }
-      }
-    } else {
-      printout += `not found\n\n`;
-    }
-    printout += `-------------------\n\n`;
-  });
-  console.log(printout);
-}
-//printDetails()
-
-let debug = false;
-if (debug) {
-  getAllMembers().then(data => {
-    console.log(JSON.stringify(data, null, 2))
-  })
-}
-

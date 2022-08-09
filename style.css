@@ -20,7 +20,7 @@ body {
   text-align: center;
 }
 
-.container {
+#fronters {
   /* see https://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
   display: flex;
   flex-wrap: wrap;
@@ -32,6 +32,10 @@ body {
   /* don't seem to work? */
   align-items: stretch;
   align-content: stretch;
+}
+
+.note {
+  padding-bottom: 2rem; 
 }
 
 /* see https://www.w3schools.com/howto/howto_css_flip_card.asp */
@@ -46,7 +50,6 @@ body {
 
 /* This container is needed to position the front and back side */
 .flip-coin-inner {
-  pointer-events: none;
   position: relative;
   width: 100%;
   height: 100%;
@@ -56,16 +59,17 @@ body {
 }
 
 /* Do an horizontal flip when you move the mouse over the flip box container */
+/*
 .flip-coin:hover .flip-coin-inner {
   transform: rotateY(180deg);
 }
+*/
 
 .flip-coin-back {
   transform: rotateY(180deg);
 }
 
 .flip-coin-front, .flip-coin-back {
-  pointer-events: none;
   text-align: center;
   margin: 0;
   padding: 0;
@@ -92,7 +96,6 @@ body {
 
 
 .icon {
-  pointer-events: none;
   opacity: 30%;
   filter: grayscale(100%);
 
@@ -128,8 +131,4 @@ body {
   padding: 0.1em;
   overflow: hidden;
   pointer-events: none;
-}
-
-.note {
-  padding-top: 2rem; 
 }

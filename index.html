@@ -1,25 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
 
-    <title>Front Tracker WIP</title>
+<head>
 
-    <meta charset="utf-8">
+  <title>Front Tracker WIP</title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
 
-    <meta name="description" content="a WIP widget for quickly selecting who is around to work on tasks etc.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="keywords" content="JavaScript, project, planning, productivity">
-    
-    <link rel="stylesheet" href="style.css">
-    <script src="scripts/auth.js"></script>
-    <script src="scripts/system.js"></script>
-    <script src="scripts/make_list.js"></script>
-    <script src="scripts/pk_api.js"></script>
-    <script src="scripts/main.js" defer></script>
+  <meta name="description" content="a WIP widget for quickly selecting who is around to work on tasks etc.">
 
-  </head>
+  <meta name="keywords" content="JavaScript, project, planning, productivity">
+
+  <link rel="stylesheet" href="style.css">
+  <script src="scripts/auth.js"></script>
+  <script src="scripts/validate.js"></script>
+  <script src="scripts/misc.js"></script>
+  <script src="scripts/system.js"></script>
+  <script src="scripts/make_list.js"></script>
+  <script src="scripts/pk_api.js"></script>
+  <script src="scripts/main.js" defer></script>
+
+</head>
+
 <body>
+  <div class="note">
+    <div id="fronters-note">
+
+    </div><br>
+    <button onclick="loadFromPK()">Load From PK</button>
+    <button onclick="">Show Alts (WIP)</button>
+    <button onclick="">Log Switch (WIP)</button>
+  </div>
+  <div id="fronters"></div>
 </body>
+
 </html>
