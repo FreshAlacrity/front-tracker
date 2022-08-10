@@ -53,8 +53,11 @@ function onClick(event) {
       }
     }
 
-    let callsign = event.target.id.slice("tile-".length);
-    // it's generally icons being clicked now but icon- is the same length
+    let callsign = event.target.id.slice("icon-front-".length);
+    if (event.target.id.slice(0, "icon-front-".length) !== "icon-front-") {
+      callsign = event.target.id.slice("icon-back-".length);
+    }
+
     let isPresent = elementByCallsign(callsign).classList.contains("present");
     
     updateTargetStatus(callsign, isPresent);
@@ -63,25 +66,53 @@ function onClick(event) {
   }
 }
 function onDoubleClick(event) {  
-  // @later add public (if no auth key): https://dash.pluralkit.me/profile/m/cbkpk
-  // @todo have it detect alt mode (or open alt on CTRL + double click?)
-  let callsign = event.target.id.slice("icon-".length);
-  if (headmates.hasOwnProperty(callsign) && headmates[callsign].pk) {
-    console.log(JSON.stringify(headmates[callsign].pk, null, 2));
-    window.open(`https://dash.pluralkit.me/dash/m/${headmates[callsign].pk.id}`, "_blank");
-  } else {    
-    // @todo catch and make new member
-    alert(`${callsign} doesn't have a registered proxy. Creating one now...`);
-    console.log(`${callsign} doesn't have a registered proxy. Creating one now...`);
-    newMember(callsign).then(m => {
-      headmates[callsign].pk = m
-      console.log(`New member object: ${JSON.stringify(headmates[callsign].pk, null, 2)}`);
-      // @todo update the tile
-      addPluralKitDetails(m)
-    })
+  // @later add public links too (if no auth key): https://dash.pluralkit.me/profile/m/cbkpk
+  // @todo have it detect and make new members for alt mode also
+  
+  let callsign = event.target.id.slice("icon-front-".length);
+  if (event.target.id.slice(0, "icon-front-".length) ===  "icon-front-") {
+    if (headmates.hasOwnProperty(callsign) && headmates[callsign].pk) {
+      console.log(JSON.stringify(headmates[callsign].pk, null, 2));
+      window.open(`https://dash.pluralkit.me/dash/m/${headmates[callsign].pk.id}`, "_blank");
+    } else {    
+      // catch and make new member
+      if (confirm(`${callsign} doesn't have a registered proxy. Create one now?`)) {
+        console.log(`${callsign} doesn't have a registered proxy. Creating one now...`);
+        newMember(callsign).then(m => {
+          headmates[callsign].pk = m;
+          console.log(`New member object: ${JSON.stringify(headmates[callsign].pk, null, 2)}`);
+          addPluralKitDetails(m);
+        })
+      }
+    }
   }
 }
+
 function nameChange(event) {
-  
-  //editMember(id, { display_name: newName })
+  let newName = event.target.value;
+  let oldName = event.target.placeholder;
+  if (newName !== oldName) {
+    let id = event.target.id.slice("name-for-".length)
+    let prompt = `Change name to ${newName} from ${event.target.placeholder}? (id: ${id})`
+    prompt += `\n (WIP/not yet implemented)`;
+    if (confirm(prompt)) {
+      editMember(id, { name: newName })
+    } else {
+      if (oldName !== "Unnamed") {
+        event.target.value = oldName;
+      } else {
+        event.target.value = '';
+      }
+    }
+  }
+  /*
+  if (confirm(`${callsign} doesn't have a registered proxy. Create one now?`)) {
+    console.log(`${callsign} doesn't have a registered proxy. Creating one now...`);
+    newMember(callsign).then(m => {
+      headmates[callsign].pk = m;
+      console.log(`New member object: ${JSON.stringify(headmates[callsign].pk, null, 2)}`);
+      addPluralKitDetails(m);
+    })
+  }
+  */
 }

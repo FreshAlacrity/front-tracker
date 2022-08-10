@@ -1,21 +1,10 @@
-
-function getAvatarURL(callsign) {
-  let m = headmates[callsign];
-  let isAlt = (callsign.slice(-1) === "'")
-  if (!isAlt && m && m.pk && m.pk.avatar_url) {
-
-    return m.pk.avatar_url
-  } else {
-    return ''
-  }
-}
-function getBgColor(callsign) {
-  let baseHue = []; // @todo set color 'homes' per digit
-  // @todo average the hue values
-  let hue = Math.floor(Math.random()*361)
-  return `hsl(${hue}, 20%, 40%)`;
-}
 function addHeadmateTile(num, headmate) {
+  function getBgColor(callsign) {
+    let baseHue = []; // @todo set color 'homes' per digit
+    // @todo average the hue values
+    let hue = Math.floor(Math.random()*361)
+    return `hsl(${hue}, 20%, 40%)`;
+  }
   function makeCoin() {
     let coin = document.createElement("div");
     coin.addEventListener("click", onClick);
@@ -41,7 +30,7 @@ function addHeadmateTile(num, headmate) {
     coinFront.classList.add("flip-coin-" + type);
 
     let icon = document.createElement("div");
-    icon.id = "icon-" + num;
+    icon.id = `icon-${type}-${num}`;
     icon.addEventListener("dblclick", onDoubleClick);
     icon.classList.add("icon");
     icon.style.backgroundColor = getBgColor(num);
@@ -49,8 +38,8 @@ function addHeadmateTile(num, headmate) {
     coinFront.title = num;
 
     let name = document.createElement("div");
-    name.id = "nickname-for-" + num;
-    name.innerHTML = headmate.html_name ?? num;
+    name.id = `name-${type}-${num}`;
+    name.textContent = num;
     coinFront.appendChild(name);
 
     coinFront.title += '\n' + status;
@@ -66,24 +55,98 @@ function addAllHeadmateTiles() {
     addHeadmateTile(callsign, value)
   }
 }
+
 function updateHeadmateTile(num, headmate) {
-  // @todo update name
-  if (num[num.length -1] === "'") {
-    // @todo
-    //console.log("Can't yet add alt account icon or name for " + num);
-  } else {
-    // update name
-    let name = document.getElementById("nickname-for-" + num);
-    if (name) {
-      name.innerHTML = headmate.html_name ?? num;
+  function partsFromDisplayName(displayName, obj) {    
+    let parts = displayName.split(' ');
+    if (parts[0]) { obj.callsign = parts[0] }
+    if (parts[1] !== "|") { obj.emoji = parts[1] }
+    if (parts[2]) { obj.nickname = parts[2] }
+    let isWord = /^\w+$/ // /\w/ // for if we want parentheticals
+    if (parts[2] && parts[3] && isWord.test(parts[3])) {
+      obj.nickname += ' ' + parts[3];
+    }
+    return obj;
+  }
+  function nameElement(headmate, callsign, type) {
+    // @later maybe set this up another way?
+    // it's really just Sweet William with a space in his name
+    let element = document.createElement("div");
+    element.id = `name-${type}-${callsign}`
+
+    let nickname = document.createElement("input");
+    nickname.addEventListener("focusout", nameChange);
+    nickname.classList.add("name");
+
+    if (type === "front") {
+      nickname.id = "name-for-" + callsign
+    } else {
+      nickname.id = "alt-name-" + callsign
+    }    
+
+    let obj = { emoji: '', callsign: callsign, nickname: '' }
+    let registry = { ...obj }
+    if (headmate.pk && headmate.pk.display_name) {
+      registry = partsFromDisplayName(headmate.pk.display_name, registry);
+    }
+    if (type === "back") {
+      if (headmate.pk_alt && headmate.pk_alt.display_name) {
+        obj = partsFromDisplayName(headmate.pk_alt.display_name, obj)
+      } else {
+        obj.callsign = callsign + "'";
+      }
+    } else {
+      obj = registry;
+    }
+    
+    name = `${obj.emoji} ${obj.callsign} ${obj.emoji}`;
+    name += "<br>";
+        
+    if (obj.nickname) { 
+      nickname.placeholder = obj.nickname;
+    } else {
+      nickname.placeholder = registry.nickname 
+    }
+    if (obj.nickname !== "Unnamed") {
+      nickname.value = obj.nickname;
     }
 
-    // update profile image
-    let icon = document.getElementById("icon-" + num);
-    if (icon) {
-      icon.style.backgroundImage = `url('${getAvatarURL(num)}')`
-    }
+    element.innerHTML = name;
+    element.appendChild(nickname);
+    return element;
   }
+  function setAvatar(element, headmate, callsign, type = "front") {    
+    let m = headmate;
+    let url = '';
+    let shadow = "inset 1em 1em 1em black"; //h-shadow v-shadow blur spread color
+
+    if (type === "back" && m.pk_alt && m.pk_alt.avatar_url) {  
+      if (m && m.pk && m.pk.avatar_url !== m.pk_alt.avatar_url) {
+        shadow = "none";
+      }
+      url = m.pk_alt.avatar_url;
+    } else if (type === "back" && m && m.pk && m.pk.avatar_url) {
+      url = m.pk.avatar_url;
+    } else if (type === "front" && m && m.pk && m.pk.avatar_url) {
+      url = m.pk.avatar_url;
+      shadow = "none";
+    } else {
+      url = ''; // @later add default (color shifted glitter lattice?)
+    }
+    
+    element.style.boxShadow = shadow;
+    element.style.backgroundImage = `url('${url}')`
+  }
+  function updateBothSides() {
+    ["front", "back"].forEach(type => {
+      let name = document.getElementById(`name-${type}-${num}`);
+      if (name) { name.replaceWith(nameElement(headmate, num, type)) }
+
+      let icon = document.getElementById(`icon-${type}-${num}`);
+      if (icon) { setAvatar(icon, headmate, num, type) }
+    });
+  }
+  updateBothSides();
   return true;
 }
 function updateAllHeadmateTiles() {

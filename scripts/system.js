@@ -3377,7 +3377,7 @@ const exported = {
     {
       "id": "nqypn",
       "uuid": "40c9da43-015d-454e-b2d3-e38fd09fb255",
-      "name": "Clover",
+      "name": "Honey",
       "display_name": "2' 🍯 Clover Honey",
       "color": null,
       "birthday": null,

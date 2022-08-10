@@ -113,3 +113,8 @@ async function editMember(id = 'pbbdj', obj) {
 async function setDisplayName(id, newName) {  
   return editMember(id, { display_name: newName })
 }
+
+async function setName(id, newName) {  
+  // @todo
+  //return editMember(id, { display_name: newName })
+}

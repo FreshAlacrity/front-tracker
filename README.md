@@ -2,19 +2,33 @@
 
 CS - Callsign
 
-
 ## Notes
 - CTRL + click to front or un-front a member
 - double click to open up PK dash page for the member
 - Locally there's an auth.js file with just `let pkToken = "token-here"` - that isn't being synched to GitHub so if we need to set this up again we'll need to make a new one of those (later make this a URL parameter)
 - Remember that the PK API limits requests etc pretty strongly; if we want to do a major batch update it may be easier to do that by importing an export type file (remember that those are .json files and not .js files)
 
+### URL parameters:
+- alts: any value will show alt proxies
+
+#### Later:
+- token: an auth token to use for PluralKit
+- system: a PluralKit system ID
+
 
 ## To Do
 
 ### Next
-- [ ] unique ID for front and back icons and names
+- [ ] new member function for alt proxies
+- [ ] finish functions for renaming members
+  - [ ] try just replacing using string.replace(old, new)
+- [ ] new alt proxies/check for existing ones: if no image use the image from the main proxy in PK
+- [ ] detect and object to same name entries in pk vs pk_alt
+- [ ] fix known issue: Members with no proxies show no callsign
+- [x] fix known issue: double click currently borks
+- [x] unique ID for front and back icons and names
   - don't use the ##' format because ' isn't a valid part of html IDs
+- [ ] known issue: Altar doesn't show up
 - PK
   - function for making a new alt member
     - does the current one do that?
@@ -33,6 +47,8 @@ CS - Callsign
 - [ ] send that first API request through immediately
 
 ### Then
+- [ ] better styling for alt portraits for members with no unique alt profile image
+- [ ] helpful titles for tiles? ('double click to open in PK dash'?)
 - shift click to fuse
   - when the first headmate is shift-clicked:
     - [ ] sort all their fusions right after current fronters/push those to the front of the list
@@ -44,7 +60,7 @@ CS - Callsign
 - [ ] register a member with PK when selected as fronting if they're not yet registered
 - [ ] suggest Picrews
 - [x] output as list 5,6,24
-  - [ ]update the url parameter ( ?active=5,6,24 )
+  - [ ] update the url parameter ( ?active=5,6,24 )
   - [ ] load from URL parameter
   - [ ] 'Log Switch' button
     - [ ] load from last switch if there's no URL param

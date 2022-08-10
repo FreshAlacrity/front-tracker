@@ -8,6 +8,9 @@ var headmates = {};
 var container = document.getElementById("fronters"); 
 var note = document.getElementById("fronters-note"); 
 
+function pretty(obj) {
+  return JSON.stringify(obj, null, 2);
+}
 function elementByCallsign(callsign) {
   return document.getElementById("tile-" + callsign);
 }
@@ -83,42 +86,18 @@ function setAvailability() {
   updatePage(fronting);
 }
 
-function addPluralKitDetails(m, autofix = false) {
-  function getHTMLname(displayName, callsign) {
-    // @later maybe set this up another way?
-    // it's really just Sweet William with a space in his name
-    let parts = displayName.split(' ')
-    let isWord = /^\w+$/ // /\w/ // for if we want parentheticals
-    let name = '';
-    name += parts[0]
-    if (parts[1] != "|") {
-      name = parts[1] + ' ' + name + ' ' + parts[1];
-    }
-    name += "<br>";
-    // @todo get this working
-    name += `<span class="name" contenteditable="true" onchange="nameChange()" id="name-${callsign}">`
-    name += parts[2];
-    if (parts[3] && isWord.test(parts[3])) {
-      name += ' ' + parts[3];
-    }
-    name += "</span>";
-    return name;
-  }
-  
+function addPluralKitDetails(m, autofix = false) {  
   let callsign = m.display_name.split(" ")[0];
   callsign = callsign.replace('-', '') // for Altar etc
 
   if (callsign in headmates) {
     // main registry
     headmates[callsign].pk = m;
-    headmates[callsign].html_name = getHTMLname(m.display_name, callsign);
-  } else if (callsign.slice(-1) == "'") {
+  } else if (callsign.slice(-1) === "'") {
     // registered alt?
-    if (callsign.slice(0, -1) in headmates) {
-      let altCs = [callsign.slice(0, -1)]
-      headmates[altCs].pk_alt = m;
-      headmates[altCs].alt_name = getHTMLname(m.display_name, callsign);
-
+    callsign = [callsign.slice(0, -1)]
+    if (callsign in headmates) {
+      headmates[callsign].pk_alt = m;
     } else {
       // catches unassigned alts
       //console.log(callsign + ' alt found but no matching headmate?')
@@ -140,7 +119,7 @@ function loadFromPK() {
   });
 }
 function init() {
-  
+
   // fill in a list of all possible members
   headmates = makeInitialList()
 
@@ -153,8 +132,10 @@ function init() {
   // load in from PK
   //loadFromPK();
 
-  // test alts
-  //flipTiles();
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('alts') === true) {
+    flipTiles();
+  }
 
   updatePage(fronting);
 }
