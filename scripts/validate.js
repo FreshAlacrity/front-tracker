@@ -1,7 +1,10 @@
 
 async function checkMemberObject(m, autofix = true) {
   function c(text) { console.log(text) }
-  
+  function checkNameVsDisplayName() {
+    // @todo catch names that aren't contained by displaynames
+  }
+
   let edits = {}  
 
   // check name format, #### | Nickname

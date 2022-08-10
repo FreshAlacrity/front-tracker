@@ -1,8 +1,15 @@
-console.clear(); // for debugging, remove @later
+/*
+function testTemp() {
+  console.log("Testing...");
+  for (i = 0; i < 10; i++) {
+    delayedFetch("foo", {});
+  }
+}
+testTemp()
+*/
 
 var baseNum = 9;
 var cap = 4; // n-fusion maximum
-var totalNum = 0;
 var fronting = [];
 var headmates = {};
 var container = document.getElementById("fronters"); 

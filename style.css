@@ -113,7 +113,7 @@ body {
 .available .icon {
   min-width: 6em;
   min-height: 6em;
-  opacity: 60%;
+  opacity: 50%;
   filter: none;
 }
 

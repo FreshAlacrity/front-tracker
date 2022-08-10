@@ -16,16 +16,23 @@ async function delayedFetch(url, data) {
   } else {
     let min = 1500;
     let now = new Date().getTime();
-    requestAfter = Math.max(requestAfter + min, now + min);
-    let waitFor = requestAfter - now;
+    let waitFor = 0;
+    if (requestAfter > now) {
+      waitFor = requestAfter - now;
+      requestAfter = requestAfter + min;
+    } else {
+      requestAfter = now + min;
+    }
     console.log(`Setting up request ${totalRequests} with delay: ${waitFor} (${currentRequests} requests cued up)`)
     await new Promise(resolve => setTimeout(resolve, waitFor));  
-    console.log("Sending API request " + num);
+    console.log(`Sending API request ${num}`);
     let result = await fetch(url, data);
+    console.log(`Received API request ${num}`);
     currentRequests--
     return result;
   }
 }
+
 
 async function getAllMembers(system = 'lhexq') {
   let url = rootUrl + `/systems/${system}/members`
@@ -89,7 +96,7 @@ async function newMember(callsign) {
   }
 }
 
-async function editMember(id = 'pbbdj', obj) {
+async function editMember(id, obj) {
   let url = rootUrl + "/members/" + id
   let etc = {
     method: 'PATCH', // GET, POST, PUT, DELETE, etc.
@@ -112,9 +119,4 @@ async function editMember(id = 'pbbdj', obj) {
 
 async function setDisplayName(id, newName) {  
   return editMember(id, { display_name: newName })
-}
-
-async function setName(id, newName) {  
-  // @todo
-  //return editMember(id, { display_name: newName })
 }
