@@ -64,7 +64,7 @@ CS - Callsign
   - [ ] check: is this because the sort order is being applied to the wrong element?
 - [ ] better styling for alt portraits for members with no unique alt profile image
   - [ ] use a CSS class instead of applying it directly
-- [ ] helpful titles for tiles? ('double click to open in PK dash'?)
+- [ ] helpful titles for tiles? ('pronouns + double click to open in PK dash'?)
 - [ ] click to bring up a description
   - first just slap the stringified JSON onto a floating DIV
   - then make every value an editable text field

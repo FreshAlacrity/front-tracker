@@ -1,16 +1,3 @@
-/*
-function testTemp() {
-  console.log("Testing...");
-  for (i = 0; i < 10; i++) {
-    delayedFetch("foo", {});
-  }
-}
-testTemp()
-*/
-
-var baseNum = 9;
-var cap = 4; // n-fusion maximum
-var fronting = [];
 var headmates = {};
 var container = document.getElementById("fronters"); 
 var note = document.getElementById("fronters-note"); 
@@ -26,9 +13,9 @@ function elementByCallsign(callsign) {
 function sortOrder(callsign, headmate) {
   let num = callsign.length;
   if (!headmate.status.available) {
-    num += (20 ** (cap + 1));
+    num += (20 ** 10);
   } else if (!headmate.status.present) {
-    num += (10 ** (cap + 1));
+    num += (10 ** 10);
   }
   return num;
 }
@@ -49,10 +36,16 @@ function sortByCallsign(arr) {
   });
 }
 
-function updatePage(frontList) {
-  frontList = sortByCallsign(frontList);
-  // @todo update url too  
-  note.value = frontList.join(", ");
+function listFronters() {
+  let fronting = [];
+  for (const [callsign, value] of Object.entries(headmates)) {
+    if (value.status.present) { fronting.push(callsign) }
+  }
+  return sortByCallsign(fronting);
+}
+function updatePage() {
+  // @todo update url with active fronters too  
+  note.value = listFronters().join(", ");
 }
 
 function checkStatus(callsign, string, bool = true) {
@@ -83,14 +76,7 @@ function setAvailability() {
     }
   }
 
-  // output front signature
-  fronting = [];
-  for (const [callsign, value] of Object.entries(headmates)) {
-    if (value.status.present) {
-      fronting.push(callsign);
-    }
-  }
-  updatePage(fronting);
+  updatePage();
 }
 
 function addPluralKitDetails(m, autofix = false) {  
@@ -144,6 +130,6 @@ function init() {
     flipTiles();
   }
 
-  updatePage(fronting);
+  updatePage();
 }
 init()

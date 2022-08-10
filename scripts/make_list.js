@@ -2,7 +2,9 @@
 function makeInitialList() {
   let headmates = {}
   let count = 0;
-    
+  let baseNum = 9;
+  let cap = 4; // n-fusion maximum
+
   function newHeadmate(callsign, status = "not present") {
     let n = {
       in: [],
@@ -26,7 +28,6 @@ function makeInitialList() {
   
   for (a = 1; a <= baseNum; a++) { 
     newHeadmate(a, "present");
-    fronting.push(a);
   }
   
   function mergeEntries(a, b) {
