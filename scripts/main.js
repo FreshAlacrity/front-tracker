@@ -1,4 +1,8 @@
+// GLOBAL STORAGE
 var data = {
+  page: {
+    container: document.getElementById("fronters"),
+  },
   setup: {
     member: {
       alts: 3,
@@ -19,7 +23,7 @@ var data = {
       relatives: {}
     },
     proxy_differences: [
-      { etc: { suffix: ''  } },
+      { etc: { suffix: '' } },
       { etc: { suffix: "'" } },
       { etc: { suffix: '"' } },
     ],
@@ -31,13 +35,41 @@ var data = {
       etc: {
         emoji: '|',
         suffix: '',
-        picrew: ''
+        description: {
+          Picrew: ''
+        }
       }
     }
   },
   members: {},
   callsigns_by_id: {}
 }
+
+
+// MATCHING + FETCHING
+function keyAndIndex(id, callsign) {
+  // check if ID is mapped to a member already
+  if (!data.callsigns_by_id.hasOwnProperty(id)) {
+    // figure out the callsign from display_name
+    // iterate backwards because the default suffix is ''
+    for (i = (data.setup.member.alts - 1); i >= 0; i--) {
+      let suffix = data.templates.proxy_differences[i].etc.suffix;
+      if (suffix.length === 0) {
+        data.callsigns_by_id[id] = {
+          callsign: callsign,
+          proxy: i
+        }
+      } else if (callsign.slice(suffix.length * -1) === suffix) {
+        data.callsigns_by_id[id] = {
+          callsign: callsign.slice(0, suffix.length * -1),
+          proxy: i
+        }
+      }
+    }
+  }
+  return data.callsigns_by_id[id]
+}
+
 
 // UPDATING
 function updateDisplayName(n) {
@@ -71,11 +103,37 @@ function updateProxies(m) {
   return m;
 }
 
+function updateFromPluralKit(pk) {
+  let parts = pk.display_name.split(" ");
+  let loc = keyAndIndex(pk.id, parts[0]);
+  let obj = data.members[loc.callsign];
+  obj.proxies[loc.proxy].pk = pk;
+
+  // @todo
+  obj.proxies[loc.proxy].etc.emoji = "WIP" // @todo
+
+  // @todo make this its own function and make the reverse function
+  // @todo split description and log to etc
+  // @todo find words in bold using ...**
+  let d = obj.proxies[loc.proxy].etc.description;
+  let notes = pk.description.split('\n**');
+  notes.shift(); // remove the blurb about temp fusions etc
+  notes.forEach(n => {
+    let pairs = n.split('**: ');
+    d[pairs[0]] = pairs.slice(1).join("**: ");
+  });
+
+  // @todo @here
+  console.log(pretty(data.members[loc.callsign]))
+
+}
+
+
 // INIT
 function newMemberObject(callsign) {
   let dT = data.templates;
   let newObj = copy(dT.member);
-  for (i = 0; i < data.setup.member.alts; i++) {    
+  for (i = 0; i < data.setup.member.alts; i++) {
     let n = copy(dT.proxy);
     n = assignDown(n, dT.proxy_differences[i]);
     n.etc.callsign = callsign;
@@ -86,16 +144,74 @@ function newMemberObject(callsign) {
   return updateProxies(newObj);
 }
 function dataStructureSetup() {
-  console.log(pretty(newMemberObject(2)));
-  // @todo make list
-  // @todo make new member objects
-  // @todo validate them (to create display names etc)
+  // @todo get list of possible members
+  // @todo make new member objects for each possible member
+  let cs = "2";
+  data.members[cs] = newMemberObject(cs);
+  // @todo make a function to update them from PK member lists
 }
-dataStructureSetup(); // @todo move to init()
+function updateDataFromMemberList() {
+  // @todo remove test case:
+  let clover = {
+    "id": "wzgzt",
+    "uuid": "260367f9-b242-43ae-8ff3-ddc3c03fbb9d",
+    "name": "Clover",
+    "display_name": "2 🍀 Clover 🧡 Hugs Welcome",
+    "color": null,
+    "birthday": "2022-05-30",
+    "pronouns": "she/her, they/them",
+    "avatar_url": "https://cdn.discordapp.com/attachments/982166756837707786/994839470119587941/clover_cropped.png",
+    "banner": null,
+    "description": "Holds seat 2 on our internal Council\n**Verbal**: occasionally\n**Descriptive**: often\n**Internal Name Translation**: the beautiful, intuitive and intimate connections between people and things\n**Nickname**: Previously 'Fennel' and before that Ivy (fusion of previous Clover and Mihaly, took her mother's name)\n**About**: Loves being to care for others and show them how they make the world a brighter place by being in it; enjoying the experience of being herself\n**Common Duties**: Encourages us to reach out to and take a chance on folk and to think on our feet, offers hugs + comfort\n**Anti-Duties/Kryptonite**: Enforcing boundaries, typing (isn't quite as fast or accurate)\n**Gifts/Care**: Touch, especially firm possessive-desiring touches and physical closeness\n**Great Compliments**: lovely, kind, caring\n**Gender Identity**: (cis)female but doesn't believe that means she should stay in a little box\n**Picrew**: https://picrew.me/image_maker/287392/complete?cd=zhOzSHU4La",
+    "created": "2022-05-28T18:10:12.604415Z",
+    "keep_proxy": false,
+    "proxy_tags": [
+      {
+        "prefix": null,
+        "suffix": " -2"
+      },
+      {
+        "prefix": "2: ",
+        "suffix": null
+      },
+      {
+        "prefix": "Clover: ",
+        "suffix": null
+      },
+      {
+        "prefix": null,
+        "suffix": " -Clover"
+      },
+      {
+        "prefix": null,
+        "suffix": " 🍀"
+      },
+      {
+        "prefix": null,
+        "suffix": " ☘️"
+      }
+    ],
+    "privacy": {
+      "visibility": "public",
+      "name_privacy": "private",
+      "description_privacy": "public",
+      "birthday_privacy": "private",
+      "pronoun_privacy": "public",
+      "avatar_privacy": "public",
+      "metadata_privacy": "public"
+    }
+  }
+  updateFromPluralKit(clover); // @debug @todo remove
+}
+ // @later move to init()
+dataStructureSetup();
+updateDataFromMemberList();
 
 
+
+// OLD
 var headmates = {};
-var container = document.getElementById("fronters");
+var container = data.page.container;
 var note = document.getElementById("fronters-note");
 
 function elementByCallsign(callsign) {
