@@ -9,6 +9,7 @@ CS - Callsign
 - Locally there's an auth.js file with just `let pkToken = "token-here"` - that isn't being synched to GitHub so if we need to set this up again we'll need to make a new one of those (later make this a URL parameter)
 - Remember that the PK API limits requests etc pretty strongly; if we want to do a major batch update it may be easier to do that by importing an export type file (remember that those are .json files and not .js files)
 
+
 ## To Do
 
 ### Known Issues
@@ -19,7 +20,6 @@ CS - Callsign
   - [ ] double clicking members with no alt proxy triggers normal proxy behavior
   - [ ] Altar doesn't show up
   - [ ] detecting whether the click is to front or back seems not to be happening?
-
 
 ### Plans for Refactor
 - [ ] set up functional public/private/editable links through url params  
@@ -49,8 +49,7 @@ CS - Callsign
     - [ ] what index to show initially
     - [ ] current fronters (+option to load from last switch)
     
-#### Functions  
-
+#### Functions
 - [ ] read in and save URL parameters
 - [ ] rewrite as async function to set up members object
   - start with list of unique symbols, max N to combine, N of variations
