@@ -1,3 +1,8 @@
+function nameIsUnique(name) {
+  // @todo implement and use in name updates
+  // remember to catch Unnamed
+  return true
+}
 
 async function checkMemberObject(m, autofix = true) {
   function c(text) { console.log(text) }
@@ -33,12 +38,13 @@ async function checkMemberObject(m, autofix = true) {
     // - all named members should have:
     // - Name: text and text -Name proxies
     // - all members should have a description
-  
+  // check and make sure name is unique
 
   // alt members:
   // - there's a trailing '
   // - later check if member of group with id 'zdytf'
   // - set to private
+  // - if no image use the image from the main proxy in PK
 
   if (JSON.stringify(edits) !== "{}") {
     if (autofix) {
