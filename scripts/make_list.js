@@ -1,5 +1,5 @@
 // populate the headmates object and return # generated
-function makeInitialList() {
+function makeInitialList( ) {
   let headmates = {}
   let count = 0;
   let baseNum = 9;
@@ -7,6 +7,7 @@ function makeInitialList() {
 
   function newHeadmate(callsign, status = "not present") {
     let n = {
+      // @todo use template instead
       in: [],
       components: [],
       siblings: [],

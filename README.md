@@ -12,6 +12,9 @@ CS - Callsign
 
 ## To Do
 
+### Next
+- [ ] function to update an internal member object from a PK member object
+
 ### Known Issues
 - fixed?
   - [ ] sort order for digits is off
@@ -32,9 +35,8 @@ CS - Callsign
 #### Data Structure
 - [ ] set up a global data object with:
   - [ ] global dictionary that has callsigns referenced to PK Member objects and status info
-    - ex: ...callsign: [ { pk: { id: 'xxxxx'... }, etc: { emoji: # ...}, status: {}, relatives: {} }, {...}, {...} ]...
-    - base entries on a template
-      - give members an array of N blank proxies
+    - [x] base entries on a template
+      - [x] give members an array of N blank proxies
       - set a default displayname [callsign | Unnamed]
       - CS: text and text -CS equivalent name proxies
       - update from PK member object
@@ -77,15 +79,11 @@ CS - Callsign
 - functions that take [callsign, index, subset, key, (value)] as input and using a switch statement:
   - set:
     - [ ] status: upates other statuses by index and callsign (recursively?)
-      - status defaults: 
-        present: false,
-        available: true,
-        named: false,
-        profile_image_set: false (maybe)
     - [ ] name: updates display name and potentially other index names/displaynames
       - try just replacing using string.replace(old, new)
       - add old name to description unless it's "Unnamed"
       - add name before and after proxies
+      - set status.named = true
   - for every call:
     - update HTML and dictionary by callsign using the (returned) PK member object
   - for any call from the page itself:
@@ -113,6 +111,12 @@ CS - Callsign
   - dropdown to load from most common combinations?
 
 #### UI & Design
+- fields should have outline dark grey, buttons should be solid
+- [ ] option to toss section headers into the flex-container
+  - 100% width
+  - Active, Available, and Unavailable
+  - use regular sort order with callsign 0
+  - [ ] add method for expand/collapse for each section?
 - [ ] option to show little address-book style profiles of the current fronters with pronouns and short descriptions
 - [ ] better styling for alt portraits for members with no unique alt profile image
   - [ ] use a CSS class instead of applying it directly

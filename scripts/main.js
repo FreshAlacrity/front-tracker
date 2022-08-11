@@ -1,10 +1,103 @@
-var headmates = {};
-var container = document.getElementById("fronters"); 
-var note = document.getElementById("fronters-note"); 
-
-function pretty(obj) {
-  return JSON.stringify(obj, null, 2);
+var data = {
+  setup: {
+    member: {
+      alts: 3,
+    }
+  },
+  templates: {
+    member: {
+      // @todo where to store callsign?
+      proxies: [],
+      status: {
+        // @todo
+        available: true,
+        present: false, // @later rename active
+        stable: false, // @later
+        resting: false, // @later
+        named: false, // @todo
+      },
+      relatives: {}
+    },
+    proxy_differences: [
+      { etc: { suffix: ''  } },
+      { etc: { suffix: "'" } },
+      { etc: { suffix: '"' } },
+    ],
+    proxy: {
+      pk: {
+        name: "Unnamed",
+        proxy_tags: []
+      },
+      etc: {
+        emoji: '|',
+        suffix: '',
+        picrew: ''
+      }
+    }
+  },
+  members: {},
+  callsigns_by_id: {}
 }
+
+// UPDATING
+function updateDisplayName(n) {
+  n.pk.display_name = `${n.etc.callsign + n.etc.suffix} ${n.etc.emoji} ${n.pk.name}`;
+  return n;
+}
+function newProxyTag(prefix = null, suffix = null) {
+  return { "prefix": prefix, "suffix": suffix }
+}
+function checkProxyTags(p) {
+  // @todo deduplicate
+  // @later make sure these proxies do not conflict with any other members'
+  return p
+}
+function updateRequiredProxyTags(p) {
+  function addProxyTag(a, b) { p.pk.proxy_tags.push(newProxyTag(a, b)) }
+  addProxyTag(null, ` -${p.etc.callsign + p.etc.suffix}`);
+  addProxyTag(`${p.etc.callsign + p.etc.suffix}: `);
+  if (p.pk.name !== data.templates.proxy.pk.name) {
+    addProxyTag(null, ` -${p.etc.callsign + p.etc.suffix}`);
+    addProxyTag(`${p.etc.callsign + p.etc.suffix}: `);
+  }
+  return checkProxyTags(p);
+}
+function updateProxies(m) {
+  m.proxies.map(p => {
+    p = updateDisplayName(p);
+    p = updateRequiredProxyTags(p);
+    return p;
+  })
+  return m;
+}
+
+// INIT
+function newMemberObject(callsign) {
+  let dT = data.templates;
+  let newObj = copy(dT.member);
+  for (i = 0; i < data.setup.member.alts; i++) {    
+    let n = copy(dT.proxy);
+    n = assignDown(n, dT.proxy_differences[i]);
+    n.etc.callsign = callsign;
+    n.etc.index = i;
+    newObj.proxies.push(n);
+  }
+
+  return updateProxies(newObj);
+}
+function dataStructureSetup() {
+  console.log(pretty(newMemberObject(2)));
+  // @todo make list
+  // @todo make new member objects
+  // @todo validate them (to create display names etc)
+}
+dataStructureSetup(); // @todo move to init()
+
+
+var headmates = {};
+var container = document.getElementById("fronters");
+var note = document.getElementById("fronters-note");
+
 function elementByCallsign(callsign) {
   return document.getElementById("tile-" + callsign);
 }
@@ -79,7 +172,7 @@ function setAvailability() {
   updatePage();
 }
 
-function addPluralKitDetails(m, autofix = false) {  
+function addPluralKitDetails(m, autofix = false) {
   let callsign = m.display_name.split(" ")[0];
   callsign = callsign.replace('-', '') // for Altar etc
 
