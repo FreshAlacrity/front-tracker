@@ -1,5 +1,6 @@
-// populate the headmates object and return # generated
-function makeInitialList( ) {
+// returns an object with some basic characteristics
+function makeInitialList() {
+  // @todo fetch this from global obj
   let headmates = {}
   let count = 0;
   let baseNum = 9;

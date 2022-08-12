@@ -13,7 +13,7 @@ CS - Callsign
 ## To Do
 
 ### Next
-- [ ] function to update an internal member object from a PK member object
+- [ ] function to update all member objects from PK member list
 
 ### Known Issues
 - fixed?

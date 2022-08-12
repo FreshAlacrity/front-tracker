@@ -20,7 +20,11 @@ var data = {
         resting: false, // @later
         named: false, // @todo
       },
-      relatives: {}
+      relatives: {
+        big_sibs: [],
+        lil_sibs: [],
+        sibs: []
+      }
     },
     proxy_differences: [
       { etc: { suffix: '' } },
@@ -94,38 +98,53 @@ function updateRequiredProxyTags(p) {
   }
   return checkProxyTags(p);
 }
+function objFromDescription(string) {
+  let d = {};
+  string.split('\n**').slice(1).forEach(n => {
+    let pairs = n.split('**: ');
+    d[pairs[0]] = pairs.slice(1).join("**: ");
+  });
+  return d;
+}
+function fusionNote(callsign) {
+  if (callsign.length === 1) {
+    return `Holds seat ${callsign} on our internal Council`
+  } else {
+    // @todo set up and pull from a list of digit display_names
+    return `Temporary fusion of...`
+  }
+}
+function discordStringFromObj(d) {
+  let string = '';
+  for ([key, value] of Object.entries(d)) {
+    string += `\n**${key}**: ${value}`;
+  }
+  return string;
+}
+function updateMainDescription(p) {
+  p.pk.description = fusionNote(p.etc.callsign) + discordStringFromObj(p.etc.description);
+  return p;
+}
 function updateProxies(m) {
   m.proxies.map(p => {
     p = updateDisplayName(p);
     p = updateRequiredProxyTags(p);
+    // @todo add old name to Nicknames comment
     return p;
   })
   return m;
 }
-
 function updateFromPluralKit(pk) {
   let parts = pk.display_name.split(" ");
   let loc = keyAndIndex(pk.id, parts[0]);
-  let obj = data.members[loc.callsign];
-  obj.proxies[loc.proxy].pk = pk;
+  let obj = data.members[loc.callsign].proxies[loc.proxy];
+  obj.pk = pk;
+  obj.etc.emoji = parts[1];
+  obj.etc.description = objFromDescription(pk.description);
+  data.members[loc.callsign].proxies[loc.proxy] = obj;
 
-  // @todo
-  obj.proxies[loc.proxy].etc.emoji = "WIP" // @todo
-
-  // @todo make this its own function and make the reverse function
-  // @todo split description and log to etc
-  // @todo find words in bold using ...**
-  let d = obj.proxies[loc.proxy].etc.description;
-  let notes = pk.description.split('\n**');
-  notes.shift(); // remove the blurb about temp fusions etc
-  notes.forEach(n => {
-    let pairs = n.split('**: ');
-    d[pairs[0]] = pairs.slice(1).join("**: ");
-  });
-
-  // @todo @here
-  console.log(pretty(data.members[loc.callsign]))
-
+  console.log(`Proxy ${loc.proxy} for ${parts[0]} updated: ${pk.display_name}`);
+  // @todo update the html object, if found
 }
 
 
@@ -144,10 +163,22 @@ function newMemberObject(callsign) {
   return updateProxies(newObj);
 }
 function dataStructureSetup() {
-  // @todo get list of possible members
-  // @todo make new member objects for each possible member
-  let cs = "2";
-  data.members[cs] = newMemberObject(cs);
+  let obj = makeInitialList();
+  function tempFix(n) {
+    return { relatives: {
+        big_sibs: n.in,
+        lil_sibs: n.components,
+        sibs: n.siblings
+      }}
+  }
+
+  for (let [cs, g] of Object.entries(obj)) {
+    let m = newMemberObject(cs);
+    g = tempFix(g); // @later remove
+    data.members[cs] = assignDown(m, g);
+  }
+
+  console.log(pretty(data.members))
   // @todo make a function to update them from PK member lists
 }
 function updateDataFromMemberList() {
