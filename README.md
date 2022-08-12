@@ -14,11 +14,13 @@ CS - Callsign
 
 ### Next
 - [ ] function to update all member objects from PK member list
+- [ ] update members whose display names don't follow the cs | Name format
 
 ### Known Issues
 - fixed?
   - [ ] sort order for digits is off
     - [ ] check: is this because the sort order is being applied to the wrong element?
+    - [ ] check: is this because it's treating numbers as strings?
   - [ ] alt callsigns for members with no initial proxy don't have "'"
   - [ ] double clicking members with no alt proxy triggers normal proxy behavior
   - [ ] Altar doesn't show up
@@ -109,6 +111,7 @@ CS - Callsign
     - portfolio/public
 - track what front combinations happen most often
   - dropdown to load from most common combinations?
+- offline/plaintext mode that loads no images?
 
 #### UI & Design
 - fields should have outline dark grey, buttons should be solid

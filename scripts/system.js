@@ -5460,7 +5460,7 @@ const exported = {
       "id": "cfcog",
       "uuid": "be2cef65-331b-4b04-8cd2-70c8e2248263",
       "name": "Pidge",
-      "display_name": "Pidgeongriff (Alec)",
+      "display_name": "S' | Pidgeongriff (Alec)",
       "color": null,
       "birthday": null,
       "pronouns": null,

@@ -1,4 +1,5 @@
 // GLOBAL STORAGE
+// keep total storage under 700 mb (including all the files)
 var data = {
   page: {
     container: document.getElementById("fronters"),
@@ -51,25 +52,35 @@ var data = {
 
 
 // MATCHING + FETCHING
-function keyAndIndex(id, callsign) {
+function getLoc(id, cs) {
   // check if ID is mapped to a member already
   if (!data.callsigns_by_id.hasOwnProperty(id)) {
     // figure out the callsign from display_name
     // iterate backwards because the default suffix is ''
+    // @later make this a separate function
     for (i = (data.setup.member.alts - 1); i >= 0; i--) {
       let suffix = data.templates.proxy_differences[i].etc.suffix;
       if (suffix.length === 0) {
+        // @later check if the member is entirely private and if so set to 2nd proxy
         data.callsigns_by_id[id] = {
-          callsign: callsign,
+          callsign: cs,
+          proxy: i + 0
+        }
+      } else if (cs.slice(suffix.length * -1) === suffix) {
+        cs = cs.slice(0, cs.length - suffix.length)
+        data.callsigns_by_id[id] = {
+          callsign: cs,
           proxy: i
         }
-      } else if (callsign.slice(suffix.length * -1) === suffix) {
-        data.callsigns_by_id[id] = {
-          callsign: callsign.slice(0, suffix.length * -1),
-          proxy: i
-        }
+        break;
       }
     }
+  }
+  
+  if (!data.members.hasOwnProperty(cs)) {
+    // callsign isn't part of the generated/existing set
+    console.warn(`Unconventional callsign added: ${cs} (id: ${id})`)
+    data.members[cs] = newMemberObject(cs);
   }
   return data.callsigns_by_id[id]
 }
@@ -100,10 +111,12 @@ function updateRequiredProxyTags(p) {
 }
 function objFromDescription(string) {
   let d = {};
-  string.split('\n**').slice(1).forEach(n => {
-    let pairs = n.split('**: ');
-    d[pairs[0]] = pairs.slice(1).join("**: ");
-  });
+  if (string) {
+    string.split('\n**').slice(1).forEach(n => {
+      let pairs = n.split('**: ');
+      d[pairs[0]] = pairs.slice(1).join("**: ");
+    });
+  }
   return d;
 }
 function fusionNote(callsign) {
@@ -129,21 +142,26 @@ function updateProxies(m) {
   m.proxies.map(p => {
     p = updateDisplayName(p);
     p = updateRequiredProxyTags(p);
-    // @todo add old name to Nicknames comment
+    // @todo when renaming if old name is not Unnamed:
+    // add old name to Nicknames comment
+    // add old name parenthetically to display_name
     return p;
   })
   return m;
 }
 function updateFromPluralKit(pk) {
-  let parts = pk.display_name.split(" ");
-  let loc = keyAndIndex(pk.id, parts[0]);
+  if (!pk.display_name) {
+    // if display name isn't set and name is, use name instead
+    pk.display_name = pk.name;
+  }
+  let parts = pk.display_name.split(" ");  
+  let loc = getLoc(pk.id, parts[0]);
   let obj = data.members[loc.callsign].proxies[loc.proxy];
   obj.pk = pk;
-  obj.etc.emoji = parts[1];
+  obj.etc.emoji = parts[1]; // note that this isn't accurate to Glitter, for example
   obj.etc.description = objFromDescription(pk.description);
   data.members[loc.callsign].proxies[loc.proxy] = obj;
-
-  console.log(`Proxy ${loc.proxy} for ${parts[0]} updated: ${pk.display_name}`);
+  log(`${pk.display_name} updated (p${loc.proxy})`);
   // @todo update the html object, if found
 }
 
@@ -163,7 +181,6 @@ function newMemberObject(callsign) {
   return updateProxies(newObj);
 }
 function dataStructureSetup() {
-  let obj = makeInitialList();
   function tempFix(n) {
     return { relatives: {
         big_sibs: n.in,
@@ -171,73 +188,23 @@ function dataStructureSetup() {
         sibs: n.siblings
       }}
   }
-
-  for (let [cs, g] of Object.entries(obj)) {
+  for (let [cs, g] of Object.entries(makeInitialList())) {
     let m = newMemberObject(cs);
     g = tempFix(g); // @later remove
     data.members[cs] = assignDown(m, g);
   }
+}
+function updateDataFromMemberList(list = exported.members) {
+  console.groupCollapsed("Updating from member list:")
+  list.forEach(m => {
+    updateFromPluralKit(m);
+    });
+  console.groupEnd()
+}
 
-  console.log(pretty(data.members))
-  // @todo make a function to update them from PK member lists
-}
-function updateDataFromMemberList() {
-  // @todo remove test case:
-  let clover = {
-    "id": "wzgzt",
-    "uuid": "260367f9-b242-43ae-8ff3-ddc3c03fbb9d",
-    "name": "Clover",
-    "display_name": "2 🍀 Clover 🧡 Hugs Welcome",
-    "color": null,
-    "birthday": "2022-05-30",
-    "pronouns": "she/her, they/them",
-    "avatar_url": "https://cdn.discordapp.com/attachments/982166756837707786/994839470119587941/clover_cropped.png",
-    "banner": null,
-    "description": "Holds seat 2 on our internal Council\n**Verbal**: occasionally\n**Descriptive**: often\n**Internal Name Translation**: the beautiful, intuitive and intimate connections between people and things\n**Nickname**: Previously 'Fennel' and before that Ivy (fusion of previous Clover and Mihaly, took her mother's name)\n**About**: Loves being to care for others and show them how they make the world a brighter place by being in it; enjoying the experience of being herself\n**Common Duties**: Encourages us to reach out to and take a chance on folk and to think on our feet, offers hugs + comfort\n**Anti-Duties/Kryptonite**: Enforcing boundaries, typing (isn't quite as fast or accurate)\n**Gifts/Care**: Touch, especially firm possessive-desiring touches and physical closeness\n**Great Compliments**: lovely, kind, caring\n**Gender Identity**: (cis)female but doesn't believe that means she should stay in a little box\n**Picrew**: https://picrew.me/image_maker/287392/complete?cd=zhOzSHU4La",
-    "created": "2022-05-28T18:10:12.604415Z",
-    "keep_proxy": false,
-    "proxy_tags": [
-      {
-        "prefix": null,
-        "suffix": " -2"
-      },
-      {
-        "prefix": "2: ",
-        "suffix": null
-      },
-      {
-        "prefix": "Clover: ",
-        "suffix": null
-      },
-      {
-        "prefix": null,
-        "suffix": " -Clover"
-      },
-      {
-        "prefix": null,
-        "suffix": " 🍀"
-      },
-      {
-        "prefix": null,
-        "suffix": " ☘️"
-      }
-    ],
-    "privacy": {
-      "visibility": "public",
-      "name_privacy": "private",
-      "description_privacy": "public",
-      "birthday_privacy": "private",
-      "pronoun_privacy": "public",
-      "avatar_privacy": "public",
-      "metadata_privacy": "public"
-    }
-  }
-  updateFromPluralKit(clover); // @debug @todo remove
-}
- // @later move to init()
+// @later move to init()
 dataStructureSetup();
 updateDataFromMemberList();
-
 
 
 // OLD
