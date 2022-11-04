@@ -2,6 +2,18 @@
 function pretty(obj) {
   return JSON.stringify(obj, null, 2);
 }
+function quickTest(t1, t2, comment) {
+  console.assert(t1 === t2, `${comment}failed: ${pretty(t1)} should be equal to ${pretty(t2)}`);
+}
+function oxfordCommaList(arr) {
+  if (arr.length < 3) {
+    return arr.join(" and ");
+  } else {
+    return arr.slice(0, -1).join(", ") + ", and " + arr.slice(-1);
+  }
+}
+quickTest(oxfordCommaList([1, 2]), "1 and 2", `oxfordCommaList() for less than three entries`)
+quickTest(oxfordCommaList([1, 2, 3]), "1, 2, and 3", `oxfordCommaList() for more than three entries`)
 
 function copy(obj) { return JSON.parse(JSON.stringify(obj)) }
 

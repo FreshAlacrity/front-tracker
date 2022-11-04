@@ -28,6 +28,7 @@ var data = {
       }
     },
     proxy_differences: [
+      // @todo add privacy differences for pk
       { etc: { suffix: '' } },
       { etc: { suffix: "'" } },
       { etc: { suffix: '"' } },
@@ -35,7 +36,9 @@ var data = {
     proxy: {
       pk: {
         name: "Unnamed",
+
         proxy_tags: []
+
       },
       etc: {
         emoji: '|',
@@ -120,13 +123,25 @@ function objFromDescription(string) {
   return d;
 }
 function fusionNote(callsign) {
-  if (callsign.length === 1) {
-    return `Holds seat ${callsign} on our internal Council`
+  // @todo later check + update these automatically
+  let names = ["1 ☸️ Moth", "2 🍀 Clover", "3 🧮 Val", "4 🏗️ Kent", "5 🐏 Faun", "6 🤝 Ruth", "7 🎇 Lucky", "8 📜 Giles", "9 🌑 Thorn"];
+  if (new RegExp(/^\d+$/).test(callsign)) {
+    if (callsign.length === 1) {
+      return `Holds seat ${callsign} on our internal Council`
+    } else {
+      // @todo set up and pull from a list of digit display_names
+      return `Temporary fusion of ` + oxfordCommaList((callsign+'').split('').map(a => names[parseInt(a-1)]));
+    }
   } else {
-    // @todo set up and pull from a list of digit display_names
-    return `Temporary fusion of...`
+    return "Unconventional headmate";
   }
 }
+quickTest(fusionNote("E"), "Unconventional headmate", "No digit fusionNote() test");
+quickTest(fusionNote("6"), "Holds seat 6 on our internal Council", "One digit fusionNote() test");
+quickTest(fusionNote(24), "Temporary fusion of 2 🍀 Clover and 4 🏗️ Kent", "Two digit fusionNote() test");
+quickTest(fusionNote(246), "Temporary fusion of 2 🍀 Clover, 4 🏗️ Kent, and 6 🤝 Ruth", "Three digit fusionNote() test");
+ // @later add versions for alt proxies?
+
 function discordStringFromObj(d) {
   let string = '';
   for ([key, value] of Object.entries(d)) {
@@ -149,17 +164,18 @@ function updateProxies(m) {
   })
   return m;
 }
-function updateFromPluralKit(pk) {
-  if (!pk.display_name) {
-    // if display name isn't set and name is, use name instead
-    pk.display_name = pk.name;
-  }
+
+async function updateFromPluralKit(pk) {
   let parts = pk.display_name.split(" ");  
   let loc = getLoc(pk.id, parts[0]);
+  pk = validatePK(pk, loc);
   let obj = data.members[loc.callsign].proxies[loc.proxy];
   obj.pk = pk;
-  obj.etc.emoji = parts[1]; // note that this isn't accurate to Glitter, for example
-  obj.etc.description = objFromDescription(pk.description);
+  obj.etc.emoji = parts[1]; // note that may not be accurate to all members
+  if (pk.description) {
+    // @later each proxy layer should have a description set up in the validation step
+    obj.etc.description = objFromDescription(pk.description);
+  }
   data.members[loc.callsign].proxies[loc.proxy] = obj;
   log(`${pk.display_name} updated (p${loc.proxy})`);
   // @todo update the html object, if found
@@ -194,7 +210,7 @@ function dataStructureSetup() {
     data.members[cs] = assignDown(m, g);
   }
 }
-function updateDataFromMemberList(list = exported.members) {
+async function updateDataFromMemberList(list = exported.members) {
   console.groupCollapsed("Updating from member list:")
   list.forEach(m => {
     updateFromPluralKit(m);
@@ -286,9 +302,12 @@ function setAvailability() {
   updatePage();
 }
 
-function addPluralKitDetails(m, autofix = false) {
-  let callsign = m.display_name.split(" ")[0];
-  callsign = callsign.replace('-', '') // for Altar etc
+function updateFromPk(m, autofix = false) {
+  function getCallsign(m) {
+    let callsign = m.display_name.split(" ")[0];
+    return callsign.replace('-', '') // for Altar etc
+  }
+  let callsign = getCallsign(m);
 
   if (callsign in headmates) {
     // main registry
@@ -315,9 +334,13 @@ function loadFromPK() {
   console.log("Loading all members from PK");
   getAllMembers().then(d => {
     //console.log(JSON.stringify(d, null, 2))
-    d.forEach(m => { checkMemberObject(m).then(addPluralKitDetails) })
+    d.forEach(m => { checkMemberObject(m).then(updateFromPk) });
+  }).then(d => {
+    // #todo print data to console
+
   });
 }
+
 function init() {
 
   // fill in a list of all possible members
@@ -327,7 +350,7 @@ function init() {
   addAllHeadmateTiles()
 
   // load in info from system.js file
-  exported.members.forEach(m => { addPluralKitDetails(m) });
+  exported.members.forEach(m => { updateFromPk(m) });
 
   // load in from PK
   //loadFromPK();
@@ -338,5 +361,9 @@ function init() {
   }
 
   updatePage();
+
+  // until there's a tidy way to do this:
+  // rn just sets up number proxies and temp fusion description
+  //newMember("149");
 }
 init()

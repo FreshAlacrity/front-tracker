@@ -1,30 +1,31 @@
 # Front Tracker
 
-CS - Callsign
-
-
-## Notes
-- CTRL + click to front or un-front a member
-- double click to open up PK dash page for the member
-- Locally there's an auth.js file with just `let pkToken = "token-here"` - that isn't being synched to GitHub so if we need to set this up again we'll need to make a new one of those (later make this a URL parameter)
-- Remember that the PK API limits requests etc pretty strongly; if we want to do a major batch update it may be easier to do that by importing an export type file (remember that those are .json files and not .js files)
-
-
 ## To Do
 
 ### Next
-- [ ] function to update all member objects from PK member list
-- [ ] update members whose display names don't follow the cs | Name format
+- [ ] fix load from PK and update cached data
+- [ ] validate PK data and suggest edits
+- [ ] make proxies for all triples
+- bring back/better headmate element sort order
+  - [ ] sort members whose digit is unavailable to the bottom
+- [ ] generate headmate DOM elements from new format
+- [ ] function to generate fusion notes
+- [ ] detect members with no description and add fusion notes
+- [ ] url parameters (see https://codepen.io/eahartmann/pen/bGvaMvy)
+- [ ] set up suffixes to be stored outside proxy lists
 
 ### Known Issues
 - fixed?
+  - [ ] PK members whose display names don't follow the cs | Name format
   - [ ] sort order for digits is off
     - [ ] check: is this because the sort order is being applied to the wrong element?
     - [ ] check: is this because it's treating numbers as strings?
+    - [-] is it possible/desirable to do this by css class? maybe later but not now
   - [ ] alt callsigns for members with no initial proxy don't have "'"
   - [ ] double clicking members with no alt proxy triggers normal proxy behavior
   - [ ] Altar doesn't show up
   - [ ] detecting whether the click is to front or back seems not to be happening?
+  - [ ] many new members have their proxy name set to "Unnamed"
 
 ### Plans for Refactor
 - [ ] set up functional public/private/editable links through url params  
@@ -35,42 +36,43 @@ CS - Callsign
 - [ ] upload to GitHub site as /front/
 
 #### Data Structure
-- [ ] set up a global data object with:
-  - [ ] global dictionary that has callsigns referenced to PK Member objects and status info
+- [x] set up a global data object with:
+  - [x] global dictionary that has callsigns referenced to PK Member objects and status info
     - [x] base entries on a template
       - [x] give members an array of N blank proxies
       - set a default displayname [callsign | Unnamed]
       - CS: text and text -CS equivalent name proxies
       - update from PK member object
-  - [ ] template objects:
-    - [ ] members of different indexes
-      - include default name (i.e. "Unnamed")
-  - [ ] global dictionary with IDs mapped to callsign + index:
+  - [x] template objects:
+    - [x] members of different indexes
+      - [x] include default name (i.e. "Unnamed")
+  - [x] global dictionary with IDs mapped to callsign + index:
     - ex: ...PK ID: { callsign: ###, index: # }...
   - [ ] URL params:
     - [ ] token for authentification
-    - [ ] editing true/false (on top of having the key or not)
-    - [ ] what index to show initially
+    - [ ] editing true/false (on top of having the token or not)
+    - [ ] what index/proxy layer to show initially
     - [ ] current fronters (+option to load from last switch)
+    - [ ] offline view/option to not load from PK
     
 #### Functions
 - [ ] read in and save URL parameters
 - [ ] rewrite as async function to set up members object
   - start with list of unique symbols, max N to combine, N of variations
   - generate all callsigns up to length of N
-- [ ] function to identify what callsign and index a member object corresponds to
+- [x] function to identify what callsign and index a member object corresponds to
     - [ ] function to check against each other
       - this can be used to iterate through to find the match or validate, either way :)
-    - [ ] add things that don't match any existing callsigns to both dictionaries
+    - [x] add things that don't match any existing callsigns to both dictionaries
 - [ ] function to update PK object from headmate object
-- [ ] async function to import member data from member object
-  - [ ] rewrite async function to import member data from a bulk PK API call/member list array
-  - [ ] function to take Descriptions apart and put them back together
+- [x] async function to import member data from member object
+  - [x] rewrite async function to import member data from a bulk PK API call/member list array
+  - [x] function to take Descriptions apart and put them back together
     - [ ] function for generating the first line of the description ("Temporary fusion of..." etc)
-- function to take the dictionary keyed by callsign and validate all members
-- new member function
-  - for initial proxy
-  - for different indexes
+- [ ] new member function
+  - [ ] works for initial proxy
+  - [ ] works for different indexes
+  - [ ] updates the dictionary of callsign by ID
 - [ ] new function to output fronters as list (ex: 5,6,24)
   - [ ] update the url parameter (ex: ?active=5,6,24)
   - [ ] load from URL parameter
@@ -87,13 +89,11 @@ CS - Callsign
       - add name before and after proxies
       - set status.named = true
   - for every call:
-    - update HTML and dictionary by callsign using the (returned) PK member object
+    - [ ] update HTML and dictionary by callsign using the (returned) PK member object
   - for any call from the page itself:
-    - confirm
-    - update PK via API
-    - update HTML again
-  - for new members:
-    - update the dictionary of IDs
+    - [ ] confirm with user
+    - [ ] update PK via API
+    - [ ] update HTML again
 - [ ] functions for managing html objects
   - elements id'd to the pertinent values of [callsign, index, subset, key, value]:
     - [ ] functions to make blank HTML element/elements of each type
@@ -101,6 +101,8 @@ CS - Callsign
 
 
 ### Misc/Later
+- grouping headmates like (2, 6, 7) to show stability in that group/available fusions for those members?
+  (had a blur moment where it felt like those three were working together but it wasn't clear how)
 - search function 
   - search by emojis and emoji names
     - use the emoji list in the spreadsheet to allow search by near miss
@@ -112,6 +114,8 @@ CS - Callsign
 - track what front combinations happen most often
   - dropdown to load from most common combinations?
 - offline/plaintext mode that loads no images?
+- allow inputting a Picrew URL and auto download + crop avatar from image on that page?
+
 
 #### UI & Design
 - fields should have outline dark grey, buttons should be solid
@@ -176,3 +180,12 @@ CS - Callsign
   - less saturated for Val fusions
   - that leaves Faun (Red?), Clover (Orange?), Ruth (Purple?), Kent (Green?), Giles (Blue?)
   - consider also colors that mean something: https://blog.datawrapper.de/gendercolor/
+
+
+  
+## Notes
+- CS - Callsign
+- CTRL + click to front or un-front a member
+- double click to open up PK dash page for the member
+- Locally there's an auth.js file with just `let pkToken = "token-here"` - that isn't being synched to GitHub so if we need to set this up again we'll need to make a new one of those (later make this a URL parameter)
+- Remember that the PK API limits requests etc pretty strongly; if we want to do a major batch update it may be easier to do that by importing an export type file (remember that those are .json files and not .js files)

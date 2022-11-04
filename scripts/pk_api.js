@@ -1,5 +1,5 @@
 // see https://www.javascripttutorial.net/javascript-fetch-api/
-// requires an auth token set to pkToken
+// requires an auth token set to pkToken variable
 
 let totalRequests = 0;
 let currentRequests = 0;
@@ -65,14 +65,9 @@ async function getMember(id = 'pbbdj') {
 }
 
 async function newMember(callsign) {
+  // #todo combine with validate function/have those work together
   let url = rootUrl + "/members"
-  let data = {
-    method: 'POST', // GET, POST, PUT, DELETE, etc.
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: pkToken
-    },
-    body: JSON.stringify({
+  let newMemberObject = {
       name: callsign,
       display_name: `${callsign} | Unnamed`,
       pronouns: 'they/them',
@@ -82,20 +77,37 @@ async function newMember(callsign) {
       ],
       "privacy": {
         "name_privacy": "private",
-      }
-    })
+      },
+      description: fusionNote(callsign)
+    }
+  
+  let data = {
+    method: 'POST', // GET, POST, PUT, DELETE, etc.
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: pkToken
+    },
+    body: JSON.stringify(newMemberObject)
   }
   // if alt, add parenthetical to name with nickname from main
   // if alt, set entirely private
   // if alt, add to group zdytf
   try {
     let res = await delayedFetch(url, data)
-    return res.json();
+    return await res.json();
   } catch (error) {
     console.log(error);
   }
 }
-
+async function reportBack(comment, data) {
+  // @todo test
+  let json = await data
+  if (!json) {
+    console.error(comment + ": " + "No value returned")
+  } else {
+    log(comment + ": " + pretty(json));
+  }
+}
 async function editMember(id, obj) {
   let url = rootUrl + "/members/" + id
   let etc = {
@@ -107,13 +119,11 @@ async function editMember(id, obj) {
     body: JSON.stringify(obj)
   }
   try {
-    let res = await delayedFetch(url, etc)
-    let data = res.json()
-    // why is the return value empty here?
-    console.log('Member edited: ' + JSON.stringify(data, null, 2));
-    return data;
+    delayedFetch(url, etc).then(d => reportBack("Member edited", d.json()));
+    return true;
   } catch (error) {
     console.log(error);
+    return false;
   }
 }
 

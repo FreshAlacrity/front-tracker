@@ -56,3 +56,37 @@ async function checkMemberObject(m, autofix = true) {
 
   return Object.assign(m, edits)
 }
+
+function validatePK(pk, loc, okToFix = true) {
+  let autofix = false;
+  function objection(property, issue = "no") {
+    console.warn(`${pk.display_name} with id '${pk.id}' has ${issue} ${property} set`);    
+  }
+  // @later move to validate.js  
+  // @todo make everything here part of making new members
+
+  if (!pk.display_name) {
+    // if display name isn't set and name is, use name instead
+    pk.display_name = pk.name;
+  }
+  if (loc.proxy === 0) {
+    // @todo check display name privacy
+    if (!pk.description) {
+      objection("description");
+      console.warn(`New description: '${pk.description}'`)
+      pk.description = fusionNote(loc.callsign)
+      autofix = true;
+    } else {      
+      // @later validate fusion note from the beginning of existing descriptions also
+    }
+    if (!pk.pronouns) {
+      // #todo just autofix, don't object?
+      //objection("preferred pronouns");
+      pk.pronouns = "they/them";
+      //autofix = true;
+    }
+  } else {
+    // check privacy
+  }
+  return pk
+}
