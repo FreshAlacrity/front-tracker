@@ -3,18 +3,38 @@
 ## To Do
 
 ### Next
-- [ ] fix load from PK and update cached data
-- [ ] validate PK data and suggest edits
+- move known issues to GitHub issue tracker
+- set up a POST or whatever to log fronts for specific projects
+- add a color picker for favorite colors
+  - see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/color
+- set PK colors as profile background colors
+- reorganize this ToDo list document
+- some kind of feedback that fronters have been successfully logged (maybe the button can't be pressed and says "Logged" if what's being shown _are_ the current fronters?)
+  - the "Current Fronters" button should also be disabled if the current fronters are being shown
+- default to fetching current fronters when 'live' is set true?
+- set it up so it asks for a key to save locally if you try to do anything that it needs it for
+  - use async alert() and await?
+- new double click behavior
+  - [ ] open a side panel inside that flipcard with the details for that PK member
+- validation
+  - [ ] detect members invalid descriptions (fix fusion notes)
+    - [ ] make a section of the page for proposed fixes
+      - [ ] only check for errors when things are actually coming from or going to PK
+  - [ ] remove emoji proxies
 - [ ] make proxies for all triples
+- [x] status management
 - bring back/better headmate element sort order
   - [ ] sort members whose digit is unavailable to the bottom
-- [ ] generate headmate DOM elements from new format
-- [ ] function to generate fusion notes
-- [ ] detect members with no description and add fusion notes
-- [ ] url parameters (see https://codepen.io/eahartmann/pen/bGvaMvy)
-- [ ] set up suffixes to be stored outside proxy lists
+- [ ] some kind of click to bring up detailed info/editing popup?
+- [ ] fix load from PK and update cached data
+- [ ] validate PK data and suggest edits
+  - [ ] use/apply function to generate fusion notes
 
 ### Known Issues
+- [ ] changing the name for a headmate with no proxy in the exported data but a proxy that exists on PK can result in two proxies for a single headmate because it prompts you to make a new one; maybe it should load in a totally new set of PK data first to check?
+- [ ] there's no validation for loading active list from URLs
+- [ ] selecting an unrelated fusion while a digit is disabled re-enables the digit
+- [ ] alt accounts aren't loaded so flipping does nothing
 - fixed?
   - [ ] PK members whose display names don't follow the cs | Name format
   - [ ] sort order for digits is off
@@ -101,6 +121,10 @@
 
 
 ### Misc/Later
+- test dots around the rim for digits included/doing sigil-style connections between them
+- test including non-system members for contributor lists (like Nathan and Mojang)
+- set member colors in PK to match the portrait background colors in the webapp
+  - add the background color to the portrait images in PK also?
 - grouping headmates like (2, 6, 7) to show stability in that group/available fusions for those members?
   (had a blur moment where it felt like those three were working together but it wasn't clear how)
 - search function 

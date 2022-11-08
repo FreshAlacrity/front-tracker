@@ -98,35 +98,44 @@ body {
 }
 
 .icon {
-  opacity: 30%;
-  filter: grayscale(100%);
-
-  width: 6em;
-  height: 6em;
+  min-width: 6em;
+  min-height: 6em;
   border-radius: 4em;
   border: 2px solid currentColor;
-
   background-repeat: no-repeat;
   background-size: cover;
 }
 
+.unavailable .icon {
+  width: 6em;
+  height: 6em;
+  opacity: 20%;
+  filter: grayscale(100%);
+}
+
 .available .icon {
-  min-width: 6em;
-  min-height: 6em;
-  opacity: 50%;
+  opacity: 40%;
   filter: none;
 }
 
 .present .icon {
-  filter: none;
   opacity: 100%;
+  filter: none;
 }
 
-.present > * {
+.active > * {
   font-size: 1rem;
   min-width: 6rem;
   min-height: 7rem;
   opacity: 100%;
+}
+
+.active {
+  order: -1000;
+}
+
+.unavailable {
+  order: 1000;
 }
 
 .name {

@@ -24,7 +24,7 @@ async function delayedFetch(url, data) {
       requestAfter = now + min;
     }
     console.log(`Setting up request ${totalRequests} with delay: ${waitFor} (${currentRequests} requests cued up)`)
-    await new Promise(resolve => setTimeout(resolve, waitFor));  
+    await new Promise(resolve => setTimeout(resolve, waitFor));
     console.log(`Sending API request ${num}`);
     let result = await fetch(url, data);
     console.log(`Received API request ${num}`);
@@ -33,8 +33,21 @@ async function delayedFetch(url, data) {
   }
 }
 
-
-async function getAllMembers(system = 'lhexq') {
+async function getSystemInfo(system = 'lhexq') {
+  let url = rootUrl + `/systems/${system}`
+  let data = {
+    headers: {
+      Authorization: pkToken
+    }
+  }
+  try {
+    let res = await delayedFetch(url, data)
+    return await res.json();
+  } catch (error) {
+    console.log(error);
+  }
+}
+async function getMemberObjectList(system = 'lhexq') {
   let url = rootUrl + `/systems/${system}/members`
   let data = {
     headers: {
@@ -48,9 +61,8 @@ async function getAllMembers(system = 'lhexq') {
     console.log(error);
   }
 }
-
-async function getMember(id = 'pbbdj') {
-  let url = rootUrl + "/members/" + id // Jes's member ID
+async function getMember(id = 'qkxux') { // Lucky's member ID
+  let url = rootUrl + "/members/" + id
   let data = {
     headers: {
       Authorization: pkToken
@@ -64,41 +76,31 @@ async function getMember(id = 'pbbdj') {
   }
 }
 
-async function newMember(callsign) {
+async function newMember(callsign, details) {
   // #todo combine with validate function/have those work together
   let url = rootUrl + "/members"
-  let newMemberObject = {
-      name: callsign,
-      display_name: `${callsign} | Unnamed`,
-      pronouns: 'they/them',
-      "proxy_tags": [
-        { "prefix": null, "suffix": " -" + callsign },
-        { "prefix": callsign + ": ", "suffix": null }
-      ],
-      "privacy": {
-        "name_privacy": "private",
-      },
-      description: fusionNote(callsign)
-    }
-  
+  let memberData = newMemberPkFromCallsign(callsign);
+  // #todo add details
   let data = {
     method: 'POST', // GET, POST, PUT, DELETE, etc.
     headers: {
       "Content-Type": "application/json",
       Authorization: pkToken
     },
-    body: JSON.stringify(newMemberObject)
-  }
-  // if alt, add parenthetical to name with nickname from main
+    body: JSON.stringify(memberData)
+  }  
   // if alt, set entirely private
   // if alt, add to group zdytf
   try {
     let res = await delayedFetch(url, data)
-    return await res.json();
+    let pk = await res.json()
+    updatePkInfo(pk); // update current data with new member
+    return pk;
   } catch (error) {
     console.log(error);
   }
 }
+
 async function reportBack(comment, data) {
   // @todo test
   let json = await data
@@ -127,6 +129,60 @@ async function editMember(id, obj) {
   }
 }
 
-async function setDisplayName(id, newName) {  
+async function setDisplayName(id, newName) {
   return editMember(id, { display_name: newName })
+}
+
+// see https://pluralkit.me/api/endpoints/#switches
+async function getFronters(system = 'lhexq') {
+  let url = rootUrl + "/systems/" + system + "/fronters"
+  let etc = {
+    method: 'GET', // GET, POST, PUT, DELETE, etc.
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: pkToken
+    }
+  }
+  try {
+    let response = await delayedFetch(url, data)
+    let fronters = await response.json()
+    //log(pretty(fronters))
+    return fronters;
+  } catch (error) {
+    error(error);
+    return { members: [] };
+  }
+}
+async function isMember(m) {
+  if (!idFromCallsign(m)) {
+    let nm = await newMember(m);
+    return nm.id;
+  } else {
+    return idFromCallsign(m);
+  }
+}
+async function reportSwitch(active = getActive(), system = 'lhexq') {
+  // ONLY REPORT MAIN IDs, NEVER ALT IDs:
+  let idList = active.map(mainCallsign).map(isMember);
+  let url = rootUrl + "/systems/" + system + "/switches"
+  try {
+    Promise.all(idList).then(list => {
+      log("Reporting switch with IDs: " + list.join(', '));
+      let etc = {
+        method: 'POST', // GET, POST, PUT, DELETE, etc.
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: pkToken
+        },
+        // #later support also timestamp?
+        body: JSON.stringify({ members: list })
+      }
+      delayedFetch(url, etc)
+    });
+    return true;
+  } catch (error) {
+    alert(error);
+    return false;
+  }
+
 }

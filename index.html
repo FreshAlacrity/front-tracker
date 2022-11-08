@@ -18,10 +18,10 @@
   <script src="scripts/auth.js"></script>
   <script src="scripts/validate.js"></script>
   <script src="scripts/interact.js"></script>
-  <script src="scripts/misc.js"></script>
-  <script src="scripts/system.js"></script>
+  <script src="scripts/statuses.js"></script>
+  <script src="scripts/exported.js"></script>
   <script src="scripts/tiles.js"></script>
-  <script src="scripts/make_list.js"></script>
+  <script src="scripts/structure.js"></script>
   <script src="scripts/pk_api.js"></script>
   <script src="scripts/main.js" defer></script>
 
@@ -29,12 +29,15 @@
 
 <body>
   <div class="note">
-    <input type="text" class="search" id="fronters-note" onkeyup="" placeholder="<fronters here>"></input>
-    <button onclick="loadFromPK()">Load From PK</button>
-    <button onclick="flipTiles()">Toggle Alts</button>
-    <button onclick="">Log Switch (WIP)</button>
-    <button onclick="">Reset (WIP)</button>
+    <input type="text" class="search" id="active-list" onkeyup="" placeholder="<fronters here>"></input>
+    <button onclick="resetList()">Reset</button>
+    <!--#todo <button onclick="flipTiles()">Toggle Alts</button>-->
+    <!--#todo <button onclick="toggleMemberlist()">Show/Hide Other Members (WIP)</button>-->
+    <button onclick="reportSwitch()">Log Switch</button>
+    <button onclick="loadFronters()">Current Fronters</button>
+    <button onclick="loadFromPk()">Reload Member List</button>
   </div>
+  <div id="issues"></div>
   <div id="fronters"></div>
 </body>
 

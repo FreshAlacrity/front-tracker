@@ -1,92 +1,234 @@
-function nameIsUnique(name) {
-  // @todo implement and use in name updates
-  // remember to catch Unnamed
+function validateMemberListInput(string, doAlert = false) {
+  log("Validating: " + string);
+  let arr = splitByEach(string, ",.~ ;:/");
+  let all = getMemberList();
+  let notMembers = [];
+  arr = arr.map(entry => {
+    if (callsignFromNickname(entry)) {
+      return callsignFromNickname(entry)
+    } else {
+      return entry
+    }
+  }).filter(cs => {
+    if (!all.includes(cs)) {
+      notMembers.push(cs);
+      return false;
+    } else {
+      return true;
+    }
+  });
+  let msg = ''
+  if (notMembers.length > 0) {
+    msg += `These are not current system member(s): ${notMembers.join(", ")}`;
+  }
+  digits().forEach(d => {
+    if (occurs(arr.join(''), d) > 1) {
+      msg += d + ` cannot be in two fusions at once!`;
+    }
+  })
+
+  if (doAlert && msg !== '') {
+    alert(msg);
+  } else if (msg !== '') {
+    error(msg);
+  }
+  log("Using: " + arr)
+  return arr
+}
+
+function fusionNote(callsign) {
+  // @todo later check + update these automatically
+  let names = ["☸️ Moth", "🍀 Clover", "🧮 Val", "🏗️ Kent", "🐏 Faun", "🤝 Ruth", "🎇 Lucky", "📜 Giles", "🌑 Thorn"];
+  if (new RegExp(/^\d+$/).test(callsign)) {
+    if (callsign.length === 1) {
+      return `Represents district ${callsign} on our internal council`
+    } else {
+      // @todo set up and pull from a list of digit display_names
+      return `Temporary fusion of ${oxfordCommaList((callsign + '').split('').map(a => names[parseInt(a - 1)]))}\nRepresents districts ${oxfordCommaList((callsign + '').split(''))}`;
+    }
+  } else {
+    return "Unconventional headmate";
+  }
+}
+quickTest(fusionNote("E"), "Unconventional headmate", "No digit fusionNote() test");
+quickTest(fusionNote("6"), "Represents district 6 on our internal council", "One digit fusionNote() test");
+quickTest(fusionNote(24), "Temporary fusion of 🍀 Clover and 🏗️ Kent\nRepresents districts 2 and 4", "Two digit fusionNote() test");
+quickTest(fusionNote(246), "Temporary fusion of 🍀 Clover, 🏗️ Kent, and 🤝 Ruth\nRepresents districts 2, 4, and 6", "Three digit fusionNote() test");
+
+function deduplicateProxyList(arr) {
+  return [...new Set(arr)].sort(function (x, y) {
+    function smooshProxy(p) {
+      function nullToBlank(s) {
+        if (s && s !== "null") {
+          return s
+        } else {
+          return ''
+        }
+      };
+      return nullToBlank(p.prefix) + nullToBlank(p.suffix)
+    }
+    x = smooshProxy(x);
+    y = smooshProxy(y);
+    if (x < y) {
+      return -1;
+    }
+    if (x > y) {
+      return 1;
+    }
+    return 0;
+  });
+}
+
+// #redo and use:
+function updateRequiredProxyTags(pk) {
+  // - all members including alts should have:
+  // - CS: text and text -CS proxies
+  // - Name: text and text -Name proxies (if name != CS)
+  // check that it includes at least everything from updateRequiredProxyTags?
+  // #later make sure these proxies do not conflict with any other members'
+  // #later remove emoji proxies
+  // #todo include a way to remove an old name?
+  function newProxyTag(prefix = null, suffix = null) {
+    // #todo just push this already
+    return { "prefix": prefix, "suffix": suffix }
+  }
+  /*
+  function addProxyTag(a, b) { pk.pk.proxy_tags.push(newProxyTag(a, b)) }
+  addProxyTag(null, ` -${pk.etc.callsign + pk.etc.suffix}`);
+  addProxyTag(`${pk.etc.callsign + pk.etc.suffix}: `);
+  if (pk.name !== (pk.etc.callsign + pk.etc.suffix)) {
+    addProxyTag(null, ` -${pk.name}`);
+    addProxyTag(`${pk.name + pk.etc.suffix}: `);
+  }
+  */
+  // #todo check that this does actually deduplicate proxy tags
+
+  pk.proxy_tags = deduplicateProxyList(pk.proxy_tags);
+  return pk;
+}
+function nameOccurs(name) {
+  // returns the number of times this name is currently used
+  // #todo implement and use in name updates
   return true
 }
 
-async function checkMemberObject(m, autofix = true) {
-  function c(text) { console.log(text) }
-  function checkNameVsDisplayName() {
-    // @todo catch names that aren't contained by displaynames
-  }
+function checkMemberObject(pk, autoUpload = true) {
+  // used in util.js updatePkInfo()
+  autoUpload = false; // while testing #later remove this  
+  let edits = {}
+  let callsign = getCallsign(pk);
+  let isMain = ((callsign.slice(-1) !== "'") && (callsign.slice(-1) !== '"'));
+  // #later, also detect if we're getting a public-facing pk object or not by looking at privacy: null and/or lack of display_name?
 
-  let edits = {}  
-
-  // check name format, #### | Nickname
-  if (!m.display_name) {
-    // based on the convention of naming members by callsign when they don't have a a nickname
-    edits.display_name = `${m.name} | Unnamed`;
+  let silent = true;
+  function objection(property, issue = "has no") {
+    if (!silent) {
+      console.warn(`${pk.display_name} with id '${pk.id}' ${issue} ${property}`);
+    }
   }
   
-  // @todo if alt, check that the name is followed by a parenthetical nickname from the main registry
+  function checkNames() {
+    // #todo check name format, #### | Nickname
+    if (!pk.display_name) {
+      objection("display name");
+      // if alt, check that it includes a parenthetical with nickname from main
+      // based on the convention of naming members by callsign when they don't have a a nickname
+      edits.display_name = `${callsign} | Unnamed`;
+    } else if (pk.display_name.indexOf(pk.name) < 0) {
+      objection("display name", "doesn't contain their name");
+      // #todo prompt to resolve?
+    }
+    if (nameOccurs(pk.name) > 1) {
+      objection("name", "has a duplicate name");
 
-  // check name set private @todo
-  if (m.privacy.name_privacy !== "private") {
-    edits.privacy = {} // note that this would erase any previous edits to privacy
-    edits.privacy.name_privacy = "private";
-  }
-
-  // @todo
-  // members with avatar urls should have a picrew link in their description (with some exceptions)
-    // - if they have neither "Picrew" nor "Profile Image Source" then object
-    // - all members including alts should have:
-    // - CS: text and text -CS proxies
-    // - names set to private
-  // all non-alt members should have:
-    // - preferred pronouns listed
-    // - a description with what digits are fused into them etc
-    // - all named members should have:
-    // - Name: text and text -Name proxies
-    // - all members should have a description
-  // check and make sure name is unique
-
-  // alt members:
-  // - there's a trailing '
-  // - later check if member of group with id 'zdytf'
-  // - set to private
-  // - if no image use the image from the main proxy in PK
-
-  if (JSON.stringify(edits) !== "{}") {
-    if (autofix) {
-      editMember(m.id, edits)
-    } else {
-      c(`Suggested changes for ${m.name}:\n${JSON.stringify(edits, null, 2)}`);
     }
   }
-
-  return Object.assign(m, edits)
-}
-
-function validatePK(pk, loc, okToFix = true) {
-  let autofix = false;
-  function objection(property, issue = "no") {
-    console.warn(`${pk.display_name} with id '${pk.id}' has ${issue} ${property} set`);    
-  }
-  // @later move to validate.js  
-  // @todo make everything here part of making new members
-
-  if (!pk.display_name) {
-    // if display name isn't set and name is, use name instead
-    pk.display_name = pk.name;
-  }
-  if (loc.proxy === 0) {
-    // @todo check display name privacy
-    if (!pk.description) {
-      objection("description");
-      console.warn(`New description: '${pk.description}'`)
-      pk.description = fusionNote(loc.callsign)
-      autofix = true;
-    } else {      
-      // @later validate fusion note from the beginning of existing descriptions also
+  function checkPrivacy() {
+    // check that name is set private
+    if (isMain && pk.privacy.name_privacy !== "private") {
+      // note that this would erase any previous edits to privacy
+      edits.privacy = { name_privacy: "private" };
+    } else if (!isMain) {
+      // #later check that alts are set entirely private
     }
+  }
+  function checkAvatar() {
+    if (pk.avatar_url) {
+      if (pk.avatar_url.indexOf("picrew.me/shareImg") > 0) {
+        pk.avatar_url = ""
+        objection("avatar image", "is a direct link to picrew");
+      }
+      if (false) {
+        // #todo if they have neither "Picrew" nor "Profile Image Source" then object
+        objection("description", "has no image source link");
+      }
+    }
+  }
+  function checkProxies() {
+    let updated = updateRequiredProxyTags(pk);
+    function compareProxyTagList(a, b) {
+      // #todo test
+      let prettyListA = JSON.stringify(deduplicateProxyList(a.proxy_tags));
+      return (prettyListA === JSON.stringify(b.proxy_tags))
+    }
+    if (!compareProxyTagList(pk, updated)) {
+      objection("proxy tags", "has outdated");
+      edits.proxy_tags = updated.proxy_tags;
+    }
+  }
+  function checkPronouns() {
     if (!pk.pronouns) {
       // #todo just autofix, don't object?
       //objection("preferred pronouns");
-      pk.pronouns = "they/them";
+      edits.pronouns = "they/them";
+      objection("pronouns");
       //autofix = true;
+    } else if (pk.pronouns.indexOf("they/them") < 0) {
+      edits.pronouns = ", they/them";
+      objection("pronouns", "doesn't have they/them in their");
     }
-  } else {
-    // check privacy
   }
-  return pk
+  function checkDescription() {
+    if (isMain && pk.description !== updatedDescription(pk)) {
+      // description is wrong format or fusion note is old
+      edits.description = updatedDescription(pk);
+      objection("description", "has an outdated");
+    }
+  }
+
+  checkNames();
+  // needs to go after name check and before proxy check:
+  Object.assign(pk, edits);
+  //checkProxies(); // #todo re-enable after other things are fixed and we have a new exported backup
+
+  checkAvatar();
+  checkDescription();
+  checkPronouns();
+  checkPrivacy();
+
+  // #todo
+  // all non-alt members should have:
+  // - a description with what digits are fused into them etc
+  // - all named members should have:
+  // - Name: text and text -Name proxies
+  // check and make sure name is unique
+
+  // alt members:
+  // - should have a trailing '
+  // - be a member of group with id 'zdytf'
+  // - if no image, use the image from the main proxy in PK
+
+  // @todo make everything here part of making new members
+
+
+  if (JSON.stringify(edits) !== "{}") {
+    if (autoUpload) {
+      editMember(pk.id, edits)
+    } else {
+      if (!silent) {
+        log(`Suggested changes for ${pk.name}:\n${pretty(edits)}`);
+      }
+    }
+  }
+  return Object.assign(pk, edits)
 }
