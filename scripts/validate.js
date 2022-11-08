@@ -108,8 +108,12 @@ function updateRequiredProxyTags(pk) {
 }
 function nameOccurs(name) {
   // returns the number of times this name is currently used
-  // #todo implement and use in name updates
-  return true
+  // #todo implement
+  // #todo use in name updates
+  let allNames = Object.keys(data.callsigns_by_name);
+  let count = allNames.filter(e => (e === name)).length;
+    log(`checking for name ${name}: ${allNames.filter(e => (e === name)).join(",")}`)
+  return count
 }
 
 function checkMemberObject(pk, autoUpload = true) {
@@ -117,7 +121,7 @@ function checkMemberObject(pk, autoUpload = true) {
   autoUpload = false; // while testing #later remove this  
   let edits = {}
   let callsign = getCallsign(pk);
-  let isMain = ((callsign.slice(-1) !== "'") && (callsign.slice(-1) !== '"'));
+  let isMain = isMainProxy(callsign);
   // #later, also detect if we're getting a public-facing pk object or not by looking at privacy: null and/or lack of display_name?
 
   let silent = true;
@@ -129,6 +133,14 @@ function checkMemberObject(pk, autoUpload = true) {
   
   function checkNames() {
     // #todo check name format, #### | Nickname
+
+    if (pk.name === "Unnamed") {
+      objection("name", "is not set properly");
+      pk.name = callsign;
+      edits.name = callsign;
+      // this shouldn't happen again, but it has in the past
+    }
+
     if (!pk.display_name) {
       objection("display name");
       // if alt, check that it includes a parenthetical with nickname from main
@@ -137,10 +149,6 @@ function checkMemberObject(pk, autoUpload = true) {
     } else if (pk.display_name.indexOf(pk.name) < 0) {
       objection("display name", "doesn't contain their name");
       // #todo prompt to resolve?
-    }
-    if (nameOccurs(pk.name) > 1) {
-      objection("name", "has a duplicate name");
-
     }
   }
   function checkPrivacy() {

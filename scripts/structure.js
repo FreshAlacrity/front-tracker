@@ -88,10 +88,18 @@ function makeInitialList() {
     
     headmates[key].sibs = sibs;
   }
-  for (const [callsign, value] of Object.entries(headmates)) {
-    fillInSiblings(callsign);
-  }
   
+  let allNumericalCallsigns = copy(Object.keys(headmates));
+  allNumericalCallsigns.forEach(fillInSiblings)
+
+  // add unconventional headmates
+  // see https://dash.pluralkit.me/dash?tab=groups&view=list
+  headmates["A"] = { sibs: allNumericalCallsigns }
+
+  //["?", "*", "H", "C", "#"].forEach(cs => {
+    headmates["?"] = {}
+  //});
+
   data.structure.relatives = headmates;
   return Object.keys(headmates);
 }
