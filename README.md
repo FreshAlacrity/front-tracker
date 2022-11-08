@@ -3,6 +3,12 @@
 ## To Do
 
 ### Next
+- [ ] prompt for token
+- [x] cache data locally and get rid of exported.js
+- sort order options
+  - [ ] show fusions of active members first
+- [ ] support public and private views
+  - [ ] add an edit mode, so some people can see the private info without accidentally editing
 - move known issues to GitHub issue tracker
 - set up a POST or whatever to log fronts for specific projects
 - add a color picker for favorite colors
@@ -29,6 +35,7 @@
 - [ ] fix load from PK and update cached data
 - [ ] validate PK data and suggest edits
   - [ ] use/apply function to generate fusion notes
+- [ ] move "Verbal" and "Descriptive" description keys to Alt accounts instead
 
 ### Known Issues
 - [ ] changing the name for a headmate with no proxy in the exported data but a proxy that exists on PK can result in two proxies for a single headmate because it prompts you to make a new one; maybe it should load in a totally new set of PK data first to check?

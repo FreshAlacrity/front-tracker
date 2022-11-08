@@ -2,8 +2,7 @@
 <html lang="en">
 
 <head>
-
-  <title>Front Tracker WIP 0.2</title>
+  <title>Front Tracker 0.3</title>
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,12 +13,12 @@
 
   <link rel="stylesheet" href="style.css">
   <script>console.log("----RELOAD----")</script>
+  <script src="scripts/localforage.js"></script>
   <script src="scripts/util.js"></script>
   <script src="scripts/auth.js"></script>
   <script src="scripts/validate.js"></script>
   <script src="scripts/interact.js"></script>
   <script src="scripts/statuses.js"></script>
-  <script src="scripts/exported.js"></script>
   <script src="scripts/tiles.js"></script>
   <script src="scripts/structure.js"></script>
   <script src="scripts/pk_api.js"></script>
@@ -35,9 +34,10 @@
     <!--#todo <button onclick="toggleMemberlist()">Show/Hide Other Members (WIP)</button>-->
     <button onclick="reportSwitch()">Log Switch</button>
     <button onclick="loadFronters()">Current Fronters</button>
-    <button onclick="loadFromPk()">Reload Member List</button>
+    <button onclick="loadFromPk()">Load from PK</button>
+    <button onclick="clearLocalData()">Clear Local Data</button>
   </div>
-  <div id="issues"></div>
+  <div id="issues"></div> <!--#todo rename to something like "messages" or "comments" -->
   <div id="fronters"></div>
 </body>
 

@@ -91,6 +91,9 @@ function updateUrl(paramsObj = {}) {
   // #later learn how/where the state information (here {}) can be accessed
   window.history.replaceState({}, 'New Page Title Here #todo', newUrl(paramsObj))
 }
+function paramValue(urlParams, key) {
+  return decodeURIComponent(urlParams.get(key));
+}
 function splitByEach(string, breakAt = ", ") {
   breakAt.split('').forEach(c => { string = string.replaceAll(c, '<!split!>') });
   return string.split('<!split!>').filter(a => (a !== ''));
@@ -177,18 +180,26 @@ function updatedDescription(pk) {
 function newMemberPkFromCallsign(callsign) {
   // #todo add defaults for alt accounts also  
   // if alt, add a parenthetical to name with nickname from main
-  return {
-    name: callsign,
-    display_name: `${callsign} | Unnamed`,
-    pronouns: 'they/them',
-    "proxy_tags": [
-      { "prefix": null, "suffix": " -" + callsign },
-      { "prefix": callsign + ": ", "suffix": null }
-    ],
-    "privacy": {
-      "name_privacy": "private",
-    },
-    description: fusionNote(callsign)
+  // #todo if alt has same name as main, add the alt suffix after the pk.name to avoid duplicates
+  if (isMainProxy(callsign)) {
+    return {
+      name: callsign,
+      display_name: `${callsign} | Unnamed`,
+      pronouns: 'they/them',
+      "proxy_tags": [
+        { "prefix": null, "suffix": " -" + callsign },
+        { "prefix": callsign + ": ", "suffix": null }
+      ],
+      "privacy": {
+        "name_privacy": "private",
+      },
+      description: fusionNote(callsign)
+    }
+  } else {
+    // alt account
+    let main = getPkObject(mainCallsign(callsign));
+    // #todo
+
   }
 }
 function getPkObject(callsign) {
@@ -252,14 +263,14 @@ function getAvatarURL(pk) {
   }
 }
 function getBgColor(cs) {
-  let pk = getPkObject(cs);
-  if (pk.name.name) {
-    log(pretty(pk))
-  }
-  if (pk && pk.color && pk.color !== "null") {
-    log("foo");
-    return "#" + pk.color;
-  } else {
+  //let pk = getPkObject(cs);
+  //if (pk.name.name) {
+    // #todo troubleshoot this and close the GitHub issue
+    //log(pretty(pk))
+  //}
+  // if (pk && pk.color && pk.color !== "null") {
+    //return "#" + pk.color;
+  //} else {
     let baseHue = [];
     function colorFromCallsign(cs) {
       return Math.floor(seeded(cs)() * 361)
@@ -268,7 +279,7 @@ function getBgColor(cs) {
     // and average the hue values?
     let hue = colorFromCallsign(cs)
     return `hsl(${hue}, 20%, 40%)`;
-  }
+  //}
 }
 function getSideSibsList(cs) {
   let h = data.structure.relatives;
@@ -276,8 +287,16 @@ function getSideSibsList(cs) {
 }
 function getAllSibsList(cs) {
   let h = data.structure.relatives;
-  let all = [].concat(h[cs].sibs, h[cs].lil_sibs, h[cs].big_sibs);
-  return sortByCallsign(all).reverse();
+  if (!h.hasOwnProperty(cs)) { 
+    log(cs + " has no sibling entry") 
+    return [];
+  } else {
+    let all = [].concat(h[cs].sibs, h[cs].lil_sibs, h[cs].big_sibs);
+    return sortByCallsign(all).reverse();
+  }
+}
+function isMainProxy(callsign) {  
+  return (callsign == mainCallsign(callsign));
 }
 
 // = Plugging in Data =
@@ -285,21 +304,24 @@ function updateNameList(name, callsign) {
   // #todo use this when renaming members also
   let nick = name.toLowerCase();
   let previous = callsignFromNickname(nick);
-  if (nick === "unnamed") {
+  if (previous && previous !== callsign) {
     // this should never happen, but just in case:
-    error(`${callsign} should have the temporary name ${callsign} instead of "Unnamed"`);
-  } else if (previous && previous !== callsign) {
-    // this should never happen, but just in case:
-    error(`Name '${nick}' (${callsign}) already belongs to another member with callsign ${previous}`);
+    error(`Name '${nick}' (${callsign}) already belongs to another member with callsign ${previous}:`);
+    log(pretty(getPkObject(previous)));
   } else {
     data.callsigns_by_name[nick] = callsign;
   }
 }
-function updatePkInfo(pk) {
+function updatePkInfo(pk, noSave = false) {
+  pk = checkMemberObject(pk);
   let callsign = getCallsign(pk);
   data.callsigns_by_id[pk.id] = callsign;
   if (pk.name) { updateNameList(pk.name, callsign) }
-  data.members_by_callsign[callsign] = checkMemberObject(pk);
+  data.members_by_callsign[callsign] = pk;
+  if (!noSave) {
+    //log(`Saving member to localForage: ${pk.id}`)
+    localforage.setItem(pk.id, pk).catch(err => error);    
+  }
 }
 async function updateDataFromMemberList(list = exported.members) {
   console.groupCollapsed("Updating from member list:");
