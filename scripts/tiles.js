@@ -20,6 +20,7 @@ function addHeadmateTile(mainCs) {
     let coin = document.createElement("div");
     coin.addEventListener("click", onClick);
     coin.classList.add("flip-coin");
+    coin.classList.add("hidden"); // #here
     coin.id = "tile-" + mainCs;
     data.page.container.appendChild(coin);
 

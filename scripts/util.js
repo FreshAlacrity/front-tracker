@@ -92,6 +92,7 @@ function updateUrl(paramsObj = {}) {
   window.history.replaceState({}, 'New Page Title Here #todo', newUrl(paramsObj))
 }
 function paramValue(urlParams, key) {
+  // decodes the encoding that updateUrl uses
   return decodeURIComponent(urlParams.get(key));
 }
 function splitByEach(string, breakAt = ", ") {
@@ -127,6 +128,7 @@ function digits() {
   for (a = 1; a <= data.setup.digits; a++) {
     arr.push(a + '')
   }
+  arr.push('*')
   return arr;
 }
 function sortCallsign(callsign) {
@@ -139,21 +141,27 @@ function sortCallsign(callsign) {
 }
 function sortByCallsign(arr) {
   // sorts and deduplicates a callsign list
-  // @later use custom sort?
-  return [...new Set(arr)].sort(function (x, y) {
-    x = parseInt(x);
-    y = parseInt(y);
-    if (x < y) {
-      return -1;
+  let digitList = digits();
+  function compare(x, y) {
+    function c(d, i) {
+      return digitList.indexOf(d.charAt(i) + '')
     }
-    if (x > y) {
-      return 1;
+    if (x.length !== y.length) { 
+      return x.length - y.length; 
+    } else {
+      for(i=0;i<=x.length;i++){
+        if (c(x, i) !== c(y, i)) { 
+          return c(x, i) - c(y, i);
+        }
+      }
+      return 0;
     }
-    return 0;
-  });
+  }
+  return [...new Set(arr)].sort(compare);
 }
+
 function getMemberList() {
-  return Object.keys(data.structure.relatives);
+  return sortByCallsign(Object.keys(data.structure.relatives));
 }
 
 // = Find Individual Member Data =

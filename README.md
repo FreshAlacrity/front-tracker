@@ -3,8 +3,17 @@
 ## To Do
 
 ### Next
+- [ ] add a checkbox toggle to the html page for live/local
+
 - [ ] upload to GitHub site as /front/
-  - move known issues to GitHub issue tracker
+  - [ ] prompt for token instead of storing that in a file
+    - [ ] support public and private views
+      - [ ] default to fetching current fronters?
+      - [ ] add an edit mode, so some people can see the private info without accidentally editing
+      - [ ] when there's no token entered or not editing=true:
+        - [ ] make name fields un-editable
+        - [ ] double click should go to public page
+        - [ ] hide 'log switch' button
 
 - [ ] validate PK data and suggest edits
   - [x] function to fix fusion notes
@@ -12,45 +21,30 @@
   - [ ] make proxies for all triples
   - [ ] make export command to do all those changes at once
 
-- [ ] prompt for token instead of storing that in a file
-  - [ ] support public and private views
-    - [ ] add an edit mode, so some people can see the private info without accidentally editing
-    - [ ] when there's no token entered or not editing=true:
-      - [ ] make name fields un-editable
-      - [ ] double click should go to public page
-      - [ ] hide 'log switch' button
-
-- [ ] set PK colors as profile background colors
-  - [ ] add a color picker for member colors
-    - see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/color
 - [ ] visible feedback (not just in the console)
   - [ ] some kind of feedback that fronters have been successfully logged (maybe the button can't be pressed and says "Logged" if what's being shown _are_ the current fronters?)
   - the "Current Fronters" button should also be disabled if the current fronters are being shown
-- default to fetching current fronters when 'live' is set true?
+
 - set it up so it asks for a key to save locally if you try to do anything that it needs it for
   - use async alert() and await?
 - when only showing the active members, show a side panel with a card tht has the details for that PK member
 
-- [ ] function + template generation for making new alt proxies
-
 
 ### Active List Syntax
-- in the future, save the input string separately so it keeps the syntax the user entered
+- [ ] save the input string separately so it keeps the syntax the user entered
 - search function/syntax
   - when a member isn't found, use this to locate a near match
   - search by emojis and emoji names
     - use the emoji list in the spreadsheet to allow search by near miss
-- grouping headmates like (2, 6, 7) to show stability in that group/available fusions for those members?
-  (had a blur moment where it felt like those three were working together but it wasn't clear how)
-- for who is involved in a specific project/will be shown a todo list item:
-  REQUIRE
-    +## show only if this member is present (required AND)
-    ##+ for requiring fusions containing (both) those digits
-  UNLESS
-    -## for excluding front combinations that contain this member personally
-    ##- for excluding fronts that contain that member and their fusions
-  OVERRIDE
-    ## for if a specific member to be present is sufficient (optional OR)
+  - some way to limit callsigns to a certain number of digits? so like N<4?
+  - [ ] Add/Require
+    - [ ] +## show only if this member is present (required AND)
+    - [x] ##+ for requiring/including fusions containing (both) those digits
+  - [ ] Remove/Unless
+    - [ ] -## for excluding front combinations that contain this member personally
+    - [ ] ##- for excluding fronts that contain that member and their fusions
+  - OVERRIDE
+    - [ ] ## for if a specific member to be present is sufficient (optional OR)
 
 #### Examples:
   [] any front can see it
@@ -94,8 +88,7 @@
   - [ ] detecting whether the click is to front or back seems not to be happening?
 
 ### Later
-- [ ] function to suggest Picrews  
-  - suggest picrews from headmates who share digits
+- [ ] function + template generation for making new alt proxies
 - sort order/display options
   - [ ] show fusions of active members first
   - [ ] hide all but active members
@@ -118,10 +111,11 @@
   -  if somebody was trying to use a pentagram to summon you and there was space to put 5 objects, what 5 things would summon you in particular? (can this be phrased more clearly/made shorter?)
 
 ### UI & Styling
-- plaintext/screen reader friendsly mode that loads no images
-- dots around the rim in 12 hour clock positions for digits
-  - test out doing sigil-style connections between them over portraits and for members with no portrait
-- fields should have outline dark grey, buttons should be solid
+- [ ] grey out the log switch button after submitting and show a 'succesfully logged' message
+- [ ] set PK colors as profile background colors
+- [ ] plaintext/screen reader friendsly mode that loads no images
+- [ ] dots around the rim in 12 hour clock positions for digits
+  - [ ] test out doing sigil-style connections between them over portraits and for members with no portrait
 - [ ] support for section headers
   - 100% width
   - Active, Available, and Unavailable
@@ -130,25 +124,25 @@
 - [ ] styling for alt portraits for members with no unique alt profile image
   - [ ] CSS class for this
   - decide on an effect
-- custom silhouette for headmates that don't have portraits
+- custom silhouette for members that don't have portraits
   - use one of the 'Alec' picrews and make it all greyed out over a random color background
 - style present digits by % to fit on one line
   - style other icons to be that size or smaller
 - alternate style/layout for mobile: names off to right side with details?
+- fields should have outline dark grey, buttons should be solid
 
 ## Click Actions
+- [ ] add a color picker for member colors
+  - see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/color
 - shift click to fuse
-  - when the first headmate is shift-clicked:
+  - when the first icon is shift-clicked:
     - [ ] sort all their fusions right after current fronters/push those to the front of the list
   - [ ] shift clicking a second digit fuses the two
 - when using CTRL + click on a fused headmate, pull up a popup that shows split options/previews the split (that disappears when CTRL is released - split to digits - or an option is clicked)
 
 ## Callsigns
-  - consider callsigns like ###f and ###o for alts? (since ' isn't html-safe)
-  - how to support callsigns like 19-5? (would that be 195-o?)
-
-
-
+- consider callsigns like ###f and ###o for alts? (since ' isn't html-safe)
+- how to support callsigns like 19-5? (would that be 195-o?)
 
 ## Notes
 - [ ] add a "?" button to the page that shows this info:

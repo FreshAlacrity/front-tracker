@@ -16,9 +16,9 @@ function makeInitialList() {
   }
   function mergeEntries(a, b) {
     // @later why does removing the length from here cause an infinite loop?
-    let comb = (a + '' + b);
-    let key = sortCallsign(comb);
-    if (a !== b && key.length <= cap && comb.length == key.length) {
+    let combined = (a + '' + b);
+    let key = sortCallsign(combined);
+    if (a !== b && key.length <= cap && combined.length == key.length) {
       let A = headmates[a].lil_sibs;
       let B = headmates[b].lil_sibs;
       let C = [];
@@ -51,13 +51,13 @@ function makeInitialList() {
     }
   }
   
-  // set up generation 1 and then recursively combine
-  for (a = 1; a <= baseNum; a++) { newMember(a) }
+  // make an initial generation then recursively combine
+  digits().forEach(newMember);
   for (g = 0; g < cap; g++) {
     addMergeGeneration();
     dedupCallsigns();
   }
-    
+
   // fill in all sibs
   function fillInSiblings(key) {
     let sibs = [];
@@ -96,7 +96,7 @@ function makeInitialList() {
   // see https://dash.pluralkit.me/dash?tab=groups&view=list
   headmates["A"] = { sibs: allNumericalCallsigns }
 
-  let unconventionals = ["?", "*", "H", "C", "#"];
+  let unconventionals = ["?", "H", "C", "#"];
   unconventionals.forEach(cs => {
     headmates[cs] = {}
   });

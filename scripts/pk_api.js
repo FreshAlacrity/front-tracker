@@ -165,24 +165,39 @@ async function reportSwitch(active = getActive(), system = 'lhexq') {
   // ONLY REPORT MAIN IDs, NEVER ALT IDs:
   let idList = active.map(mainCallsign).map(isMember);
   let url = rootUrl + "/systems/" + system + "/switches"
-  try {
-    Promise.all(idList).then(list => {
-      log("Reporting switch with IDs: " + list.join(', '));
-      let etc = {
-        method: 'POST', // GET, POST, PUT, DELETE, etc.
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: pkToken
-        },
-        // #later support also timestamp?
-        body: JSON.stringify({ members: list })
+  
+  function validateSwitch() {
+    let ok = true;
+    digits().forEach(d => {
+      if (occurs(active.join(''), d) > 1) {
+        error(`${d} cannot be in two fusions at once!`);
+        ok = false;
       }
-      delayedFetch(url, etc)
     });
-    return true;
-  } catch (error) {
-    alert(error);
-    return false;
+    return ok;
   }
 
+  if (validateSwitch()) {
+    try {
+      Promise.all(idList).then(list => {
+        log("Reporting switch with IDs: " + list.join(', '));
+        let etc = {
+          method: 'POST', // GET, POST, PUT, DELETE, etc.
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: pkToken
+          },
+          // #later support also timestamp?
+          body: JSON.stringify({ members: list })
+        }
+        delayedFetch(url, etc)
+      });
+      return true;
+    } catch (error) {
+      alert(error);
+      return false;
+    }
+  } else {
+    return false;
+  }
 }

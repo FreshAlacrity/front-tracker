@@ -3,13 +3,38 @@ function validateMemberListInput(string, doAlert = false) {
   let arr = splitByEach(string, ",.~ ;:/");
   let all = getMemberList();
   let notMembers = [];
-  arr = arr.map(entry => {
-    if (callsignFromNickname(entry)) {
-      return callsignFromNickname(entry)
+  function has(key, str) {
+    if (key.length === 1) {
+      return str.indexOf(key) > -1
     } else {
-      return entry
+      return (key.split('').filter(d => (str.indexOf(d) > -1)).length >= key.length)
     }
-  }).filter(cs => {
+  }
+  function have(key, arr, match = true) { return arr.filter(e => (has(key, e) === match)) }
+  function endsIn(end, str) { return str.slice(-1) === end }
+  
+  let exclusions = have("-", arr);
+  arr = have("-", arr, false);
+  arr = arr.map(e => {
+    if (callsignFromNickname(e)) {
+      return callsignFromNickname(e)
+    } else if (has('+', e)) {
+      let qualifies = have(e.replace('+',''), all);
+      qualifies = qualifies.filter(m => {
+        if (endsIn('-', e)) {
+          // remove any member that contains these digits
+          return exclusions.filter(x => has(x.replace('-',''), m)).length === 0;
+        } else {
+          // remove only perfect matches
+          return exclusions.filter(x => has(m, x.replace('-',''))).length === 0;
+        }
+      });
+      return qualifies;
+    } else {
+      return e
+    }
+  }).flat()
+  arr = arr.filter(cs => {
     if (!all.includes(cs)) {
       notMembers.push(cs);
       return false;
@@ -17,20 +42,13 @@ function validateMemberListInput(string, doAlert = false) {
       return true;
     }
   });
-  let msg = ''
-  if (notMembers.length > 0) {
-    msg += `These are not current system member(s): ${notMembers.join(", ")}`;
-  }
-  digits().forEach(d => {
-    if (occurs(arr.join(''), d) > 1) {
-      msg += d + ` cannot be in two fusions at once!`;
-    }
-  })
 
-  if (doAlert && msg !== '') {
-    alert(msg);
-  } else if (msg !== '') {
-    error(msg);
+  // deduplicate:
+  arr = sortByCallsign(arr);
+
+  if (notMembers.length > 0) {
+    // currently can cause a softlock if using alert()
+    showMessage(`These are not registered member(s): ${notMembers.join(", ")}`);
   }
   log("Using: " + arr)
   return arr

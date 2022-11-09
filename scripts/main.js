@@ -48,16 +48,16 @@ function init() {
   // flip to alt accounts
   if (urlParams.has('alts') === true) { flipTiles() }
 
-  if (urlParams.has('active') === true) {
+  if (urlParams.has('active') === true && urlParams.get('active') !== "fronters") {
     // get list from url
     let active = validateMemberListInput(paramValue(urlParams, 'active'), false);
+    data.page.active_list.value = paramValue(urlParams, 'active');
     updatePage(active);
   } else {
     // get current fronters from PK
     loadFronters();
   }
   
-
   data.page.active_list.addEventListener("focusout", activeListInput);
   data.page.active_list.addEventListener("keypress", function (event) {
     // If the user presses the "Enter" key on the keyboard

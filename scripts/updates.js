@@ -1,9 +1,14 @@
+function showMessage(text) {
+  // #later have this show on the page in a designated area
+  error(text);
+}
 function loadFronters() {
-  // #todo also note the timestamp and how long ago that was
+  // #todo also note the timestamp and how long ago that was  
   getFronters().then(d => {
     log(d.members)
-    // #later make a way to check this data against existing data?
+    // #later make a way to check this data against existing data?    
     //loadFromPkMemberList(d.members);
+    data.page.active_list.value = "fronters";
     updatePage(d.members.map(getCallsign))
   });
 }
@@ -11,24 +16,22 @@ function getActive(doAlert) {
   return validateMemberListInput(data.page.active_list.value, doAlert)
 }
 function activeListInput() {
-  // on Enter key or focus leaves active list text box
-  updatePage(getActive(true));
+  // runs on Enter key or when focus leaves active list text box
+  if (getActive() !== "fronters") {
+    updatePage(getActive(true));
+  } else {
+    loadFronters();
+  }
 }
 function updatePage(active = getActive()) {
   active = sortByCallsign(active);
   updateTileClasses(active);
 
-  let activeList = active.join('~');
-  if (activeList === digits().join('~')) {
-    // don't bother adding it to the url if it's the default list
-    // #todo don't save if the page is showing the current fronters?
-    activeList = ''
-  }
-  updateUrl({ active: activeList });
+  updateUrl({ active: data.page.active_list.value });
 
   // #later also update page title?
-  data.page.active_list.defaultValue = active.join(", ");
-  data.page.active_list.value = active.join(", ");
+  //data.page.active_list.defaultValue = active.join(", ");
+  //data.page.active_list.value = active.join(", ");
 }
 function loadFromPkMemberList(list) {
   list.forEach(pk => { updatePkInfo(pk) });
