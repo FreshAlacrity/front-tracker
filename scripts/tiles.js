@@ -15,12 +15,12 @@ function elementByCallsign(callsign) {
 */
 
 // used in init()
-function addHeadmateTile(num) {  
+function addHeadmateTile(mainCs) {  
   function makeCoin() {
     let coin = document.createElement("div");
     coin.addEventListener("click", onClick);
     coin.classList.add("flip-coin");
-    coin.id = "tile-" + num;
+    coin.id = "tile-" + mainCs;
     data.page.container.appendChild(coin);
 
     let coinFaces = document.createElement("div");
@@ -33,17 +33,17 @@ function addHeadmateTile(num) {
     coinFront.classList.add("flip-coin-" + type);
 
     let icon = document.createElement("div");
-    icon.id = `icon-${type}-${num}`;
+    icon.id = `icon-${type}-${mainCs}`;
     icon.addEventListener("dblclick", onDoubleClick);
     icon.classList.add("icon");
     // #todo troubleshoot:
-    icon.style.backgroundColor = getBgColor(num);
+    icon.style.backgroundColor = getBgColor(mainCs);
     coinFront.appendChild(icon);
-    coinFront.title = num;
+    coinFront.title = mainCs;
 
     let name = document.createElement("div");
-    name.id = `name-${type}-${num}`;
-    name.textContent = num;
+    name.id = `name-${type}-${mainCs}`;
+    name.textContent = mainCs;
     coinFront.appendChild(name);
 
     coinFront.title += '\n' + status;
@@ -55,13 +55,13 @@ function addHeadmateTile(num) {
   coin.appendChild(coinFace("back"));
 }
 
-function updateHeadmateTile(num) {
-  let m = getPkObject(num);
+function updateHeadmateTile(mainCs) {
+  let m = getPkObject(mainCs);
   function nameElement(type) {
     let element = document.createElement("div");
-    element.id = `name-${type}-${num}`;
+    element.id = `name-${type}-${mainCs}`;
     // #todo adjust for alt accounts
-    element.innerHTML = `${getEmoji(m)} ${num} ${getEmoji(m)}<br>`;
+    element.innerHTML = `${getEmoji(m)} ${mainCs} ${getEmoji(m)}<br>`;
 
     let nickname = document.createElement("input");
     nickname.addEventListener("focusout", nameChange);
@@ -83,9 +83,9 @@ function updateHeadmateTile(num) {
       nickname.placeholder = val;
     }
     if (type === "front") {
-      nickname.id = "name-for-" + num
+      nickname.id = "name-for-" + mainCs
     } else {
-      nickname.id = "alt-name-" + num
+      nickname.id = "alt-name-" + mainCs
     }    
     element.appendChild(nickname);
 
@@ -106,10 +106,10 @@ function updateHeadmateTile(num) {
   }
   function updateBothSides() {
     ["front", "back"].forEach(type => {
-      let name = document.getElementById(`name-${type}-${num}`);
+      let name = document.getElementById(`name-${type}-${mainCs}`);
       if (name) { name.replaceWith(nameElement(type)) }
 
-      let icon = document.getElementById(`icon-${type}-${num}`);
+      let icon = document.getElementById(`icon-${type}-${mainCs}`);
       if (icon) { setAvatar(icon) }
     });
   }
