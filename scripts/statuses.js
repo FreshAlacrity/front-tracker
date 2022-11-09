@@ -1,14 +1,18 @@
 // = Status Management =
 function updateTileClasses(active) {
   let unavailable = listUnavailable(active);
+  let showAvailable = data.setup.show.available;
+  let showUnavailable = data.setup.show.unavailable;
   getMemberList().forEach(cs => {
     let e = elementByCallsign(cs);
     if (e) { // accounting for tiles that may not be present
-      let tileClass = "available"
+      let tileClass = "hidden"
       if (active.includes(cs)) {
         tileClass = "active"
-      } else if (unavailable.includes(cs)) {
+      } else if (unavailable.includes(cs) && showUnavailable) {
         tileClass = "unavailable"
+      } else if (showAvailable && !unavailable.includes(cs)) {
+        tileClass = "available"
       }
       e.className = tileClass + ' flip-coin';
     }

@@ -4,11 +4,17 @@ var data = {
   page: {
     container: document.getElementById("fronters"),
     active_list: document.getElementById("active-list"),
+    show_available: document.getElementById("show-available"),
+    show_unavailable: document.getElementById("show-unavailable")
   },
   setup: {
     digits: 9,
     member: {
       alts: 3,
+    },
+    show: {
+      available: false,
+      unavailable: false
     }
   },
   structure: {
@@ -20,73 +26,7 @@ var data = {
   callsigns_by_name: {},
   callsigns_by_id: {}
 }
-function loadFronters() {
-  // #todo also note the timestamp and how long ago that was
-  getFronters().then(d => {
-    log(d.members)
-    // #later make a way to check this data against existing data?
-    //loadFromPkMemberList(d.members);
-    updatePage(d.members.map(getCallsign))
-  });
-}
-function getActive(doAlert) {
-  return validateMemberListInput(data.page.active_list.value, doAlert)
-}
-function activeListInput() {
-  // on Enter key or focus leaves active list text box
-  updatePage(getActive(true));
-}
-function updatePage(active) {
-  active = sortByCallsign(active);
-  updateTileClasses(active);
 
-  let activeList = active.join('~');
-  if (activeList === digits().join('~')) {
-    // don't bother adding it to the url if it's the default list
-    // #todo don't save if the page is showing the current fronters?
-    activeList = ''
-  }
-  updateUrl({ active: activeList });
-
-  // #later also update page title?
-  data.page.active_list.defaultValue = active.join(", ");
-  data.page.active_list.value = active.join(", ");
-}
-
-function loadFromPkMemberList(list) {
-  list.forEach(pk => { updatePkInfo(pk) });
-  updateAllHeadmateTiles();
-}
-function loadFromPk() {
-  log("Loading all members directly from PK");
-  getMemberObjectList().then(loadFromPkMemberList);
-}
-function loadFromLocalForage() {
-  log("Loading locally cached member data");
-  localforage.iterate(function (pk, id, iterationNumber) {
-    //log(`Loading member from local cache: ${pretty(pk)}`)
-    updatePkInfo(pk, true); // prevents immediately re-saving
-  }).then(function () {
-    updateAllHeadmateTiles();
-    log("All locally cached member data loaded");
-  }).catch(function (err) {
-    // This code runs if there were any errors
-    error(err);
-  });
-}
-function clearLocalData() {
-  // via https://localforage.github.io/localForage/#data-api-clear
-  localforage.clear().then(function () {
-    // Run this code once the database has been entirely deleted.
-    log('Local storage cleared');
-  }).catch(function (err) {
-    // This code runs if there were any errors
-    error(err);
-  });
-}
-function resetList() {
-  updatePage(digits());
-}
 function init() {
   // add tiles for the current member list
   makeInitialList().forEach(addHeadmateTile)
@@ -126,6 +66,19 @@ function init() {
       event.preventDefault();
       activeListInput();
     }
+  });
+
+  // set up show/hide checkboxes
+  // #todo streamline this
+  data.page.show_available.checked = data.setup.show.available;
+  data.page.show_available.addEventListener('change', function() {
+    data.setup.show.available = this.checked;
+    updatePage()    
+  });
+  data.page.show_available.checked = data.setup.show.unavailable;
+  data.page.show_unavailable.addEventListener('change', function() {
+    data.setup.show.unavailable = this.checked;
+    updatePage()
   });
 
   //loadFromPK();

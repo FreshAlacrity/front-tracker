@@ -6,9 +6,7 @@
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" 
-    content="a WIP widget for quickly selecting who is around to work on tasks etc."
-  >
+  <meta name="description" content="a WIP widget for quickly selecting who is around to work on tasks etc.">
   <meta name="keywords" content="JavaScript, project, planning, productivity">
 
   <link rel="stylesheet" href="style.css">
@@ -17,7 +15,7 @@
   <script src="scripts/util.js"></script>
   <script src="scripts/auth.js"></script>
   <script src="scripts/validate.js"></script>
-  <script src="scripts/interact.js"></script>
+  <script src="scripts/updates.js"></script>
   <script src="scripts/statuses.js"></script>
   <script src="scripts/tiles.js"></script>
   <script src="scripts/structure.js"></script>
@@ -36,8 +34,10 @@
     <button onclick="loadFronters()">Current Fronters</button>
     <button onclick="loadFromPk()">Load from PK</button>
     <button onclick="clearLocalData()">Clear Local Data</button>
+    <input type="checkbox" name="show-available-members" id="show-available" title="Show/hide available members"/>
+    <input type="checkbox" name="show-unavailable-members" id="show-unavailable" title="Show/hide unavailable members"/>
   </div>
-  <div id="issues"></div> <!--#todo rename to something like "messages" or "comments" -->
+  <div id="messages" class="note"></div>
   <div id="fronters"></div>
 </body>
 

@@ -96,9 +96,10 @@ function makeInitialList() {
   // see https://dash.pluralkit.me/dash?tab=groups&view=list
   headmates["A"] = { sibs: allNumericalCallsigns }
 
-  //["?", "*", "H", "C", "#"].forEach(cs => {
-    headmates["?"] = {}
-  //});
+  let unconventionals = ["?", "*", "H", "C", "#"];
+  unconventionals.forEach(cs => {
+    headmates[cs] = {}
+  });
 
   data.structure.relatives = headmates;
   return Object.keys(headmates);

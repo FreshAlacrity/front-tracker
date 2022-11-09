@@ -3,13 +3,12 @@
 ## To Do
 
 ### Next
-- reorganize this ToDo list document
 - [ ] upload to GitHub site as /front/
   - move known issues to GitHub issue tracker
 
 - [ ] validate PK data and suggest edits
-  - [ ] fix fusion notes
-  - [ ] remove emoji proxies
+  - [x] function to fix fusion notes
+  - [ ] function to remove emoji proxies
   - [ ] make proxies for all triples
   - [ ] make export command to do all those changes at once
 
@@ -33,33 +32,62 @@
 - when only showing the active members, show a side panel with a card tht has the details for that PK member
 
 - [ ] function + template generation for making new alt proxies
-- [ ] functions for managing html objects
-  - elements id'd to the pertinent values of [callsign, index, subset, key, value]:
-    - [ ] functions to make blank HTML element/elements of each type
-    - [ ] function to update the HTML element from the member object
+
+
+### Active List Syntax
+- in the future, save the input string separately so it keeps the syntax the user entered
+- search function/syntax
+  - when a member isn't found, use this to locate a near match
+  - search by emojis and emoji names
+    - use the emoji list in the spreadsheet to allow search by near miss
+- grouping headmates like (2, 6, 7) to show stability in that group/available fusions for those members?
+  (had a blur moment where it felt like those three were working together but it wasn't clear how)
+- for who is involved in a specific project/will be shown a todo list item:
+  REQUIRE
+    +## show only if this member is present (required AND)
+    ##+ for requiring fusions containing (both) those digits
+  UNLESS
+    -## for excluding front combinations that contain this member personally
+    ##- for excluding fronts that contain that member and their fusions
+  OVERRIDE
+    ## for if a specific member to be present is sufficient (optional OR)
+
+#### Examples:
+  [] any front can see it
+  [3, 478] only fronts that include Val OR Milo
+  [+3, +478] only fronts that have both Milo and Val
+  [3+, +478] only fronts with some fusion of Val AND Milo can see it
+  [3+, 478, 19-, -9] some fusion of Val but not any fusion of Aster and not Thorn specifically (but like 39 could see it) but if Milo is around it'll show up even if a Val fusion isn't around
+
 
 ### URL Params
   - [ ] token (for authentification)
   - [ ] edit=true/false (on top of having the token or not)
   - [ ] what index/proxy layer to show initially
   - [ ] display modes
-    - [ ] toggle options to show/hide
-      - [ ] callsigns
+    - [ ] public
+    - [ ] private    
       - [ ] alt proxies view (images + names)
         - [ ] alt account names on coin backs
         - [ ] alt account profile images on coin backs
         - [ ] toggle if you hit the ' or ` keys?
-      - [ ] only members with nicknames and/or portraits
-      - [ ] non-active members        
-        - [ ] if only current fronters are shown on load, don't load the whole member list
+    - [ ] edit
+    - [ ] toggle options to show/hide:
+      - [ ] callsigns
+      - [ ] emojis
+      - [ ] members: `?show=active/available/all`
+        - [ ] members missing nicknames + portraits
+        - [ ] members that share digits with fronters/siblings only
+        - [x] non-active members  
+          - [ ] add url parameters for show/hide available and unavailable members 
+          - [ ] when only active members are shown, show little address-book style profiles of the current fronters with pronouns and descriptions
+            - [ ] in edit mode, make every value an editable text field (that'd already be better than PK because you'd have to bring up a description then copy it then edit it, instead of just editing it)
+          - [ ] if only current fronters are shown on load, don't load the whole member list
     - [ ] add a button to do this + dropdown for sort order
 
 - [ ] register a member with PK when selected as fronting if they're not yet registered
+  - test this?
 
-- [ ] option to show little address-book style profiles of the current fronters with pronouns and short descriptions
-  - [ ] helpful partial description in the title
-    - pronouns + 'double click to open in PK dash'?
-  - [ ] make every value an editable text field (that'd already be better than PK because you'd have to bring up a description then copy it then edit it, instead of just editing it)
 
 ### Known Issues
 - [ ] alt accounts aren't loaded so flipping does nothing
@@ -88,32 +116,6 @@
 ### Descriptions
 - add ice breaker type questions to descriptions?
   -  if somebody was trying to use a pentagram to summon you and there was space to put 5 objects, what 5 things would summon you in particular? (can this be phrased more clearly/made shorter?)
-
-### Active List Syntax
-- in the future, save the input string separately so it keeps the syntax the user entered
-- search function/syntax
-  - when a member isn't found, use this to locate a near match
-  - search by emojis and emoji names
-    - use the emoji list in the spreadsheet to allow search by near miss
-- grouping headmates like (2, 6, 7) to show stability in that group/available fusions for those members?
-  (had a blur moment where it felt like those three were working together but it wasn't clear how)
-- for who is involved in a specific project/will be shown a todo list item:
-  REQUIRE
-    +## show only if this member is present (required AND)
-    ##+ for requiring fusions containing (both) those digits
-  UNLESS
-    -## for excluding front combinations that contain this member personally
-    ##- for excluding fronts that contain that member and their fusions
-  OVERRIDE
-    ## for if a specific member to be present is sufficient (optional OR)
-
-#### Examples:
-  [] any front can see it
-  [3, 478] only fronts that include Val OR Milo
-  [+3, +478] only fronts that have both Milo and Val
-  [3+, +478] only fronts with some fusion of Val AND Milo can see it
-  [3+, 478, 19-, -9] some fusion of Val but not any fusion of Aster and not Thorn specifically (but like 39 could see it) but if Milo is around it'll show up even if a Val fusion isn't around
-
 
 ### UI & Styling
 - plaintext/screen reader friendsly mode that loads no images

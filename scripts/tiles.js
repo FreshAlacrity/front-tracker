@@ -36,10 +36,9 @@ function addHeadmateTile(mainCs) {
     icon.id = `icon-${type}-${mainCs}`;
     icon.addEventListener("dblclick", onDoubleClick);
     icon.classList.add("icon");
-    // #todo troubleshoot:
     icon.style.backgroundColor = getBgColor(mainCs);
     coinFront.appendChild(icon);
-    coinFront.title = mainCs;
+    //coinFront.title = '';
 
     let name = document.createElement("div");
     name.id = `name-${type}-${mainCs}`;
@@ -56,12 +55,12 @@ function addHeadmateTile(mainCs) {
 }
 
 function updateHeadmateTile(mainCs) {
-  let m = getPkObject(mainCs);
+  let pk = getPkObject(mainCs);
   function nameElement(type) {
     let element = document.createElement("div");
     element.id = `name-${type}-${mainCs}`;
     // #todo adjust for alt accounts
-    element.innerHTML = `${getEmoji(m)} ${mainCs} ${getEmoji(m)}<br>`;
+    element.innerHTML = `${getEmoji(pk)} ${mainCs} ${getEmoji(pk)}<br>`;
 
     let nickname = document.createElement("input");
     nickname.addEventListener("focusout", nameChange);
@@ -74,7 +73,7 @@ function updateHeadmateTile(mainCs) {
       }
     });
     nickname.classList.add("name");
-    let val = getNickname(m);
+    let val = getNickname(pk);
     if (val !== "Unnamed") {
       nickname.defaultValue = val;
       nickname.value = val;
@@ -92,7 +91,7 @@ function updateHeadmateTile(mainCs) {
     return element;
   }
   function setAvatar(element) {
-    let url = getAvatarURL(m);
+    let url = getAvatarURL(pk);
     // #todo detect broken image urls
     if (url) {
       element.style.backgroundImage = `url('${url}')`
@@ -102,7 +101,7 @@ function updateHeadmateTile(mainCs) {
       element.style.boxShadow = "inset 1em 1em 1em black"; 
       // syntax: h-shadow v-shadow blur spread color
     }
-    element.style.backgroundColor = getBgColor(m);
+    element.style.backgroundColor = getBgColor(pk);
   }
   function updateBothSides() {
     ["front", "back"].forEach(type => {
@@ -110,6 +109,7 @@ function updateHeadmateTile(mainCs) {
       if (name) { name.replaceWith(nameElement(type)) }
 
       let icon = document.getElementById(`icon-${type}-${mainCs}`);
+      icon.title = pk.pronouns + '\n(double click to open PK dash page for this member)'
       if (icon) { setAvatar(icon) }
     });
   }
