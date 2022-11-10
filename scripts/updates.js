@@ -8,8 +8,9 @@ function loadFronters() {
     log(d.members)
     // #later make a way to check this data against existing data?    
     //loadFromPkMemberList(d.members);
-    data.page.active_list.value = "fronters";
-    updatePage(d.members.map(getCallsign))
+    // #todo troubleshoot where to save the list of front IDs so CTRL+clicking works well
+    
+    updatePage(d.members.map(getCallsign), true)
   });
 }
 function getActive(doAlert) {
@@ -23,15 +24,12 @@ function activeListInput() {
     loadFronters();
   }
 }
-function updatePage(active = getActive()) {
+function updatePage(active = getActive(), setTextbox) {
   active = sortByCallsign(active);
   updateTileClasses(active);
 
+  if (setTextbox) { data.page.active_list.value = active; }
   updateUrl({ active: data.page.active_list.value });
-
-  // #later also update page title?
-  //data.page.active_list.defaultValue = active.join(", ");
-  //data.page.active_list.value = active.join(", ");
 }
 function loadFromPkMemberList(list) {
   list.forEach(pk => { updatePkInfo(pk) });
@@ -65,7 +63,7 @@ function clearLocalData() {
   });
 }
 function resetList() {
-  updatePage(digits());
+  updatePage(digits(), true);
 }
 
 function onClick(event) {
@@ -74,7 +72,7 @@ function onClick(event) {
     if (event.target.id.slice(0, "icon-front-".length) !== "icon-front-") {
       callsign = event.target.id.slice("icon-back-".length);
     }
-    updatePage(updateActiveList(getActive(), callsign));
+    updatePage(updateActiveList(getActive(), callsign), true);
   }
 }
 function onDoubleClick(event) {

@@ -1,18 +1,13 @@
-function elementByCallsign(callsign) {
-  return document.getElementById("tile-" + callsign);
+function idStringByCallsign(cs) {
+  // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
+  return "tile-" + encodeURIComponent(cs).replace(
+    /[!'()*]/g,
+    (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`
+  );
 }
-
-/* #todo figure out how to manage status
-
-  if (false && headmate.status.present) {
-    // #todo fix - need new status tracking system
-    coin.style.order = num.length;
-    coin.classList.add("present");
-    coin.classList.add("available");
-  } else {
-    coin.classList.add("available");
-  }
-*/
+function elementByCallsign(callsign) {
+  return document.getElementById(idStringByCallsign(callsign));
+}
 
 // used in init()
 function addHeadmateTile(mainCs) {  
@@ -21,7 +16,7 @@ function addHeadmateTile(mainCs) {
     coin.addEventListener("click", onClick);
     coin.classList.add("flip-coin");
     coin.classList.add("hidden"); // #here
-    coin.id = "tile-" + mainCs;
+    coin.id = idStringByCallsign(mainCs);
     data.page.container.appendChild(coin);
 
     let coinFaces = document.createElement("div");
@@ -121,6 +116,7 @@ function updateAllHeadmateTiles() {
   getMemberList().forEach(updateHeadmateTile);
 }
 
+// #todo put this global in the data object and add a url param
 var tilesFlipped = false;
 function flipTiles() {
   // @todo get this working

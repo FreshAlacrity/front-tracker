@@ -93,7 +93,8 @@ function updateUrl(paramsObj = {}) {
 }
 function paramValue(urlParams, key) {
   // decodes the encoding that updateUrl uses
-  return decodeURIComponent(urlParams.get(key));
+  // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent
+  return decodeURIComponent(urlParams.get(key).replace(/\+/g, " "));
 }
 function splitByEach(string, breakAt = ", ") {
   breakAt.split('').forEach(c => { string = string.replaceAll(c, '<!split!>') });
@@ -125,11 +126,14 @@ function seeded(s) {
 // = Ordering =
 function digits() {
   let arr = []
-  for (a = 1; a <= data.setup.digits; a++) {
+  for (a = 1; a <= 9; a++) {
     arr.push(a + '')
   }
   arr.push('*')
   return arr;
+}
+function digitIndex(d) {
+  return digits().indexOf(d + '');
 }
 function sortCallsign(callsign) {
   // sorts digits within a callsign
@@ -141,15 +145,14 @@ function sortCallsign(callsign) {
 }
 function sortByCallsign(arr) {
   // sorts and deduplicates a callsign list
-  let digitList = digits();
   function compare(x, y) {
     function c(d, i) {
-      return digitList.indexOf(d.charAt(i) + '')
+      return digitIndex((d + '').charAt(i));
     }
     if (x.length !== y.length) { 
       return x.length - y.length; 
     } else {
-      for(i=0;i<=x.length;i++){
+      for(i = 0; i <= x.length; i++){
         if (c(x, i) !== c(y, i)) { 
           return c(x, i) - c(y, i);
         }

@@ -3,6 +3,7 @@
 ## To Do
 
 ### Next
+- Description for Glitter
 - [ ] add a checkbox toggle to the html page for live/local
 
 - [ ] upload to GitHub site as /front/
@@ -17,6 +18,8 @@
 
 - [ ] validate PK data and suggest edits
   - [x] function to fix fusion notes
+    - [ ] get descriptions working for glitter district
+      - [ ] check that list against digit-members when they're loaded
   - [ ] function to remove emoji proxies
   - [ ] make proxies for all triples
   - [ ] make export command to do all those changes at once
@@ -111,8 +114,9 @@
   -  if somebody was trying to use a pentagram to summon you and there was space to put 5 objects, what 5 things would summon you in particular? (can this be phrased more clearly/made shorter?)
 
 ### UI & Styling
+- [ ] fix background colors to work with * proxies
+  - [ ] set PK colors as profile background colors
 - [ ] grey out the log switch button after submitting and show a 'succesfully logged' message
-- [ ] set PK colors as profile background colors
 - [ ] plaintext/screen reader friendsly mode that loads no images
 - [ ] dots around the rim in 12 hour clock positions for digits
   - [ ] test out doing sigil-style connections between them over portraits and for members with no portrait

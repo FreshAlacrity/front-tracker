@@ -1,5 +1,5 @@
 function validateMemberListInput(string, doAlert = false) {
-  log("Validating: " + string);
+  //log("Validating: " + string);
   let arr = splitByEach(string, ",.~ ;:/");
   let all = getMemberList();
   let notMembers = [];
@@ -50,19 +50,22 @@ function validateMemberListInput(string, doAlert = false) {
     // currently can cause a softlock if using alert()
     showMessage(`These are not registered member(s): ${notMembers.join(", ")}`);
   }
-  log("Using: " + arr)
+  //log("Using: " + arr)
   return arr
 }
 
 function fusionNote(callsign) {
-  // @todo later check + update these automatically
-  let names = ["☸️ Moth", "🍀 Clover", "🧮 Val", "🏗️ Kent", "🐏 Faun", "🤝 Ruth", "🎇 Lucky", "📜 Giles", "🌑 Thorn"];
-  if (new RegExp(/^\d+$/).test(callsign)) {
-    if (callsign.length === 1) {
+  // #later check these automatically
+  let names = ["☸️ Moth", "🍀 Clover", "🧮 Val", "🏗️ Kent", "🐏 Faun", "🤝 Ruth", "🎇 Lucky", "📜 Giles", "🌑 Thorn", "🌃 Glitter"];
+  let numDigits = callsign.split('').filter(c => (digitIndex(c) > -1)).length;
+  if (numDigits === callsign.length) {
+    if (callsign.length === 1 && callsign !== "*") {
       return `Represents district ${callsign} on our internal council`
+    } else if (callsign === "*") {      
+      return `Non-representative, non-voting adviser to the council`
     } else {
-      // @todo set up and pull from a list of digit display_names
-      return `Temporary fusion of ${oxfordCommaList((callsign + '').split('').map(a => names[parseInt(a - 1)]))}\nRepresents districts ${oxfordCommaList((callsign + '').split(''))}`;
+      let districtList = oxfordCommaList((callsign + '').split('').filter(d => (d !== "*")))
+      return `Temporary fusion of ${oxfordCommaList((callsign + '').split('').map(d => names[digitIndex(d)]))}\nRepresents districts ${districtList}`;
     }
   } else {
     return "Unconventional headmate";
@@ -70,8 +73,8 @@ function fusionNote(callsign) {
 }
 quickTest(fusionNote("E"), "Unconventional headmate", "No digit fusionNote() test");
 quickTest(fusionNote("6"), "Represents district 6 on our internal council", "One digit fusionNote() test");
-quickTest(fusionNote(24), "Temporary fusion of 🍀 Clover and 🏗️ Kent\nRepresents districts 2 and 4", "Two digit fusionNote() test");
-quickTest(fusionNote(246), "Temporary fusion of 🍀 Clover, 🏗️ Kent, and 🤝 Ruth\nRepresents districts 2, 4, and 6", "Three digit fusionNote() test");
+quickTest(fusionNote("24"), "Temporary fusion of 🍀 Clover and 🏗️ Kent\nRepresents districts 2 and 4", "Two digit fusionNote() test");
+quickTest(fusionNote("246"), "Temporary fusion of 🍀 Clover, 🏗️ Kent, and 🤝 Ruth\nRepresents districts 2, 4, and 6", "Three digit fusionNote() test");
 
 function deduplicateProxyList(arr) {
   return [...new Set(arr)].sort(function (x, y) {

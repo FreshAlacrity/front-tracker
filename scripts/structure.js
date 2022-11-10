@@ -96,7 +96,7 @@ function makeInitialList() {
   // see https://dash.pluralkit.me/dash?tab=groups&view=list
   headmates["A"] = { sibs: allNumericalCallsigns }
 
-  let unconventionals = ["?", "H", "C", "#"];
+  let unconventionals = ["?", "H", "C", "#", "^"];
   unconventionals.forEach(cs => {
     headmates[cs] = {}
   });

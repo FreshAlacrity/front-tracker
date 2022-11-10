@@ -8,10 +8,6 @@ var data = {
     show_unavailable: document.getElementById("show-unavailable")
   },
   setup: {
-    digits: 9,
-    member: {
-      alts: 3,
-    },
     show: {
       available: false,
       unavailable: false
@@ -29,7 +25,7 @@ var data = {
 
 function init() {
   // add tiles for the current member list
-  makeInitialList().forEach(addHeadmateTile)
+  sortByCallsign(makeInitialList()).forEach(addHeadmateTile)
 
   // load any member objects that have been cached
   loadFromLocalForage();

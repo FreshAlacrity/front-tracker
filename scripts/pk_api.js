@@ -162,9 +162,9 @@ async function isMember(m) {
   }
 }
 async function reportSwitch(active = getActive(), system = 'lhexq') {
+
   // ONLY REPORT MAIN IDs, NEVER ALT IDs:
-  let idList = active.map(mainCallsign).map(isMember);
-  let url = rootUrl + "/systems/" + system + "/switches"
+  active = active.map(mainCallsign);
   
   function validateSwitch() {
     let ok = true;
@@ -179,6 +179,8 @@ async function reportSwitch(active = getActive(), system = 'lhexq') {
 
   if (validateSwitch()) {
     try {
+      let idList = active.map(isMember);
+      let url = rootUrl + "/systems/" + system + "/switches"
       Promise.all(idList).then(list => {
         log("Reporting switch with IDs: " + list.join(', '));
         let etc = {
