@@ -1,8 +1,10 @@
 // = Status Management =
 function updateTileClasses(active) {
   let unavailable = listUnavailable(active);
-  let showAvailable = data.setup.show.available;
-  let showUnavailable = data.setup.show.unavailable;
+
+  let showAvailable = getToggle("available");
+  let showUnavailable = getToggle("unavailable");
+
   getMemberList().forEach(cs => {
     let e = elementByCallsign(cs);
     if (e) { // accounting for tiles that may not be present

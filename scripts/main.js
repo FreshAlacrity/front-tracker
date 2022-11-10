@@ -4,8 +4,12 @@ var data = {
   page: {
     container: document.getElementById("fronters"),
     active_list: document.getElementById("active-list"),
-    show_available: document.getElementById("show-available"),
-    show_unavailable: document.getElementById("show-unavailable")
+    settings: document.getElementById("controls"),
+    toggles: {
+      available: document.getElementById("toggle-available"),
+      unavailable: document.getElementById("toggle-unavailable"),
+      live: document.getElementById("toggle-live")
+    }
   },
   setup: {
     show: {
@@ -41,6 +45,38 @@ function init() {
     loadFromPk();
   }
 
+  // checkbox options/toggles:
+  let viewing = "active";
+  if (urlParams.has('show')) { viewing = urlParams.get('show') }
+  //`?show=active/available/all`
+  
+  // #todo add more informative titles + labels for the checkboxes
+  // #later add a toggle alts checkbox using flipTiles()
+  let toggles = {
+    available: {
+      default: (viewing === "available" || viewing === "all"),
+      action: updateOnToggle
+    },
+    unavailable: {
+      default: (viewing === "all"),
+      action: updateOnToggle
+    },
+    live: {
+      default: !urlParams.get('live'),
+      action: toggleLive
+    }
+  };
+  for (const [key, value] of Object.entries(toggles)) {
+    let checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.name = "toggle " + key;
+    checkbox.title = "toggle " + key;
+    checkbox.id = "toggle-" + key;
+    checkbox.checked = value.default;
+    checkbox.addEventListener('change', value.action);
+    data.page.settings.appendChild(checkbox);
+  };
+
   // flip to alt accounts
   if (urlParams.has('alts') === true) { flipTiles() }
 
@@ -53,7 +89,7 @@ function init() {
     // get current fronters from PK
     loadFronters();
   }
-  
+
   data.page.active_list.addEventListener("focusout", activeListInput);
   data.page.active_list.addEventListener("keypress", function (event) {
     // If the user presses the "Enter" key on the keyboard
@@ -64,21 +100,7 @@ function init() {
     }
   });
 
-  // set up show/hide checkboxes
-  // #todo streamline this
-  data.page.show_available.checked = data.setup.show.available;
-  data.page.show_available.addEventListener('change', function() {
-    data.setup.show.available = this.checked;
-    updatePage()    
-  });
-  data.page.show_available.checked = data.setup.show.unavailable;
-  data.page.show_unavailable.addEventListener('change', function() {
-    data.setup.show.unavailable = this.checked;
-    updatePage()
-  });
-
   //loadFromPK();
-  // #todo also get fronters?
 
   // remember that double clicking a portrait can also do this:
   //newMember("149");

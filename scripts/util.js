@@ -311,6 +311,9 @@ function isMainProxy(callsign) {
 }
 
 // = Plugging in Data =
+function getToggle(string) {
+  return document.getElementById("toggle-" + string).checked;
+}
 function updateNameList(name, callsign) {
   // #todo use this when renaming members also
   let nick = name.toLowerCase();

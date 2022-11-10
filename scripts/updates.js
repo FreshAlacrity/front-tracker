@@ -1,15 +1,12 @@
 function showMessage(text) {
-  // #later have this show on the page in a designated area
-  error(text);
+  // #later have this show on the page in a designated area and support different background colors
+  console.warn(text);
 }
-function loadFronters() {
-  // #todo also note the timestamp and how long ago that was  
-  getFronters().then(d => {
-    log(d.members)
-    // #later make a way to check this data against existing data?    
-    //loadFromPkMemberList(d.members);
-    // #todo troubleshoot where to save the list of front IDs so CTRL+clicking works well
-    
+function loadFronters() {  
+  getFronters().then(d => {  
+    showMessage("Loaded switch logged at: " + d.timestamp) // #later note the time logged and how long ago that was in a message
+    log("Updating active members: " + d.members.map(d => d.id).join(","))
+    // #later make a way to check this data against existing data? as in, ID matches callsign?  
     updatePage(d.members.map(getCallsign), true)
   });
 }
@@ -28,8 +25,16 @@ function updatePage(active = getActive(), setTextbox) {
   active = sortByCallsign(active);
   updateTileClasses(active);
 
+  let show = "active"
+  if (getToggle("unavailable")) { show = "all" }
+  else if (getToggle("available")) { show = "available" }
+
   if (setTextbox) { data.page.active_list.value = active; }
-  updateUrl({ active: data.page.active_list.value });
+  updateUrl({
+    active: data.page.active_list.value,
+    show: show,
+    live: getToggle("live")
+  });
 }
 function loadFromPkMemberList(list) {
   list.forEach(pk => { updatePkInfo(pk) });
@@ -93,6 +98,18 @@ function onDoubleClick(event) {
         });
       }
     }
+  }
+}
+function updateOnToggle(event) {
+  updatePage();
+}
+function toggleLive(event) {
+  if (event.target.checked) {
+    updatePage();
+    showMessage("Loading in most recent data from PK")
+    loadFromPk();
+  } else {
+    updatePage();
   }
 }
 
