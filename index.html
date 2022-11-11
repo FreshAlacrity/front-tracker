@@ -2,39 +2,41 @@
 <html lang="en">
 
 <head>
-
-  <title>Front Tracker WIP 0.2</title>
+  <title>Front Tracker 0.3</title>
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" 
-    content="a WIP widget for quickly selecting who is around to work on tasks etc."
-  >
+  <meta name="description" content="a WIP widget for quickly selecting who is around to work on tasks etc.">
   <meta name="keywords" content="JavaScript, project, planning, productivity">
 
   <link rel="stylesheet" href="style.css">
-  <script>console.log("------RELOAD------")</script>
-  <script src="scripts/auth.js"></script>
+  <script>console.log("----RELOAD----")</script>
+  <script src="scripts/localforage.js"></script>
+  <script src="scripts/util.js"></script>
+  <script src="scripts/names.js"></script>
   <script src="scripts/validate.js"></script>
-  <script src="scripts/interact.js"></script>
-  <script src="scripts/misc.js"></script>
-  <script src="scripts/system.js"></script>
+  <script src="scripts/updates.js"></script>
+  <script src="scripts/statuses.js"></script>
   <script src="scripts/tiles.js"></script>
-  <script src="scripts/make_list.js"></script>
+  <script src="scripts/structure.js"></script>
   <script src="scripts/pk_api.js"></script>
   <script src="scripts/main.js" defer></script>
 
 </head>
 
 <body>
-  <div class="note">
-    <input type="text" class="search" id="fronters-note" onkeyup="" placeholder="<fronters here>"></input>
-    <button onclick="loadFromPK()">Load From PK</button>
-    <button onclick="flipTiles()">Toggle Alts</button>
-    <button onclick="">Log Switch (WIP)</button>
-    <button onclick="">Reset (WIP)</button>
+  <div id="controls" class="note">
+    <input type="text" class="search" id="active-list" onkeyup="" placeholder="<fronters here>"></input>
+    <button onclick="resetList()">Reset</button>
+    <button onclick="reportSwitch()">Log Switch</button>
+    <button onclick="loadFronters()">Current Fronters</button>
+    <button onclick="clearLocalData()">Clear Local Data</button>
+    <button onclick="inputToken()">Sign In</button>
+    <button onclick="clearToken()">Sign Out</button>
+    <button onclick="window.open('https://github.com/FreshAlacrity/front-tracker/issues/new', '_blank')">Report Bug/Make Suggestion</button>
   </div>
-  <div id="fronters"></div>
+  <div id="messages" class="note"></div>
+  <div id="members"></div>
 </body>
 
 </html>

@@ -1,24 +1,23 @@
-function addHeadmateTile(num, headmate) {
-  function getBgColor(callsign) {
-    let baseHue = []; // @todo set color 'homes' per digit
-    // @todo average the hue values
-    let hue = Math.floor(Math.random()*361)
-    return `hsl(${hue}, 20%, 40%)`;
-  }
+function idStringByCallsign(cs) {
+  // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
+  return "tile-" + encodeURIComponent(cs).replace(
+    /[!'()*]/g,
+    (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`
+  );
+}
+function elementByCallsign(callsign) {
+  return document.getElementById(idStringByCallsign(callsign));
+}
+
+// used in init()
+function addHeadmateTile(mainCs) {  
   function makeCoin() {
     let coin = document.createElement("div");
-    coin.addEventListener("click", onClick);
+    coin.addEventListener("click", onTileClick);
     coin.classList.add("flip-coin");
-    coin.id = "tile-" + num;
-    if (headmate.status.present) {
-      coin.style.order = num.length;
-      coin.classList.add("present");
-      coin.classList.add("available");
-    } else {
-      coin.style.order = sortOrder(num, headmate);
-      coin.classList.add("available");
-    }
-    container.appendChild(coin);
+    coin.classList.add("hidden"); // #here
+    coin.id = idStringByCallsign(mainCs);
+    data.page.container.appendChild(coin);
 
     let coinFaces = document.createElement("div");
     coinFaces.classList.add("flip-coin-inner");
@@ -30,16 +29,16 @@ function addHeadmateTile(num, headmate) {
     coinFront.classList.add("flip-coin-" + type);
 
     let icon = document.createElement("div");
-    icon.id = `icon-${type}-${num}`;
+    icon.id = `icon-${type}-${mainCs}`;
     icon.addEventListener("dblclick", onDoubleClick);
     icon.classList.add("icon");
-    icon.style.backgroundColor = getBgColor(num);
+    icon.style.backgroundColor = getBgColor(mainCs);
     coinFront.appendChild(icon);
-    coinFront.title = num;
+    //coinFront.title = '';
 
     let name = document.createElement("div");
-    name.id = `name-${type}-${num}`;
-    name.textContent = num;
+    name.id = `name-${type}-${mainCs}`;
+    name.textContent = mainCs;
     coinFront.appendChild(name);
 
     coinFront.title += '\n' + status;
@@ -50,116 +49,85 @@ function addHeadmateTile(num, headmate) {
   coin.appendChild(coinFace("front"));
   coin.appendChild(coinFace("back"));
 }
-function addAllHeadmateTiles() {
-  for (const [callsign, value] of Object.entries(headmates)) {
-    addHeadmateTile(callsign, value)
-  }
-}
-
-function updateHeadmateTile(num, headmate) {
-  function partsFromDisplayName(displayName, obj) {    
-    let parts = displayName.split(' ');
-    if (parts[0]) { obj.callsign = parts[0] }
-    if (parts[1] !== "|") { obj.emoji = parts[1] }
-    if (parts[2]) { obj.nickname = parts[2] }
-    let isWord = /^\w+$/ // /\w/ // for if we want parentheticals
-    if (parts[2] && parts[3] && isWord.test(parts[3])) {
-      obj.nickname += ' ' + parts[3];
-    }
-    return obj;
-  }
-  function nameElement(headmate, callsign, type) {
-    // @later maybe set this up another way?
-    // it's really just Sweet William with a space in his name
+function updateHeadmateTile(mainCs) {
+  let pk = getPkObject(mainCs);
+  function nameElement(type) {
     let element = document.createElement("div");
-    element.id = `name-${type}-${callsign}`
+    element.id = `name-${type}-${mainCs}`;
+    // #todo adjust for alt accounts
+    element.innerHTML = `${getEmoji(pk)} ${mainCs} ${getEmoji(pk)}<br>`;
 
-    let nickname = document.createElement("input");
-    nickname.addEventListener("focusout", nameChange);
-    nickname.classList.add("name");
-
-    if (type === "front") {
-      nickname.id = "name-for-" + callsign
-    } else {
-      nickname.id = "alt-name-" + callsign
-    }    
-
-    let obj = { emoji: '', callsign: callsign, nickname: '' }
-    let registry = { ...obj }
-    if (headmate.pk && headmate.pk.display_name) {
-      registry = partsFromDisplayName(headmate.pk.display_name, registry);
-    }
-    if (type === "back") {
-      if (headmate.pk_alt && headmate.pk_alt.display_name) {
-        obj = partsFromDisplayName(headmate.pk_alt.display_name, obj)
+    let nickname = getNickname(pk);    
+    let nicknameElement = document.createElement("div");
+    if (getToggle("editing")) {
+      nicknameElement = document.createElement("input");
+      nicknameElement.addEventListener("focusout", nameChange);
+      nicknameElement.addEventListener("keypress", function(event) {
+        // If the user presses the "Enter" key on the keyboard
+        if (event.key === "Enter") {
+          // Cancel the default action, if needed
+          event.preventDefault();
+          nameChange(event);
+        }
+      });
+      if (nickname !== "Unnamed") {
+        nicknameElement.defaultValue = nickname;
+        nicknameElement.value = nickname;
+        nicknameElement.placeholder = nickname; // used to detect name changes
       } else {
-        obj.callsign = callsign + "'";
+        nicknameElement.placeholder = nickname;
       }
-    } else {
-      obj = registry;
+    } else {      
+      nicknameElement.textContent = nickname; // for non-editing mode
     }
+    nicknameElement.classList.add("name");
     
-    name = `${obj.emoji} ${obj.callsign} ${obj.emoji}`;
-    name += "<br>";
-        
-    if (obj.nickname) { 
-      nickname.placeholder = obj.nickname;
+    if (type === "front") {
+      nicknameElement.id = "name-for-" + mainCs
     } else {
-      nickname.placeholder = registry.nickname 
+      nicknameElement.id = "alt-name-" + mainCs
     }
-    if (obj.nickname !== "Unnamed") {
-      nickname.value = obj.nickname;
-    }
+    element.appendChild(nicknameElement);
 
-    element.innerHTML = name;
-    element.appendChild(nickname);
+    /*
+    let lastname = document.createElement("div");
+    lastname.className = "last-name"
+    lastname.innerHTML += `${lastNameGenerator(mainCs)}`;    
+    element.appendChild(lastname);
+    */
     return element;
   }
-  function setAvatar(element, headmate, callsign, type = "front") {    
-    let m = headmate;
-    let url = '';
-    let shadow = "inset 1em 1em 1em black"; //h-shadow v-shadow blur spread color
-
-    if (type === "back" && m.pk_alt && m.pk_alt.avatar_url) {  
-      if (m && m.pk && m.pk.avatar_url !== m.pk_alt.avatar_url) {
-        shadow = "none";
-      }
-      url = m.pk_alt.avatar_url;
-    } else if (type === "back" && m && m.pk && m.pk.avatar_url) {
-      url = m.pk.avatar_url;
-    } else if (type === "front" && m && m.pk && m.pk.avatar_url) {
-      url = m.pk.avatar_url;
-      shadow = "none";
+  function setAvatar(element) {
+    let url = getAvatarURL(pk);
+    // #todo detect broken image urls
+    if (url) {
+      element.style.backgroundImage = `url('${url}')`
+      element.style.boxShadow = "none";
     } else {
-      url = ''; // @later add default (color shifted glitter lattice?)
+      // @later add default image (color shifted glitter lattice?)
+      element.style.boxShadow = "inset 1em 1em 1em black"; 
+      // syntax: h-shadow v-shadow blur spread color
     }
-    
-    element.style.boxShadow = shadow;
-    element.style.backgroundImage = `url('${url}')`
+    element.style.backgroundColor = getBgColor(pk);
   }
   function updateBothSides() {
     ["front", "back"].forEach(type => {
-      let name = document.getElementById(`name-${type}-${num}`);
-      if (name) { name.replaceWith(nameElement(headmate, num, type)) }
+      let name = document.getElementById(`name-${type}-${mainCs}`);
+      if (name) { name.replaceWith(nameElement(type)) }
 
-      let icon = document.getElementById(`icon-${type}-${num}`);
-      if (icon) { setAvatar(icon, headmate, num, type) }
+      let icon = document.getElementById(`icon-${type}-${mainCs}`);
+      icon.title = pk.pronouns + '\n(double click to open the PK page for this member)'
+      if (icon) { setAvatar(icon) }
     });
   }
   updateBothSides();
   return true;
 }
 function updateAllHeadmateTiles() {
-  for (const [callsign, value] of Object.entries(headmates)) {
-    updateHeadmateTile(callsign, value)
-  }
+  getMemberList().forEach(updateHeadmateTile);
 }
 
-function reflow() {
-  // see https://gist.github.com/paulirish/5d52fb081b3570c81e3a
-  let foo = window.scrollX;
-}
-
+// #todo put this global in the data object with other toggles
 var tilesFlipped = false;
 function flipTiles() {
   // @todo get this working

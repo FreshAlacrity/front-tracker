@@ -1,135 +1,133 @@
-var headmates = {};
-var container = document.getElementById("fronters"); 
-var note = document.getElementById("fronters-note"); 
-
-function pretty(obj) {
-  return JSON.stringify(obj, null, 2);
-}
-function elementByCallsign(callsign) {
-  return document.getElementById("tile-" + callsign);
-}
-
-// returns a flexbox sort order integer
-function sortOrder(callsign, headmate) {
-  let num = callsign.length;
-  if (!headmate.status.available) {
-    num += (20 ** 10);
-  } else if (!headmate.status.present) {
-    num += (10 ** 10);
-  }
-  return num;
-}
-
-function sortByCallsign(arr) {
-  // sorts and deduplicates a callsign list
-  // @later use custom sort?
-  return [...new Set(arr)].sort(function (x, y) {
-    x = parseInt(x);
-    y = parseInt(y);
-    if (x < y) {
-      return -1;
+// GLOBAL STORAGE
+// keep total storage under 700 mb (including all the files)
+var data = {
+  page: {
+    container:   document.getElementById("members"),
+    active_list: document.getElementById("active-list"),
+    settings:    document.getElementById("controls"),
+    toggles: {
+      available:   { action: updateOnToggle },
+      unavailable: { action: updateOnToggle },
+      live:        { action: toggleLive     },
+      editing:     { action: toggleEditing  }
     }
-    if (x > y) {
-      return 1;
+  },
+  setup: {
+    token: "",
+    show: {
+      available: false,
+      unavailable: false
     }
-    return 0;
+  },
+  structure: {
+    proxies: ['', "'", '"'],
+    relatives: {},
+    statuses: {}
+  },
+  members_by_callsign: {},
+  callsigns_by_name: {},
+  callsigns_by_id: {}
+}
+
+function saveToken(input) {
+  data.setup.token = input;
+  localforage.setItem('token', input).then(function (value) {
+      // Do other things once the value has been saved.
+      log("Token saved to local storage");
+  }).catch(function(err) {
+      // This code runs if there were any errors
+      log(err);
   });
 }
 
-function listFronters() {
-  let fronting = [];
-  for (const [callsign, value] of Object.entries(headmates)) {
-    if (value.status.present) { fronting.push(callsign) }
-  }
-  return sortByCallsign(fronting);
-}
-function updatePage() {
-  // @todo update url with active fronters too  
-  note.value = listFronters().join(", ");
-}
-
-function checkStatus(callsign, string, bool = true) {
-  return (headmates[callsign].status[string] == bool);
-}
-function setStatus(callsign, string, bool = true) {
-  headmates[callsign].status[string] = bool;
-}
-function bulkSetStatus(list, string, bool) {
-  list.forEach(a => {
-    setStatus(a, string, bool);
-  })
-}
-function setAvailability() {
-  bulkSetStatus(Object.keys(headmates), "available", true)
-
-  for (const [callsign, p] of Object.entries(headmates)) {
-    if (callsign.length == 1 && p.status.resting) {
-      // mark resting digits unavailable
-      setStatus(callsign, 'available', false);
-      // mark unavailable any fusions with resting digits
-      bulkSetStatus(p.in, 'available', false);
-    } else if (callsign.length > 1 && p.status.present) {
-      // mark unavailable siblings of present fusions
-      bulkSetStatus(p.siblings, 'available', false);
-      // mark unavailable components of present fusions
-      bulkSetStatus(p.components, 'available', false);
-    }
-  }
-
-  updatePage();
-}
-
-function addPluralKitDetails(m, autofix = false) {  
-  let callsign = m.display_name.split(" ")[0];
-  callsign = callsign.replace('-', '') // for Altar etc
-
-  if (callsign in headmates) {
-    // main registry
-    headmates[callsign].pk = m;
-  } else if (callsign.slice(-1) === "'") {
-    // registered alt?
-    callsign = [callsign.slice(0, -1)]
-    if (callsign in headmates) {
-      headmates[callsign].pk_alt = m;
-    } else {
-      // catches unassigned alts
-      //console.log(callsign + ' alt found but no matching headmate?')
-    }
+function inputToken() {
+  let input = window.prompt("Enter your PK Token:","Use `pk;token` to have the PK bot DM yours to you or request it from an admin.");
+  if (validateToken(input)) {
+    saveToken(input)
+    alert("Thank you.")
   } else {
-    // irregular headmate
-    // @later handle these
-    //console.log(callsign + ' not found')
+    alert("Sorry, that is not a valid token.")
   }
-  updateHeadmateTile(callsign, headmates[callsign])
 }
 
-
-function loadFromPK() {
-  console.log("Loading all members from PK");
-  getAllMembers().then(d => {
-    //console.log(JSON.stringify(d, null, 2))
-    d.forEach(m => { checkMemberObject(m).then(addPluralKitDetails) })
-  });
+function validateToken(input) {
+  // #later actually check this with the PK server
+  return (input.length === 64)
 }
+
+function clearToken() {
+  data.setup.token = "";
+  localforage.removeItem('token').then(function() {
+      // Run this code once the key has been removed.
+      alert("Token cleared.");
+  }).catch(function(err) {
+      // This code runs if there were any errors
+     alert("Issue clearing token: " + err);
+  });  
+}
+
+function toggleEditing() {
+  // #todo
+}
+
 function init() {
-
-  // fill in a list of all possible members
-  headmates = makeInitialList()
-
-  // add tiles for all possible members
-  addAllHeadmateTiles()
-
-  // load in info from system.js file
-  exported.members.forEach(m => { addPluralKitDetails(m) });
-
-  // load in from PK
-  //loadFromPK();
-
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has('alts') === true) {
-    flipTiles();
+  function makeCheckboxes() {
+    // #todo add more informative titles + labels for the checkboxes
+    // #todo add this to toggles instead:
+    // flip to alt accounts
+    //if (urlParams.has('alts') === true) { flipTiles() }
+    let toggles = data.page.toggles
+    for (const [key, value] of Object.entries(toggles)) {
+      let checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.name = "toggle " + key;
+      checkbox.title = "toggle " + key;
+      checkbox.id = "toggle-" + key;
+      checkbox.checked = value.default;
+      checkbox.addEventListener('change', value.action);
+      data.page.settings.appendChild(checkbox);
+    };
+  }
+  function addListInputListener() {
+    data.page.active_list.addEventListener("focusout", activeListInput);
+    data.page.active_list.addEventListener("keypress", function (event) {
+      // If the user presses the "Enter" key on the keyboard
+      if (event.key === "Enter") {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        activeListInput();
+      }
+    });
   }
 
-  updatePage();
+  makeCheckboxes();
+  addListInputListener();
+
+  // make the base member list and add tiles for each member
+  sortByCallsign(makeInitialList()).forEach(addHeadmateTile)
+  loadUrlParameters();
+
+  // load any member objects that have been cached
+  localforage.iterate(function (pk, id, iterationNumber) {
+      if (id !== "token") {
+        updatePkInfo(pk, true); // prevents immediately re-saving
+      } else {
+        if (validateToken(pk)) { 
+          log("Saved token validated");
+          saveToken(pk);
+        } else {
+          log("Saved token invalid");
+        }
+      }
+    }).then(function () {
+      updateAllHeadmateTiles();
+      activeListInput();
+      log("Locally cached member data loaded");
+    }).catch(err => { error(err) })
+
+    // load in from PK and update tiles unless that's actively prevented
+    if (getToggle("live")) { loadFromPk() } else {
+      log("Loading remote data prevented by url parameter 'live=false'");
+    }
 }
 init()
