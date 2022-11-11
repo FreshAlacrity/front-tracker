@@ -65,12 +65,17 @@ function loadUrlParameters(localForageSuccessBool) {
       unavailable: (viewing === "all")
     }
 
-    let checkbox = document.getElementById("toggle-" + toggle);
-    if (toggleStates[toggle]) {
-      checkbox.checked = toggleStates[toggle];
+    let checkbox = document.getElementById("toggle-" + toggle);    
+    if (urlParams.has(toggle)) {
+      if (toggleStates[toggle]) {
+        checkbox.checked = toggleStates[toggle];
+      } else {
+        checkbox.checked = !!urlParams.get(toggle);
+      }
     } else {
-      checkbox.checked = !!urlParams.get(toggle);
+      checkbox.checked = !!data.page.toggles[toggle].default;
     }
+    
   });
 
   if (urlParams.has('active')) {
