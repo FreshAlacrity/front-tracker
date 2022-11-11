@@ -1,58 +1,66 @@
 # Front Tracker
 
-## To Do
-
-### Next
-- Have one button for sign in/sign out and change the button text
-  - Add the token as a GitHub secret and let people sign in with one password for editing and one password for viewing private info?
-
-- add more toggle settings:
-  - [ ] show/hide last names
-  - [ ] show/hide callsigns
-  - hidden unless a valid token is present
-    - [ ] edit mode
-    - [ ] public/private (to preview/hide members who are entirely private in public mode even when a key is present)
-    - [ ] toggle showing alt profile images + names + details
-    - [ ] support public and private views
-      - [ ] default to fetching current fronters?
-      - [ ] add an edit mode, so some people can see the private info without accidentally editing
-      - [ ] when there's no token entered or not editing=true:
-        - [ ] make name fields un-editable
-        - [ ] double click should go to public page
-        - [ ] hide 'log switch' button
-
-- [ ] validate PK data and suggest edits
-  - [x] function to fix fusion notes
-    - [ ] get descriptions working for glitter district
-      - [ ] check that list against digit-members when they're loaded
-  - [ ] temporary function to remove emoji proxies
-  - [ ] make proxies for all triples
-  - [ ] make export command to do all those changes at once
-
-- [ ] visible feedback (not just in the console)
-  - [ ] some kind of feedback that fronters have been successfully logged (maybe the button can't be pressed and says "Logged" if what's being shown _are_ the current fronters?)
-  - the "Current Fronters" button should also be disabled if the current fronters are being shown
-
-- set it up so it asks for a key to save locally if you try to do anything that it needs it for
-  - use async alert() and await?
-- when only showing the active members, show a side panel with a card tht has the details for that PK member
-
+## About
+Allows users of [Plural Kit](https://pluralkit.me/) to show, manage, analyse, and track member information for large systems. Currenty in development/alpha release; feedback and questions are welcome and can be submitted through the [GitHub Issues page](https://github.com/FreshAlacrity/front-tracker/issues/new).
 
 ### Active List Syntax
-- [ ] save the input string separately so it keeps the syntax the user entered
-- search function/syntax
-  - when a member isn't found, use this to locate a near match
-  - search by emojis and emoji names
-    - use the emoji list in the spreadsheet to allow search by near miss
-  - some way to limit callsigns to a certain number of digits? so like N<4?
-  - [ ] Add/Require
-    - [ ] +## show only if this member is present (required AND)
-    - [x] ##+ for requiring/including fusions containing (both) those digits
-  - [ ] Remove/Unless
-    - [ ] -## for excluding front combinations that contain this member personally
-    - [ ] ##- for excluding fronts that contain that member and their fusions
-  - OVERRIDE
-    - [ ] ## for if a specific member to be present is sufficient (optional OR)
+Names and callsigns will pull up members; adding a + to a callsign or name will look for all members that are fusions of that callsign and mark those available; adding - to a callsign or name will mark those members unavailable
+
+
+## Planned Features
+
+### Next
+- [ ] new image for members with no PFP
+- [ ] add the URL parameter to the page for showing active fronters when that button is clicked
+- [ ] add a "donate"/<3 button and link it to Patreon (for now)
+- [ ] Have one button for sign in/sign out and change the button text
+
+
+### Support for Other Systems
+- [ ] allow putting in a system ID as a URL parameter and just list the members to start
+- [ ] get the system name/tag and add to URL
+- [ ] use description text format to recognize component digits and alt accounts
+- [ ] allow input of a group ID for 'digits' (who do fuse) and/or unconventional headmates (who don't fuse)
+- [ ] recognize proxy patterns for the purpose of making new proxies based on that as a template
+- [ ] use a public group to assemble a list of digits (and load those members first?)
+- [ ] in editing mode, add a generic "new member" profile tile
+- [ ] add a url parameter for maximum N fused members
+- [ ] new default image url; grab the pfp for the system?
+
+
+### Viewing Modes
+- Public View
+  - [ ] hide any members with no public PK
+  - shift click to fuse
+    - [ ] when the first icon is shift-clicked sort all their fusions right after current fronters/push those to the front of the list
+    - [ ] shift clicking a second digit fuses the two
+  - [ ] show/hide last names
+  - [ ] hide 'log switch' button
+- Private View (for trusted friends + partners)
+  - [ ] alt proxies view (images + names)
+    - [ ] alt account names on coin backs
+    - [ ] alt account profile images on coin backs
+    - [ ] toggle if you hit the ' or ` keys?
+  - [ ] when a token is added, reload the member list from PK
+  - [ ] Edit mode button - how to make sure this isn't accidentally done?
+  - [ ] toggle showing alt profile images + names + details
+- Editing Mode
+  - [ ] public/private view toggle (to preview/hide members who are entirely private in public mode even when a key is present)
+  - [ ] hide buttons that are just for admin use when there's no token
+  - [ ] when editing is toggled on, check that a token is present
+  - [ ] add a "?" button to the page that shows this info:
+    - CTRL + click to front or un-front a member
+    - double click to open up the PK dash page for any registered member
+  - [ ] make export command to update descriptions all at once
+    - Updates for our system
+      - [ ] Temporary function to remove emoji proxies for our system
+      - [ ] move "Verbal" and "Descriptive" description keys to Alt accounts instead
+      - [ ] Reorder display names to put districts after names? (vs using last names?)
+  - [ ] Register a member with PK when selected as fronting if they're not yet registered
+  - test this?
+- Debug Mode
+  - [ ] show/hide callsigns
+
 
 #### Examples:
   [] any front can see it
@@ -62,64 +70,36 @@
   [3+, 478, 19-, -9] some fusion of Val but not any fusion of Aster and not Thorn specifically (but like 39 could see it) but if Milo is around it'll show up even if a Val fusion isn't around
 
 
-### URL Params
-  - [ ] token (for authentification)
-  - [ ] edit=true/false (on top of having the token or not)
-  - [ ] what index/proxy layer to show initially
-  - [ ] display modes
-    - [ ] public
-    - [ ] private    
-      - [ ] alt proxies view (images + names)
-        - [ ] alt account names on coin backs
-        - [ ] alt account profile images on coin backs
-        - [ ] toggle if you hit the ' or ` keys?
-    - [ ] edit
-    - [ ] toggle options to show/hide:
-      - [ ] callsigns
-      - [ ] emojis
-      - [ ] members: `?show=active/available/all`
-        - [ ] members missing nicknames + portraits
-        - [ ] members that share digits with fronters/siblings only
-        - [x] non-active members  
-          - [ ] add url parameters for show/hide available and unavailable members 
-          - [ ] when only active members are shown, show little address-book style profiles of the current fronters with pronouns and descriptions
-            - [ ] in edit mode, make every value an editable text field (that'd already be better than PK because you'd have to bring up a description then copy it then edit it, instead of just editing it)
-          - [ ] if only current fronters are shown on load, don't load the whole member list
-    - [ ] add a button to do this + dropdown for sort order
-
-- [ ] register a member with PK when selected as fronting if they're not yet registered
-  - test this?
-
-
 ### Known Issues
-- [ ] alt accounts aren't loaded so flipping does nothing
+- [ ] alt accounts aren't load so flipping does nothing
   - [ ] detecting whether the click is to front or back seems not to be happening?
 
+
 ### Later
-- [ ] reorder display names to put districts after names?
+- [ ] when a member isn't found, use Levenshtein distance to locate a near match
 - [ ] function + template generation for making new alt proxies
-- sort order/display options
-  - [ ] show fusions of active members first
-  - [ ] hide all but active members
-- [ ] way to mark a digit as unavailable for fusions
-- [ ] move "Verbal" and "Descriptive" description keys to Alt accounts instead
-- [ ] export function for if we want to do a major batch update, since PK limits requests and it may be easier/more polite to do that by importing an export type file (remember that those are .json files and not .js files)
-- add a way to include non-system members for contributor lists (like NMcCoy and Mojang and artists)
-- allow inputting a Picrew URL and auto download + crop avatar from image on that page?
-- output stats on how many members have internal name translations etc in edit mode
+- add a way to include non-system members (or show multiple systems) for contributor lists (like sweeties and artists)
+- output stats on how many members have what description headers (internal name translation etc) in edit mode
 
-### Project Targeting
-- [ ] set up a POST API hookup in the Project Butler to log fronts/ship data for specific projects
-- [ ] in non-editing mode, click to open Projects page for that fronter/active list
-  - [ ] private -> open todos page
-    - by default log all the current active members as having contributed to the project
-  - [ ] public -> open portfolio page
 
-### Descriptions
-- add ice breaker type questions to descriptions?
-  -  if somebody was trying to use a pentagram to summon you and there was space to put 5 objects, what 5 things would summon you in particular? (can this be phrased more clearly/made shorter?)
+### Maybe
+- [ ] When only showing the active members, show a side panel with a card that has the details for that PK member
+  - [ ] In edit mode, make every value on a card an editable text field
+- [ ] Add the token as a GitHub secret and let people sign in with one password for editing and one password for viewing private info?
+- [ ] Allow double click action to go to a url in the description instead (by looking for a keyword that matches the URL parameter like "Portfolio:")
+- [ ] (Low Priority) When using CTRL + click on a fused headmate, pull up a popup that shows split options/previews the split (that disappears when CTRL is released - split to digits - or an option is clicked)
+- [ ] add a color picker for member colors
+  - see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/color
+- [ ] search by emojis and emoji names
+  - how to allow search by near miss?
+- allow inputting a Picrew URL and auto download + crop avatar from image on that page (would still need to be uploaded somewhere, but a preview + crop function could be nice?)
 
-### UI & Styling
+
+#### UI & Styling
+- [ ] visible feedback (not just in the console)
+  - [ ] some kind of feedback that fronters have been successfully logged (maybe the button can't be pressed and says "Logged" if what's being shown _are_ the current fronters?)
+  - the "Current Fronters" button should also be disabled if the current fronters are being shown
+- [ ] add a little ## members and counting thing at the bottom
 - [ ] fix background colors to work with * proxies
   - [ ] set PK colors as profile background colors
 - [ ] grey out the log switch button after submitting and show a 'succesfully logged' message
@@ -141,21 +121,5 @@
 - alternate style/layout for mobile: names off to right side with details?
 - fields should have outline dark grey, buttons should be solid
 
-## Click Actions
-- [ ] add a color picker for member colors
-  - see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/color
-- shift click to fuse
-  - when the first icon is shift-clicked:
-    - [ ] sort all their fusions right after current fronters/push those to the front of the list
-  - [ ] shift clicking a second digit fuses the two
-- when using CTRL + click on a fused headmate, pull up a popup that shows split options/previews the split (that disappears when CTRL is released - split to digits - or an option is clicked)
 
-## Callsigns
-- consider callsigns like ###f and ###o for alts? (since ' isn't html-safe)
-- how to support callsigns like 19-5? (would that be 195-o?)
 
-## Notes
-- [ ] add a "?" button to the page that shows this info:
-  - CS: Callsign
-  - CTRL + click to front or un-front a member
-  - double click to open up the PK dash page for any registered member
