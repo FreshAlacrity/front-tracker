@@ -6,9 +6,9 @@ var data = {
     active_list: document.getElementById("active-list"),
     settings:    document.getElementById("controls"),
     toggles: {
-      available:   { action: updateOnToggle },
+      available:   { action: updateOnToggle, default: true },
       unavailable: { action: updateOnToggle },
-      live:        { action: toggleLive     },
+      live:        { action: toggleLive, default: true },
       editing:     { action: toggleEditing  }
     }
   },

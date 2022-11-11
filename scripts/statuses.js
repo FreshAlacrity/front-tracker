@@ -9,7 +9,7 @@ function updateTileClasses(active) {
     let e = elementByCallsign(cs);
     if (e) { // accounting for tiles that may not be present
       let tileClass = "hidden"
-      if (active.includes(cs)) {
+      if (active.includes(cs) || active.length === 0) {
         tileClass = "active"
       } else if (unavailable.includes(cs) && showUnavailable) {
         tileClass = "unavailable"

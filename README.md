@@ -6,9 +6,6 @@
 - Have one button for sign in/sign out and change the button text
   - Add the token as a GitHub secret and let people sign in with one password for editing and one password for viewing private info?
 
-- [ ] upload to GitHub site as /front/
-  - [ ] prompt for token instead of storing that in a file
-
 - add more toggle settings:
   - [ ] show/hide last names
   - [ ] show/hide callsigns
