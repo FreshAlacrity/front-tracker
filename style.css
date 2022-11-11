@@ -21,7 +21,11 @@ body {
   text-align: center;
 }
 
-#fronters {
+.last-name {
+  font-size: 0.7em;
+}
+
+#members {
   /* see https://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
   display: flex;
   flex-wrap: wrap;
@@ -45,7 +49,7 @@ body {
 .flip-coin {
   background-color: transparent;
   min-width: 6em;
-  min-height: 9em;
+  min-height: 10em;
   perspective: 1000px; /* Remove this if you don't want the 3D effect */
 }
 
@@ -107,8 +111,6 @@ body {
 }
 
 .unavailable .icon {
-  width: 6em;
-  height: 6em;
   opacity: 20%;
   filter: grayscale(100%);
 }
