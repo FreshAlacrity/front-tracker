@@ -57,31 +57,37 @@ function updateHeadmateTile(mainCs) {
     // #todo adjust for alt accounts
     element.innerHTML = `${getEmoji(pk)} ${mainCs} ${getEmoji(pk)}<br>`;
 
-    let nickname = document.createElement("input");
-    nickname.addEventListener("focusout", nameChange);
-    nickname.addEventListener("keypress", function(event) {
-      // If the user presses the "Enter" key on the keyboard
-      if (event.key === "Enter") {
-        // Cancel the default action, if needed
-        event.preventDefault();
-        nameChange(event);
+    let nickname = getNickname(pk);    
+    let nicknameElement = document.createElement("div");
+    if (getToggle("editing")) {
+      nicknameElement = document.createElement("input");
+      nicknameElement.addEventListener("focusout", nameChange);
+      nicknameElement.addEventListener("keypress", function(event) {
+        // If the user presses the "Enter" key on the keyboard
+        if (event.key === "Enter") {
+          // Cancel the default action, if needed
+          event.preventDefault();
+          nameChange(event);
+        }
+      });
+      if (nickname !== "Unnamed") {
+        nicknameElement.defaultValue = nickname;
+        nicknameElement.value = nickname;
+        nicknameElement.placeholder = nickname; // used to detect name changes
+      } else {
+        nicknameElement.placeholder = nickname;
       }
-    });
-    nickname.classList.add("name");
-    let val = getNickname(pk);
-    if (val !== "Unnamed") {
-      nickname.defaultValue = val;
-      nickname.value = val;
-      nickname.placeholder = val; // used to detect name changes
-    } else {
-      nickname.placeholder = val;
+    } else {      
+      nicknameElement.textContent = nickname; // for non-editing mode
     }
+    nicknameElement.classList.add("name");
+    
     if (type === "front") {
-      nickname.id = "name-for-" + mainCs
+      nicknameElement.id = "name-for-" + mainCs
     } else {
-      nickname.id = "alt-name-" + mainCs
+      nicknameElement.id = "alt-name-" + mainCs
     }
-    element.appendChild(nickname);
+    element.appendChild(nicknameElement);
 
     let lastname = document.createElement("div");
     lastname.className = "last-name"
@@ -108,7 +114,7 @@ function updateHeadmateTile(mainCs) {
       if (name) { name.replaceWith(nameElement(type)) }
 
       let icon = document.getElementById(`icon-${type}-${mainCs}`);
-      icon.title = pk.pronouns + '\n(double click to open PK dash page for this member)'
+      icon.title = pk.pronouns + '\n(double click to open the PK page for this member)'
       if (icon) { setAvatar(icon) }
     });
   }

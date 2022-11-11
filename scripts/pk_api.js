@@ -6,6 +6,16 @@ let currentRequests = 0;
 let requestAfter = 0;
 let rootUrl = "https://api.pluralkit.me/v2"
 
+function basicAuth(neccessary) {
+  if (data.setup.token === '' && neccessary) {
+    // #todo add a better way to resolve invalid token input here
+    while (data.setup.token === '') {
+      inputToken()
+    }
+  }
+  return { headers: { Authorization: data.setup.token } }
+}
+
 async function delayedFetch(url, data) {
   // see https://stackoverflow.com/questions/38956121/how-to-add-delay-to-promise-inside-then
   totalRequests++
@@ -35,13 +45,8 @@ async function delayedFetch(url, data) {
 
 async function getSystemInfo(system = 'lhexq') {
   let url = rootUrl + `/systems/${system}`
-  let data = {
-    headers: {
-      Authorization: pkToken
-    }
-  }
   try {
-    let res = await delayedFetch(url, data)
+    let res = await delayedFetch(url, basicAuth())
     return await res.json();
   } catch (error) {
     console.log(error);
@@ -49,13 +54,8 @@ async function getSystemInfo(system = 'lhexq') {
 }
 async function getMemberObjectList(system = 'lhexq') {
   let url = rootUrl + `/systems/${system}/members`
-  let data = {
-    headers: {
-      Authorization: pkToken
-    }
-  }
   try {
-    let res = await delayedFetch(url, data)
+    let res = await delayedFetch(url, basicAuth())
     return await res.json();
   } catch (error) {
     console.log(error);
@@ -63,13 +63,8 @@ async function getMemberObjectList(system = 'lhexq') {
 }
 async function getMember(id = 'qkxux') { // Lucky's member ID
   let url = rootUrl + "/members/" + id
-  let data = {
-    headers: {
-      Authorization: pkToken
-    }
-  }
   try {
-    let res = await delayedFetch(url, data)
+    let res = await delayedFetch(url, basicAuth())
     return await res.json();
   } catch (error) {
     console.log(error);
@@ -85,7 +80,7 @@ async function newMember(callsign, details) {
     method: 'POST', // GET, POST, PUT, DELETE, etc.
     headers: {
       "Content-Type": "application/json",
-      Authorization: pkToken
+      Authorization: basicAuth().headers.Authorization
     },
     body: JSON.stringify(memberData)
   }  
@@ -116,7 +111,7 @@ async function editMember(id, obj) {
     method: 'PATCH', // GET, POST, PUT, DELETE, etc.
     headers: {
       "Content-Type": "application/json",
-      Authorization: pkToken
+      Authorization: basicAuth().headers.Authorization
     },
     body: JSON.stringify(obj)
   }
@@ -140,7 +135,7 @@ async function getFronters(system = 'lhexq') {
     method: 'GET', // GET, POST, PUT, DELETE, etc.
     headers: {
       "Content-Type": "application/json",
-      Authorization: pkToken
+      Authorization: basicAuth().headers.Authorization
     }
   }
   try {
@@ -187,7 +182,7 @@ async function reportSwitch(active = getActive(), system = 'lhexq') {
           method: 'POST', // GET, POST, PUT, DELETE, etc.
           headers: {
             "Content-Type": "application/json",
-            Authorization: pkToken
+            Authorization: basicAuth(true).headers.Authorization
           },
           // #later support also timestamp?
           body: JSON.stringify({ members: list })

@@ -58,7 +58,6 @@ function listUnavailable(active) {
           return hasEach(e.replace('-','').split(''), cs);
       }).length) > 0)
     }));
-  log(no)
 
   // add as unavailable any siblings of active fusions
   no = no.concat(active.filter(isMember).filter(cs => cs.length > 1).map(getAllSibsList));

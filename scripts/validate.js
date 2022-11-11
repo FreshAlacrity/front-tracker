@@ -82,16 +82,17 @@ function nameOccurs(name) {
 }
 
 function checkMemberObject(pk, autoUpload = true) {
+  // #todo update to take edit mode into account better
   // used in util.js updatePkInfo()
-  autoUpload = false; // while testing #later remove this  
+  let editMode = getToggle("editing");
+  autoUpload = (false && editMode); // while testing #later remove this  
   let edits = {}
   let callsign = getCallsign(pk);
   let isMain = isMainProxy(callsign);
   // #later, also detect if we're getting a public-facing pk object or not by looking at privacy: null and/or lack of display_name?
 
-  let silent = true;
   function objection(property, issue = "has no") {
-    if (!silent) {
+    if (editMode) {
       console.warn(`${pk.display_name} with id '${pk.id}' ${issue} ${property}`);
     }
   }
@@ -117,12 +118,16 @@ function checkMemberObject(pk, autoUpload = true) {
     }
   }
   function checkPrivacy() {
-    // check that name is set private
-    if (isMain && pk.privacy.name_privacy !== "private") {
-      // note that this would erase any previous edits to privacy
-      edits.privacy = { name_privacy: "private" };
-    } else if (!isMain) {
-      // #later check that alts are set entirely private
+    if (pk.privacy) {
+      // check that name is set private
+      if (isMain && pk.privacy.name_privacy !== "private") {
+        // note that this would erase any previous edits to privacy
+        edits.privacy = { name_privacy: "private" };
+      } else if (!isMain) {
+        // #later check that alts are set entirely private
+      }
+    } else {
+      // loading without a token
     }
   }
   function checkAvatar() {
@@ -169,15 +174,16 @@ function checkMemberObject(pk, autoUpload = true) {
     }
   }
 
-  checkNames();
-  // needs to go after name check and before proxy check:
-  Object.assign(pk, edits);
-  //checkProxies(); // #todo re-enable after other things are fixed and we have a new exported backup
-
+  if (editMode) {
+    checkNames();
+    // needs to go after name check and before proxy check:
+    Object.assign(pk, edits);
+    //checkProxies(); // #todo re-enable after other things are fixed and we have a new exported backup
+    checkPrivacy();
+  }
   checkAvatar();
   checkDescription();
   checkPronouns();
-  checkPrivacy();
 
   // #todo
   // all non-alt members should have:
@@ -198,8 +204,8 @@ function checkMemberObject(pk, autoUpload = true) {
     if (autoUpload) {
       editMember(pk.id, edits)
     } else {
-      if (!silent) {
-        log(`Suggested changes for ${pk.name}:\n${pretty(edits)}`);
+      if (editMode) {
+        message(`Suggested changes for ${pk.name}:\n${pretty(edits)}`);
       }
     }
   }

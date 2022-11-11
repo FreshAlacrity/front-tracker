@@ -13,7 +13,6 @@
   <script>console.log("----RELOAD----")</script>
   <script src="scripts/localforage.js"></script>
   <script src="scripts/util.js"></script>
-  <script src="scripts/auth.js"></script>
   <script src="scripts/names.js"></script>
   <script src="scripts/validate.js"></script>
   <script src="scripts/updates.js"></script>
@@ -32,6 +31,9 @@
     <button onclick="reportSwitch()">Log Switch</button>
     <button onclick="loadFronters()">Current Fronters</button>
     <button onclick="clearLocalData()">Clear Local Data</button>
+    <button onclick="inputToken()">Sign In</button>
+    <button onclick="clearToken()">Sign Out</button>
+    <button onclick="window.open('https://github.com/FreshAlacrity/front-tracker/issues/new', '_blank')">Report Bug/Make Suggestion</button>
   </div>
   <div id="messages" class="note"></div>
   <div id="members"></div>

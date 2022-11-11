@@ -3,12 +3,19 @@
 ## To Do
 
 ### Next
-
-- Description for Glitter
-- [ ] add a checkbox toggle to the html page for live/local
+- Have one button for sign in/sign out and change the button text
+  - Add the token as a GitHub secret and let people sign in with one password for editing and one password for viewing private info?
 
 - [ ] upload to GitHub site as /front/
   - [ ] prompt for token instead of storing that in a file
+
+- add more toggle settings:
+  - [ ] show/hide last names
+  - [ ] show/hide callsigns
+  - hidden unless a valid token is present
+    - [ ] edit mode
+    - [ ] public/private (to preview/hide members who are entirely private in public mode even when a key is present)
+    - [ ] toggle showing alt profile images + names + details
     - [ ] support public and private views
       - [ ] default to fetching current fronters?
       - [ ] add an edit mode, so some people can see the private info without accidentally editing
@@ -21,7 +28,7 @@
   - [x] function to fix fusion notes
     - [ ] get descriptions working for glitter district
       - [ ] check that list against digit-members when they're loaded
-  - [ ] function to remove emoji proxies
+  - [ ] temporary function to remove emoji proxies
   - [ ] make proxies for all triples
   - [ ] make export command to do all those changes at once
 

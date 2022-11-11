@@ -256,19 +256,26 @@ function getEmoji(pk) {
   return ''
 }
 function getNickname(pk) {
-  let nickname = "";
+  let nickname = "Unknown";
   if (pk.display_name) {
-    let parts = pk.display_name.split(" ");
+    nickname = pk.display_name;
+  } else if (pk.name) {
+    nickname = pk.name
+  }
+  let parts = nickname.split(" ");
+  function shortNameFromLong() {
+    let short = ''
     if (parts[2]) {
-      nickname += parts[2]
+      short += parts[2]
       // it's really just Sweet William with a space in his name rn
       let isWord = /^\w+$/ // or /\w/ if we want parentheticals
       if (parts[3] && isWord.test(parts[3])) {
-        nickname += ' ' + parts[3];
+        short += ' ' + parts[3];
       }
     }
+    return short
   }
-  return nickname
+  return shortNameFromLong()
 }
 function getAvatarURL(pk) {
   if (pk.avatar_url && pk.avatar_url !== "null") {

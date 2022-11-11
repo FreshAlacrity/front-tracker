@@ -44,6 +44,14 @@ function loadFromPk() {
 function loadUrlParameters(localForageSuccessBool) {
   // see https://codepen.io/eahartmann/pen/bGvaMvy
   const urlParams = new URLSearchParams(window.location.search);
+  
+  if (urlParams.has('token')) {
+    if (validateToken(urlParams.get('token'))) {
+      saveToken(urlParams.get('token'))
+    } else {
+      error("Invalid token in URL parameters")
+    }
+  }
 
   let viewing = "active"; // default value
   if (urlParams.has('show')) { viewing = urlParams.get('show') }
@@ -51,15 +59,19 @@ function loadUrlParameters(localForageSuccessBool) {
 
   // update checkboxes from url parameters
   // #later make a function/switch to handle these?
-  let toggleStates = {
-    available: (viewing === "available" || viewing === "all"),
-    unavailable: (viewing === "all"),
-    live: !urlParams.get('live')
-  }
-  for (const [key, value] of Object.entries(toggleStates)) {
-    let checkbox = document.getElementById("toggle-" + key);
-    checkbox.checked = value;
-  };
+  Object.keys(data.page.toggles).forEach(toggle => {
+    let toggleStates = {
+      available: (viewing === "available" || viewing === "all"),
+      unavailable: (viewing === "all")
+    }
+
+    let checkbox = document.getElementById("toggle-" + toggle);
+    if (toggleStates[toggle]) {
+      checkbox.checked = toggleStates[toggle];
+    } else {
+      checkbox.checked = !!urlParams.get(toggle);
+    }
+  });
 
   if (urlParams.has('active')) {
     data.page.active_list.value = paramValue(urlParams, 'active')
@@ -93,18 +105,28 @@ function onDoubleClick(event) {
   // #todo have it detect and make new members for alt mode also
 
   let callsign = event.target.id.slice("icon-front-".length);
-  if (event.target.id.slice(0, "icon-front-".length) === "icon-front-") {
-    let id = idFromCallsign(callsign);
-    if (id) {
-      window.open(`https://dash.pluralkit.me/dash/m/${id}`, "_blank");
-    } else {
-      // catch and make new member
-      if (confirm(`${callsign} doesn't have a registered proxy. Create one now?`)) {
-        log(`${callsign} doesn't have a registered proxy. Creating one now...`);
-        newMember(callsign).then(pk => {
-          log(`New member object for member with callsign ${callsign}:\n${pretty(pk)}`);
-        });
+  let id = idFromCallsign(callsign);
+
+  if (getToggle("editing")) {
+    if (event.target.id.slice(0, "icon-front-".length) === "icon-front-") {
+      
+      if (id) {
+        window.open(`https://dash.pluralkit.me/dash/m/${id}`, "_blank");
+      } else {
+        // catch and make new member
+        if (confirm(`${callsign} doesn't have a registered proxy. Create one now?`)) {
+          log(`${callsign} doesn't have a registered proxy. Creating one now...`);
+          newMember(callsign).then(pk => {
+            log(`New member object for member with callsign ${callsign}:\n${pretty(pk)}`);
+          });
+        }
       }
+    } // #todo later open edit link for backs also
+  } else {
+    if (id) {
+      window.open(`https://dash.pluralkit.me/profile/m/${id}`, "_blank");
+    } else {
+      alert("Oops! This member doesn't have a page yet.");
     }
   }
 }
