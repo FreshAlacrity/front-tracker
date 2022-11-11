@@ -2,13 +2,13 @@
 // keep total storage under 700 mb (including all the files)
 var data = {
   page: {
-    container: document.getElementById("fronters"),
+    container: document.getElementById("members"),
     active_list: document.getElementById("active-list"),
     settings: document.getElementById("controls"),
     toggles: {
-      available: document.getElementById("toggle-available"),
-      unavailable: document.getElementById("toggle-unavailable"),
-      live: document.getElementById("toggle-live")
+      available: { action: updateOnToggle },
+      unavailable: { action: updateOnToggle },
+      live: { action: toggleLive }
     }
   },
   setup: {
@@ -28,81 +28,54 @@ var data = {
 }
 
 function init() {
-  // add tiles for the current member list
+  function makeCheckboxes() {
+    // #todo add more informative titles + labels for the checkboxes
+    // #todo add this to toggles instead:
+    // flip to alt accounts
+    //if (urlParams.has('alts') === true) { flipTiles() }
+    let toggles = data.page.toggles
+    for (const [key, value] of Object.entries(toggles)) {
+      let checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.name = "toggle " + key;
+      checkbox.title = "toggle " + key;
+      checkbox.id = "toggle-" + key;
+      checkbox.checked = value.default;
+      checkbox.addEventListener('change', value.action);
+      data.page.settings.appendChild(checkbox);
+    };
+  }
+  function addListInputListener() {
+    data.page.active_list.addEventListener("focusout", activeListInput);
+    data.page.active_list.addEventListener("keypress", function (event) {
+      // If the user presses the "Enter" key on the keyboard
+      if (event.key === "Enter") {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        activeListInput();
+      }
+    });
+  }
+
+  makeCheckboxes();
+  addListInputListener();
+
+  // make the base member list and add tiles for each member
   sortByCallsign(makeInitialList()).forEach(addHeadmateTile)
+  loadUrlParameters();
 
   // load any member objects that have been cached
-  loadFromLocalForage();
-
-  // see https://codepen.io/eahartmann/pen/bGvaMvy
-  const urlParams = new URLSearchParams(window.location.search);
-
-  // load in from PK and update tiles unless that's actively prevented
-  let localOnly = (urlParams.has('live') && !!urlParams.get('live'))
-  if (localOnly) {
-    log("Loading remote data prevented by url parameter 'live=false'")
-  } else {
-    loadFromPk();
-  }
-
-  // checkbox options/toggles:
-  let viewing = "active";
-  if (urlParams.has('show')) { viewing = urlParams.get('show') }
-  //`?show=active/available/all`
-  
-  // #todo add more informative titles + labels for the checkboxes
-  // #later add a toggle alts checkbox using flipTiles()
-  let toggles = {
-    available: {
-      default: (viewing === "available" || viewing === "all"),
-      action: updateOnToggle
-    },
-    unavailable: {
-      default: (viewing === "all"),
-      action: updateOnToggle
-    },
-    live: {
-      default: !urlParams.get('live'),
-      action: toggleLive
-    }
-  };
-  for (const [key, value] of Object.entries(toggles)) {
-    let checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.name = "toggle " + key;
-    checkbox.title = "toggle " + key;
-    checkbox.id = "toggle-" + key;
-    checkbox.checked = value.default;
-    checkbox.addEventListener('change', value.action);
-    data.page.settings.appendChild(checkbox);
-  };
-
-  // flip to alt accounts
-  if (urlParams.has('alts') === true) { flipTiles() }
-
-  if (urlParams.has('active') === true && urlParams.get('active') !== "fronters") {
-    // get list from url
-    let active = validateMemberListInput(paramValue(urlParams, 'active'), false);
-    data.page.active_list.value = paramValue(urlParams, 'active');
-    updatePage(active);
-  } else {
-    // get current fronters from PK
-    loadFronters();
-  }
-
-  data.page.active_list.addEventListener("focusout", activeListInput);
-  data.page.active_list.addEventListener("keypress", function (event) {
-    // If the user presses the "Enter" key on the keyboard
-    if (event.key === "Enter") {
-      // Cancel the default action, if needed
-      event.preventDefault();
+  localforage.iterate(function (pk, id, iterationNumber) {
+      updatePkInfo(pk, true); // prevents immediately re-saving
+    }).then(function () {
+      updateAllHeadmateTiles();
       activeListInput();
+      log("Locally cached member data loaded");
+    }).catch(err => { error(err) })
+
+    // load in from PK and update tiles unless that's actively prevented
+    if (getToggle("live")) { loadFromPk() } else {
+      log("Loading remote data prevented by url parameter 'live=false'");
     }
-  });
-
-  //loadFromPK();
-
-  // remember that double clicking a portrait can also do this:
-  //newMember("149");
 }
 init()

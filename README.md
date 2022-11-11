@@ -3,6 +3,7 @@
 ## To Do
 
 ### Next
+
 - Description for Glitter
 - [ ] add a checkbox toggle to the html page for live/local
 
@@ -91,6 +92,7 @@
   - [ ] detecting whether the click is to front or back seems not to be happening?
 
 ### Later
+- [ ] reorder display names to put districts after names?
 - [ ] function + template generation for making new alt proxies
 - sort order/display options
   - [ ] show fusions of active members first

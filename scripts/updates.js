@@ -5,13 +5,10 @@ function showMessage(text) {
 function loadFronters() {  
   getFronters().then(d => {  
     showMessage("Loaded switch logged at: " + d.timestamp) // #later note the time logged and how long ago that was in a message
-    log("Updating active members: " + d.members.map(d => d.id).join(","))
+    log("Updating active members: " + d.members.map(d => d.id).join(", "))
     // #later make a way to check this data against existing data? as in, ID matches callsign?  
     updatePage(d.members.map(getCallsign), true)
   });
-}
-function getActive(doAlert) {
-  return validateMemberListInput(data.page.active_list.value, doAlert)
 }
 function activeListInput() {
   // runs on Enter key or when focus leaves active list text box
@@ -29,7 +26,7 @@ function updatePage(active = getActive(), setTextbox) {
   if (getToggle("unavailable")) { show = "all" }
   else if (getToggle("available")) { show = "available" }
 
-  if (setTextbox) { data.page.active_list.value = active; }
+  if (setTextbox) { data.page.active_list.value = active.join(", ") }
   updateUrl({
     active: data.page.active_list.value,
     show: show,
@@ -44,19 +41,31 @@ function loadFromPk() {
   log("Loading all members directly from PK");
   getMemberObjectList().then(loadFromPkMemberList);
 }
-function loadFromLocalForage() {
-  log("Loading locally cached member data");
-  localforage.iterate(function (pk, id, iterationNumber) {
-    //log(`Loading member from local cache: ${pretty(pk)}`)
-    updatePkInfo(pk, true); // prevents immediately re-saving
-  }).then(function () {
-    updateAllHeadmateTiles();
-    log("All locally cached member data loaded");
-  }).catch(function (err) {
-    // This code runs if there were any errors
-    error(err);
-  });
+function loadUrlParameters(localForageSuccessBool) {
+  // see https://codepen.io/eahartmann/pen/bGvaMvy
+  const urlParams = new URLSearchParams(window.location.search);
+
+  let viewing = "active"; // default value
+  if (urlParams.has('show')) { viewing = urlParams.get('show') }
+  //`?show=active/available/all`
+
+  // update checkboxes from url parameters
+  // #later make a function/switch to handle these?
+  let toggleStates = {
+    available: (viewing === "available" || viewing === "all"),
+    unavailable: (viewing === "all"),
+    live: !urlParams.get('live')
+  }
+  for (const [key, value] of Object.entries(toggleStates)) {
+    let checkbox = document.getElementById("toggle-" + key);
+    checkbox.checked = value;
+  };
+
+  if (urlParams.has('active')) {
+    data.page.active_list.value = paramValue(urlParams, 'active')
+  }
 }
+
 function clearLocalData() {
   // via https://localforage.github.io/localForage/#data-api-clear
   localforage.clear().then(function () {
@@ -67,11 +76,10 @@ function clearLocalData() {
     error(err);
   });
 }
-function resetList() {
-  updatePage(digits(), true);
-}
 
-function onClick(event) {
+function resetList() { updatePage(digits(), true) }
+
+function onTileClick(event) {
   if (window.event.ctrlKey) {
     let callsign = event.target.id.slice("icon-front-".length);
     if (event.target.id.slice(0, "icon-front-".length) !== "icon-front-") {
@@ -105,7 +113,7 @@ function updateOnToggle(event) {
 }
 function toggleLive(event) {
   if (event.target.checked) {
-    updatePage();
+    updatePage(); // #todo why is this called here?
     showMessage("Loading in most recent data from PK")
     loadFromPk();
   } else {

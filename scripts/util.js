@@ -52,6 +52,7 @@ function log(info = "--------------") {
   } else {
     console.info(info);
   }
+  return info;
 }
 function error(err) {
   console.error(err);
@@ -97,12 +98,16 @@ function paramValue(urlParams, key) {
   return decodeURIComponent(urlParams.get(key).replace(/\+/g, " "));
 }
 function splitByEach(string, breakAt = ", ") {
-  breakAt.split('').forEach(c => { string = string.replaceAll(c, '<!split!>') });
-  return string.split('<!split!>').filter(a => (a !== ''));
+  let br = '<!split!>'
+  return replaceEach(string, breakAt, br).split(br).filter(a => (a !== ''));
 }
 function regExEscape(string) {
   // via https://makandracards.com/makandra/15879-javascript-how-to-generate-a-regular-expression-from-a-string
   return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+function replaceEach(string, charsString, replaceWith = '') {
+  charsString.split('').forEach(c => { string = string.replaceAll(c, replaceWith) });
+  return string;
 }
 function occurs(string, substring) {
   let regex = new RegExp(regExEscape(substring), 'g')
@@ -336,6 +341,32 @@ function updatePkInfo(pk, noSave = false) {
     //log(`Saving member to localForage: ${pk.id}`)
     localforage.setItem(pk.id, pk).catch(err => error);    
   }
+}
+function namesListToCallsigns(string, doAlert = false) {
+  // called with active input, usually from the text box but also URL params
+
+  function plain(string) { return replaceEach(string, "+-") };
+
+  // split into an array and substitute in callsigns for names
+  let arr = splitByEach(string, ",.~ ;:/").map(entry => {     
+    let match = callsignFromNickname(plain(entry));
+    if (match) {
+      return entry.replace(plain(entry), match);
+    } else {
+      return entry
+    }
+  });
+
+  let all = getMemberList();
+  let notMembers = arr.filter(cs => !all.includes(plain(cs)));
+  if (notMembers.length > 0) {
+    // currently can cause a softlock if using alert()
+    showMessage(`These are not registered member(s): ${notMembers.join(", ")}`);
+  }
+  return sortByCallsign(arr.filter(cs => all.includes(plain(cs)))); // does this need to be sorted?
+}
+function getActive(doAlert) {
+  return namesListToCallsigns(data.page.active_list.value, doAlert)
 }
 async function updateDataFromMemberList(list = exported.members) {
   console.groupCollapsed("Updating from member list:");

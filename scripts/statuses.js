@@ -22,30 +22,55 @@ function updateTileClasses(active) {
 }
 
 function listUnavailable(active) {
-  let unavailable = [];
-  active.forEach(cs => {
-    if (cs.length > 1) {
-      unavailable = unavailable.concat(getAllSibsList(cs))
+  // takes as input an array of callsigns with + and - syntax
+
+  let no = [];
+  let all = getMemberList();
+  function isMember(cs) { return all.includes(cs) }
+  function has(key, str) {
+    if (key.length === 1) {
+      return str.indexOf(key) > -1
+    } else {
+      return (key.split('').filter(d => (str.indexOf(d) > -1)).length >= key.length)
     }
-  });
-  /*
-  digits().forEach(cs => {    
-    if (!active.includes(cs)) {       
-      unavailable.push(cs)
-      if (active.join("").indexOf(cs) === -1) {
-        unavailable = unavailable.concat(getAllSibsList(cs))
-      }
-    }
-  });
-  */
-  return sortByCallsign(unavailable)  
+  }
+  function have(key, arr, match = true) { return arr.filter(e => (has(key, e) === match)) }
+  function endsIn(end, str) { return str.slice(-1) === end }
+  function hasEach(arr, str) {
+    return (arr.filter(wd => has(wd, str)).length === arr.length)
+  }
+   // #todo implement + and - here instead
+  let wild = have("+", active);    
+
+  if (wild.length > 0) {
+    no = no.concat(all);
+    no = no.filter(cs => {
+      return !((wild.filter(w => {
+        if (endsIn('+', w)) {} // what should this do differently?
+        return hasEach(w.replace('+','').split(''), cs);        
+      }).length) > 0)
+    });
+  }
+
+  let exclusions = have("-", active);
+  no = no.concat(all.filter(cs => {
+      return ((exclusions.filter(e => {
+          return hasEach(e.replace('-','').split(''), cs);
+      }).length) > 0)
+    }));
+  log(no)
+
+  // add as unavailable any siblings of active fusions
+  no = no.concat(active.filter(isMember).filter(cs => cs.length > 1).map(getAllSibsList));
+
+  return sortByCallsign(no.flat());
 }
 
 function updateActiveList(active, targetCS) {
   function c(cs) { return active.includes(cs) }
   function r(cs) { active = remove(active, cs) }
   function a(cs) { if (!c(cs)) { active.push(cs) } }
-  
+
   function toggleOff(cs) {
     if (cs.length > 1 && c(cs)) {
       cs.split('').forEach(a);
@@ -59,7 +84,8 @@ function updateActiveList(active, targetCS) {
     getAllSibsList(cs).forEach(toggleOff)
   }
 
-  if (c(targetCS)) { toggleOff(targetCS)
+  if (c(targetCS)) {
+    toggleOff(targetCS)
   } else { toggleOn(targetCS) }
 
   return active;
