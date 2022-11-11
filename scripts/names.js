@@ -1,5 +1,31 @@
 // #todo make a function to suggest a few names from each category and cycle through them (shuffle at start and then proceed by modulo
 // #todo make sure to remove names that are already in use!
+
+let lastNamesList = [["Lotus"],["Hart"],["Gray"],["Davis"],["Wood"],["Evans"],["Lee","Ley"], ["Locke"],["Thorne"],["Foster"]];
+
+function lastNameGenerator(cs) {
+  // #todo show and test
+  
+  //add a hyphen unless it's vowel-consonant (just compare to a list of vowels)
+  // consider also: sun, price for 3? Howard
+  return cs.split('').map(d => {
+    if (lastNamesList[digitIndex(d)]) {
+      return lastNamesList[digitIndex(d)][0]
+    } else { return '' }
+  }).join("-") //needs convert-to-int
+  //hartwood
+  //lockehart
+  //lockeley
+  //foster-thorne
+  //grey-hart
+}
+function lastToCallsign(lastName) {
+  // #todo add tests and implement
+  return sortCallsign(lastNamesList.filter(arr => arr.filter(d => {
+    return has(lastName.toLowerCase())
+  })));
+}
+
 var namesList = {
   masc: 
     `Andrew
@@ -120,8 +146,6 @@ var namesList = {
     Linen
     Link
     Locust
-    Loki
-    Lumi
     Marjoram
     Mint
     Molly
@@ -132,7 +156,6 @@ var namesList = {
     Never
     Nex
     Ode
-    Peanut
     Pennyroyal
     Porcelain
     Puck
@@ -169,7 +192,6 @@ var namesList = {
     Amara
     Amaryllis
     Arcadia
-    Aria
     Arnica
     Audra
     Ava

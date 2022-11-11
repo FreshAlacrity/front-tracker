@@ -13,7 +13,7 @@ function elementByCallsign(callsign) {
 function addHeadmateTile(mainCs) {  
   function makeCoin() {
     let coin = document.createElement("div");
-    coin.addEventListener("click", onClick);
+    coin.addEventListener("click", onTileClick);
     coin.classList.add("flip-coin");
     coin.classList.add("hidden"); // #here
     coin.id = idStringByCallsign(mainCs);
@@ -49,7 +49,6 @@ function addHeadmateTile(mainCs) {
   coin.appendChild(coinFace("front"));
   coin.appendChild(coinFace("back"));
 }
-
 function updateHeadmateTile(mainCs) {
   let pk = getPkObject(mainCs);
   function nameElement(type) {
@@ -81,9 +80,13 @@ function updateHeadmateTile(mainCs) {
       nickname.id = "name-for-" + mainCs
     } else {
       nickname.id = "alt-name-" + mainCs
-    }    
+    }
     element.appendChild(nickname);
 
+    let lastname = document.createElement("div");
+    lastname.className = "last-name"
+    lastname.innerHTML += `${lastNameGenerator(mainCs)}`;    
+    element.appendChild(lastname);
     return element;
   }
   function setAvatar(element) {
@@ -116,7 +119,7 @@ function updateAllHeadmateTiles() {
   getMemberList().forEach(updateHeadmateTile);
 }
 
-// #todo put this global in the data object and add a url param
+// #todo put this global in the data object with other toggles
 var tilesFlipped = false;
 function flipTiles() {
   // @todo get this working
