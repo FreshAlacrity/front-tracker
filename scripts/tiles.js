@@ -89,10 +89,12 @@ function updateHeadmateTile(mainCs) {
     }
     element.appendChild(nicknameElement);
 
+    /*
     let lastname = document.createElement("div");
     lastname.className = "last-name"
     lastname.innerHTML += `${lastNameGenerator(mainCs)}`;    
     element.appendChild(lastname);
+    */
     return element;
   }
   function setAvatar(element) {
