@@ -7,19 +7,23 @@ Allows users of [Plural Kit](https://pluralkit.me/) to show, manage, analyse, an
 Names and callsigns will pull up members; adding a + to a callsign or name will look for all members that are fusions of that callsign and mark those available; adding - to a callsign or name will mark those members unavailable
 
 
-## Planned Features
+## Planned
 
 ### Next
+- [ ] get levenstein name recognition from active list working
 - [ ] new image for members with no PFP
 - [ ] add the URL parameter to the page for showing active fronters when that button is clicked
 - [ ] add a "donate"/<3 button and link it to Patreon (for now)
+- [ ] add a "View Source" button and link to the repository
 - [ ] Have one button for sign in/sign out and change the button text
 
 
 ### Support for Other Systems
 - [ ] allow putting in a system ID as a URL parameter and just list the members to start
-- [ ] get the system name/tag and add to URL
-- [ ] use description text format to recognize component digits and alt accounts
+- [ ] get the system name/tag and add to page title
+- [ ] show more than one system at once
+- [ ] use description text format to recognize component digits (if they have "callsign:")
+- [ ] use group membership to recognize alt accounts
 - [ ] allow input of a group ID for 'digits' (who do fuse) and/or unconventional headmates (who don't fuse)
 - [ ] recognize proxy patterns for the purpose of making new proxies based on that as a template
 - [ ] use a public group to assemble a list of digits (and load those members first?)
@@ -83,6 +87,8 @@ Names and callsigns will pull up members; adding a + to a callsign or name will 
 
 
 ### Maybe
+- [ ] Support for making a group within a system to use as a digit or not-digit list
+- [ ] Add option to show the system description on the page somewhere?
 - [ ] When only showing the active members, show a side panel with a card that has the details for that PK member
   - [ ] In edit mode, make every value on a card an editable text field
 - [ ] Add the token as a GitHub secret and let people sign in with one password for editing and one password for viewing private info?

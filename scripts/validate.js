@@ -1,6 +1,6 @@
 function fusionNote(callsign) {
   // #later check these automatically
-  let names = ["☸️ Moth", "🍀 Clover", "🧮 Val", "🏗️ Kent", "🐏 Faun", "🤝 Ruth", "🎇 Lucky", "📜 Giles", "🌑 Thorn", "🌃 Glitter"];
+  let names = ["☸️ Moth", "🍀 Clover", "🧮 Val", "🏗️ Kent", "🐏 Faun", "🤝 Ruth", "🎇 Lucky", "📜 Giles", "🌑 Thorn", "🌃 Starling"];
   let numDigits = callsign.split('').filter(c => (digitIndex(c) > -1)).length;
   if (numDigits === callsign.length) {
     if (callsign.length === 1 && callsign !== "*") {
