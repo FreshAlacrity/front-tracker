@@ -1,3 +1,4 @@
+// NOTE - NAME SUGGESTIONS MOVED TO PK DISPATCH BUTLER & silent bot channel
 // #todo make a function to suggest a few names from each category and cycle through them (shuffle at start and then proceed by modulo
 // #todo make sure to remove names that are already in use!
 
@@ -26,9 +27,11 @@ function lastToCallsign(lastName) {
   })));
 }
 
+// no: Charles, Richard or Christopher (too close to 139 | Chip)
 var namesList = {
   masc: 
     `Andrew
+    Aeron
     Alan
     Aram
     Arthur
@@ -38,11 +41,12 @@ var namesList = {
     Axel
     Antimony
     Basil
+    Byram
+    Brahm
     Buckwheat
     Barnaby
     Barley
     Burdock
-    Bartholomew
     Caleb
     Connor
     Costantin
@@ -80,20 +84,19 @@ var namesList = {
     Mihaly (MEE-hai)
     Milo
     Nick
-    Nickola
     Nicola
     October
     Pascal
     Percy
     Quinn
-    Richard
+    Law
     Robert
     Roy
     Ryan
     Silas
     Sebastian
     Spruce
-    Talon 
+    Talon
     Tau
     Theo
     Torin
@@ -106,15 +109,21 @@ var namesList = {
     Zach
     Zagreus`,
   neutral:
-    `Aeron
-    Alfalfa
+    `Alfalfa
     Bergamot
-    Billie
+    Sonder
+    Quill
     Birch
+    Talon
+    Peregryn
+    Loxley
+    Blair
     Balm
     Blake
-    Bryn
     Chaos
+    Toph
+    Chris
+    Cadence
     Cherry
     Circuit
     Clary
@@ -128,7 +137,7 @@ var namesList = {
     Dirt
     Dusty
     Esper
-    Eucalyptus
+    Em
     Fable
     Feather
     Feldspar
@@ -142,13 +151,13 @@ var namesList = {
     Lace
     Lake
     Leaf
+    Piper
     Lichen
     Linen
     Link
-    Locust
     Marjoram
     Mint
-    Molly
+    Hall
     Mugwort
     Mulberry
     Mxchief
@@ -156,56 +165,43 @@ var namesList = {
     Never
     Nex
     Ode
-    Pennyroyal
     Porcelain
     Puck
     Quinn
-    Retracted
     Rhubarb
     Riley
     Riot
     Robin
     Rocky
-    Rook
+    Jackie
     Rosemary
     Sage
     Scout
     Sky
-    Spaces
-    Star
-    Steel
-    Sterling
     Tamarind
     Tarragon
     Thread
-    Vetiver
     Winter
     Zee`,
   femme:
     `Acacia
-    Ada
     Pansy
     Adelia
     Adina
     Akira
-    Alice
     Amara
     Amaryllis
     Arcadia
     Arnica
     Audra
-    Ava
     Betony
-    Blaire
-    Brooke
-    Clementine
+    Clarity
+    Ceremony
     Colette
     Cora
     Dahlia
     Daisy
     Dove
-    Effie
-    Eilette
     Estelle
     Estrella
     Eve
@@ -241,8 +237,8 @@ var namesList = {
     Patience
     Quilla
     Reyna
+    Marian
     Rhea
-    Rhiannon
     Roxi
     Ruby
     Salome
@@ -250,16 +246,13 @@ var namesList = {
     Sarennya
     Selina
     Seraphina
-    Sloan
     Sophie
     Star
     Sylvia
     Tera
     Trish
     Valerie
-    Vita
-    Wanda
-    Wren`,
+    Vita`,
   alt:
     `Abby
     Ace
@@ -281,6 +274,7 @@ var namesList = {
     Bella
     Belle
     Benny
+    Ghost
     Blaze
     Blu
     Bolt
@@ -328,7 +322,6 @@ var namesList = {
     Hunter
     Iris
     Ivy
-    Jackson
     Jake
     Jasper
     Jax
@@ -372,9 +365,6 @@ var namesList = {
     Otis
     Ozzy
     Penny
-    Pepper
-    Phoebe
-    Piper
     Prince
     Princess
     Ranger

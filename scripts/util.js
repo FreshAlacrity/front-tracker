@@ -90,7 +90,7 @@ function updateUrl(paramsObj = {}) {
     return `${window.location.origin}${window.location.pathname}?${params.toString()}`
   }
   // #later learn how/where the state information (here {}) can be accessed
-  window.history.replaceState({}, 'New Page Title Here #todo', newUrl(paramsObj))
+  //window.history.replaceState({}, 'New Page Title Here #todo', newUrl(paramsObj)) #todo this causes error
 }
 function paramValue(urlParams, key) {
   // decodes the encoding that updateUrl uses
@@ -190,10 +190,10 @@ function discordStringFromObj(d) {
   }
   return string;
 }
-function updatedDescription(pk) {
+function updatedDescription (pk) {
   return fusionNote(getCallsign(pk)) + discordStringFromObj(objFromDescription(pk.description));
 }
-function newMemberPkFromCallsign(callsign) {
+function newMemberPkFromCallsign (callsign) {
   // #todo add defaults for alt accounts also  
   // if alt, add a parenthetical to name with nickname from main
   // #todo if alt has same name as main, add the alt suffix after the pk.name to avoid duplicates
@@ -203,8 +203,7 @@ function newMemberPkFromCallsign(callsign) {
       display_name: `${callsign} | Unnamed`,
       pronouns: 'they/them',
       "proxy_tags": [
-        { "prefix": null, "suffix": " -" + callsign },
-        { "prefix": callsign + ": ", "suffix": null }
+        { "prefix": null, "suffix": " -" + callsign }
       ],
       "privacy": {
         "name_privacy": "private",
@@ -218,7 +217,7 @@ function newMemberPkFromCallsign(callsign) {
 
   }
 }
-function getPkObject(callsign) {
+function getPkObject (callsign) {
   if (data.members_by_callsign.hasOwnProperty(callsign)) {
     // #todo figure out why the copy() is needed/if it helps
     return copy(data.members_by_callsign[callsign]);
@@ -282,7 +281,7 @@ function getAvatarURL(pk) {
     return pk.avatar_url;
   } else {
     // #later find better default image
-    return 'https://cdn.discordapp.com/attachments/982166756837707786/982761923667976242/web.png';
+    return 'https://cdn.pluralkit.me/images/ff/jfjson7surajrye64b52ia2a.webp';
   }
 }
 function getBgColor(cs) {

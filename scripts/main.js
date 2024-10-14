@@ -122,7 +122,7 @@ function init() {
     }).then(function () {
       updateAllHeadmateTiles();
       activeListInput();
-      log("Locally cached member data loaded");
+      log("Locally cached member data loaded"); // #todo #debug
     }).catch(err => { error(err) })
 
     // load in from PK and update tiles unless that's actively prevented

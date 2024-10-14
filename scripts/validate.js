@@ -1,6 +1,6 @@
 function fusionNote(callsign) {
   // #later check these automatically
-  let names = ["☸️ Moth", "🍀 Clover", "🧮 Val", "🏗️ Kent", "🐏 Faun", "🤝 Ruth", "🎇 Lucky", "📜 Giles", "🌑 Thorn", "🌃 Starling"];
+  let names = ["1 ☸️ Moth", "2 🍀 Clover", "3 🧮 Val", "4 🏗️ Kent", "5 🐏 Faun", "6 🤝 Ruth", "7 🎇 Lucky", "8 📜 Giles", "9 🌑 Thorn", "* 🌃 Starling"];
   let numDigits = callsign.split('').filter(c => (digitIndex(c) > -1)).length;
   if (numDigits === callsign.length) {
     if (callsign.length === 1 && callsign !== "*") {
@@ -9,7 +9,7 @@ function fusionNote(callsign) {
       return `Non-representative, non-voting adviser to the council`
     } else {
       let districtList = oxfordCommaList((callsign + '').split('').filter(d => (d !== "*")))
-      return `Temporary fusion of ${oxfordCommaList((callsign + '').split('').map(d => names[digitIndex(d)]))}\nRepresents districts ${districtList}`;
+      return `Temporary fusion of ${oxfordCommaList((callsign + '').split('').map(d => names[digitIndex(d)]))}`;
     }
   } else {
     return "Unconventional headmate";
@@ -17,8 +17,8 @@ function fusionNote(callsign) {
 }
 quickTest(fusionNote("E"), "Unconventional headmate", "No digit fusionNote() test");
 quickTest(fusionNote("6"), "Represents district 6 on our internal council", "One digit fusionNote() test");
-quickTest(fusionNote("24"), "Temporary fusion of 🍀 Clover and 🏗️ Kent\nRepresents districts 2 and 4", "Two digit fusionNote() test");
-quickTest(fusionNote("246"), "Temporary fusion of 🍀 Clover, 🏗️ Kent, and 🤝 Ruth\nRepresents districts 2, 4, and 6", "Three digit fusionNote() test");
+quickTest(fusionNote("24"), "Temporary fusion of 2 🍀 Clover and 4 🏗️ Kent", "Two digit fusionNote() test");
+quickTest(fusionNote("246"), "Temporary fusion of 2 🍀 Clover, 4 🏗️ Kent, and 6 🤝 Ruth", "Three digit fusionNote() test");
 
 function deduplicateProxyList(arr) {
   return [...new Set(arr)].sort(function (x, y) {
