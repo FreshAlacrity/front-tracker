@@ -199,6 +199,7 @@ function updatedDescription (pk) {
   return fusionNote(getCallsign(pk)) + discordStringFromObj(objFromDescription(pk.description));
 }
 function newMemberPkFromCallsign (callsign) {
+  // #todo update
   // #todo add defaults for alt accounts also  
   // if alt, add a parenthetical to name with nickname from main
   // #todo if alt has same name as main, add the alt suffix after the pk.name to avoid duplicates
@@ -222,12 +223,12 @@ function newMemberPkFromCallsign (callsign) {
 
   }
 }
-function getPkObject (callsign) {
-  if (data.members_by_callsign.hasOwnProperty(callsign)) {
+function getPkObject (pkId) {
+  if (data.members_by_id.hasOwnProperty(pkId)) {
     // #todo figure out why the copy() is needed/if it helps
-    return copy(data.members_by_callsign[callsign]);
+    return copy(data.members_by_id[pkId]);
   } else {
-    return newMemberPkFromCallsign(callsign);
+    return newMemberPkFromCallsign(pkId);
   }
 }
 function idFromCallsign (callsign) {
@@ -241,9 +242,9 @@ function callsignFromNickname (nickname) {
   // later also find close matches
   return data.callsigns_by_name[nickname.toLowerCase()];
 }
-function getCallsign (pk) {
-  let callsign = (pk.display_name || pk.name).split(" ")[0];
-  return callsign.replace('-', '') // for Altar etc
+function getCallsign (pk, index = 1) {
+  let name = pk.display_name || pk.name || "Unknown";
+  return /\{(.+)\}/.exec(name)[index] // 1 will return without {}
 }
 function mainCallsign (callsign) {
   // #todo check this is working
@@ -252,42 +253,15 @@ function mainCallsign (callsign) {
   });
   return callsign;
 }
-function getEmoji (pk) {
-  if (pk.display_name) {
-    let e = pk.display_name.split(" ")[1];
-    if (e !== "|") { return e }
-  }
-  return ''
-}
 function getNickname (pk) {
-  let nickname = "Unknown";
-  if (pk.display_name) {
-    nickname = pk.display_name;
-  } else if (pk.name) {
-    nickname = pk.name
-  }
-  let parts = nickname.split(" ");
-  function shortNameFromLong () {
-    let short = ''
-    if (parts[2]) {
-      short += parts[2]
-      // it's really just Sweet William with a space in his name rn
-      let isWord = /^\w+$/ // or /\w/ if we want parentheticals
-      if (parts[3] && isWord.test(parts[3])) {
-        short += ' ' + parts[3];
-      }
-    }
-    return short
-  }
-  return shortNameFromLong()
+  // Note: Does not include any parentheticals
+  let name = pk.display_name || pk.name || "Unknown";
+  return /^([\w\s]+?)(?= |$)/.exec(name)[1]
 }
 function getAvatarURL (pk) {
-  if (pk.avatar_url && pk.avatar_url !== "null") {
-    return pk.avatar_url;
-  } else {
-    // #later find better default image
-    return 'https://cdn.pluralkit.me/images/ff/jfjson7surajrye64b52ia2a.webp';
-  }
+  // #later find better default image/way to do this
+  let defaultImg = 'https://cdn.pluralkit.me/images/ff/jfjson7surajrye64b52ia2a.webp'
+  return pk.avatar_url || pk.webhook_avatar_url || defaultImg;
 }
 function getBgColor (cs) {
   // #later get member color?

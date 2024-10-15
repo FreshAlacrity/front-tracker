@@ -82,6 +82,8 @@ function nameOccurs (name) {
 }
 
 function checkMemberObject (pk, autoUpload = true) {
+  return pk; // #todo reinstate this function later? this skips the entire thing
+  /*
   // #todo update to take edit mode into account better
   // used in util.js updatePkInfo()
   let editMode = getToggle("editing");
@@ -210,4 +212,5 @@ function checkMemberObject (pk, autoUpload = true) {
     }
   }
   return Object.assign(pk, edits)
+  */
 }

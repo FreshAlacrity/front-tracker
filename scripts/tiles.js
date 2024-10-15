@@ -11,7 +11,6 @@ function elementByPkId (pkId) {
 }
 
 // used in init()
-// #todo rewrite so that the input is PK ID instead
 function addHeadmateTile (pkId) {
   let idString = htmlIdStringByPkId(pkId);
   function makeCoin () {
@@ -56,12 +55,17 @@ function addHeadmateTile (pkId) {
 // #todo update local variable name, using PK ID now instead of callsigns
 function updateHeadmateTile (pkId) {
   let pk = getPkObject(pkId);
+  let idString = htmlIdStringByPkId(pkId);
   function nameElement (type) {
     let element = document.createElement("div");
-    element.id = `name-${type}-${pkId}`;
-    // #todo adjust for alt accounts
-    element.innerHTML = `${getEmoji(pk)} ${pkId} ${getEmoji(pk)}<br>`;
+    element.id = `name-${type}-${idString}`;
 
+    // Set visible callsign
+    // #todo adjust for alt accounts?
+    // #todo set smaller font for longer callsigns?
+    element.innerHTML = getCallsign(pk, 0);
+
+    // Make editable nickname field
     let nickname = getNickname(pk);    
     let nicknameElement = document.createElement("div");
     if (getToggle("editing")) {
@@ -88,9 +92,9 @@ function updateHeadmateTile (pkId) {
     nicknameElement.classList.add("name");
     
     if (type === "front") {
-      nicknameElement.id = "name-for-" + pkId
+      nicknameElement.id = `name-for-${idString}`
     } else {
-      nicknameElement.id = "alt-name-" + pkId
+      nicknameElement.id = `alt-name-for-${idString}`
     }
     element.appendChild(nicknameElement);
 
@@ -103,6 +107,7 @@ function updateHeadmateTile (pkId) {
     return element;
   }
   function setAvatar (element) {
+    element.title = pk.pronouns + '\n(double click to open the PK page for this member)'
     let url = getAvatarURL(pk);
     // #todo detect broken image urls
     if (url) {
@@ -118,24 +123,17 @@ function updateHeadmateTile (pkId) {
   function updateBothSides () {
     // #todo consider throwing an error here if the elements are not found
     ["front", "back"].forEach(type => {
-      let name = document.getElementById(`name-${type}-${pkId}`);
-      if (name) { 
-        name.replaceWith(nameElement(type)) 
-      }
+      let name = document.getElementById(`name-${type}-${idString}`);
+      if (name) { name.replaceWith(nameElement(type)) }
 
-      let icon = document.getElementById(`icon-${type}-${pkId}`);
-      if (icon) { 
-        icon.title = pk.pronouns + '\n(double click to open the PK page for this member)'
-        setAvatar(icon) 
-      }
+      let icon = document.getElementById(`icon-${type}-${idString}`);
+      if (icon) { setAvatar(icon) }
     });
   }
 
   // Check if the coin exists; if not, create one
-  // #todo check this is working
-  if (!(document.getElementById(htmlIdStringByPkId()))) {
-    addHeadmateTile(pkId)
-  }
+  if (!elementByPkId(pkId)) { addHeadmateTile(pkId) }
+
   updateBothSides();
   return true;
 }
