@@ -6,7 +6,7 @@ function updateTileClasses (active) {
   let showUnavailable = getToggle("unavailable");
 
   getMemberList().forEach(cs => {
-    let e = elementByCallsign(cs);
+    let e = elementByPkId(cs);
     if (e) { // accounting for tiles that may not be present
       let tileClass = "hidden"
       if (active.includes(cs) || active.length === 0) {

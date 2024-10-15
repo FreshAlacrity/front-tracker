@@ -168,8 +168,13 @@ function sortByCallsign (arr) {
   return [...new Set(arr)].sort(compare);
 }
 
+// Previously returned a list of callsigns
+// Now returns a list of PK IDs instead
 function getMemberList () {
-  return sortByCallsign(Object.keys(data.structure.relatives));
+  return Object.keys(data.members_by_id);
+  
+  // Previously returned a list of callsigns:
+  //return sortByCallsign(Object.keys(data.structure.relatives));
 }
 
 // = Find Individual Member Data =
@@ -343,6 +348,10 @@ function updatePkInfo (pk, noSave = false) {
   data.callsigns_by_id[pk.id] = callsign;
   if (pk.name) { updateNameList(pk.name, callsign) }
   data.members_by_callsign[callsign] = pk;
+
+  // new method:
+  data.members_by_id[pk.id] = pk;
+
   if (!noSave) {
     //log(`Saving member to localForage: ${pk.id}`)
     localforage.setItem(pk.id, pk).catch(err => error);    

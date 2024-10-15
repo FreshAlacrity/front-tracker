@@ -24,7 +24,10 @@ var data = {
     relatives: {},
     statuses: {}
   },
+  // old:
   members_by_callsign: {},
+  // new:
+  members_by_id: {},
   callsigns_by_name: {},
   callsigns_by_id: {}
 }
@@ -105,13 +108,15 @@ function init () {
   addListInputListener();
 
   // make the base member list and add tiles for each member
+  // #todo make this dynamic so it adds a tile for each PK ID instead
   sortByCallsign(makeInitialList()).forEach(addHeadmateTile)
   loadUrlParameters();
 
   // load any member objects that have been cached
   localforage.iterate(function (pk, id, iterationNumber) {
       if (id !== "token") {
-        updatePkInfo(pk, true); // prevents immediately re-saving
+        // currently all non-token values saved to storage are pk member objects
+        updatePkInfo(pk, true); // bool prevents immediately re-saving
       } else {
         if (validateToken(pk)) { 
           log("Saved token validated");

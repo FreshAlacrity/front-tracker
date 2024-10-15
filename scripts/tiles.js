@@ -1,22 +1,24 @@
-function idStringByCallsign (cs) {
+function idStringByCallsign (pkId) {
+  // #todo consider if we need this at all when using PK Ids
   // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
-  return "tile-" + encodeURIComponent(cs).replace(
+  return "tile-" + encodeURIComponent(pkId).replace(
     /[!'()*]/g,
     (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`
   );
 }
-function elementByCallsign (callsign) {
-  return document.getElementById(idStringByCallsign(callsign));
+function elementByPkId (pkId) {
+  return document.getElementById(idStringByCallsign(pkId));
 }
 
 // used in init()
-function addHeadmateTile (mainCs) {  
+// #todo rewrite so that the input is PK ID instead
+function addHeadmateTile (pkId) {  
   function makeCoin () {
     let coin = document.createElement("div");
     coin.addEventListener("click", onTileClick);
     coin.classList.add("flip-coin");
     coin.classList.add("hidden"); // #here
-    coin.id = idStringByCallsign(mainCs);
+    coin.id = idStringByCallsign(pkId);
     data.page.container.appendChild(coin);
 
     let coinFaces = document.createElement("div");
@@ -29,16 +31,16 @@ function addHeadmateTile (mainCs) {
     coinFront.classList.add("flip-coin-" + type);
 
     let icon = document.createElement("div");
-    icon.id = `icon-${type}-${mainCs}`;
+    icon.id = `icon-${type}-${pkId}`;
     icon.addEventListener("dblclick", onDoubleClick);
     icon.classList.add("icon");
-    icon.style.backgroundColor = getBgColor(mainCs);
+    icon.style.backgroundColor = getBgColor(pkId);
     coinFront.appendChild(icon);
     //coinFront.title = '';
 
     let name = document.createElement("div");
-    name.id = `name-${type}-${mainCs}`;
-    name.textContent = mainCs;
+    name.id = `name-${type}-${pkId}`;
+    name.textContent = pkId;
     coinFront.appendChild(name);
 
     coinFront.title += '\n' + status;
@@ -49,13 +51,15 @@ function addHeadmateTile (mainCs) {
   coin.appendChild(coinFace("front"));
   coin.appendChild(coinFace("back"));
 }
-function updateHeadmateTile (mainCs) {
-  let pk = getPkObject(mainCs);
+
+// #todo update local variable name, using PK ID now instead of callsigns
+function updateHeadmateTile (pkId) {
+  let pk = getPkObject(pkId);
   function nameElement (type) {
     let element = document.createElement("div");
-    element.id = `name-${type}-${mainCs}`;
+    element.id = `name-${type}-${pkId}`;
     // #todo adjust for alt accounts
-    element.innerHTML = `${getEmoji(pk)} ${mainCs} ${getEmoji(pk)}<br>`;
+    element.innerHTML = `${getEmoji(pk)} ${pkId} ${getEmoji(pk)}<br>`;
 
     let nickname = getNickname(pk);    
     let nicknameElement = document.createElement("div");
@@ -83,9 +87,9 @@ function updateHeadmateTile (mainCs) {
     nicknameElement.classList.add("name");
     
     if (type === "front") {
-      nicknameElement.id = "name-for-" + mainCs
+      nicknameElement.id = "name-for-" + pkId
     } else {
-      nicknameElement.id = "alt-name-" + mainCs
+      nicknameElement.id = "alt-name-" + pkId
     }
     element.appendChild(nicknameElement);
 
@@ -111,18 +115,32 @@ function updateHeadmateTile (mainCs) {
     element.style.backgroundColor = getBgColor(pk);
   }
   function updateBothSides () {
+    // #todo consider throwing an error here if the elements are not found
     ["front", "back"].forEach(type => {
-      let name = document.getElementById(`name-${type}-${mainCs}`);
-      if (name) { name.replaceWith(nameElement(type)) }
+      let name = document.getElementById(`name-${type}-${pkId}`);
+      if (name) { 
+        name.replaceWith(nameElement(type)) 
+      }
 
-      let icon = document.getElementById(`icon-${type}-${mainCs}`);
-      icon.title = pk.pronouns + '\n(double click to open the PK page for this member)'
-      if (icon) { setAvatar(icon) }
+      let icon = document.getElementById(`icon-${type}-${pkId}`);
+      if (icon) { 
+        icon.title = pk.pronouns + '\n(double click to open the PK page for this member)'
+        setAvatar(icon) 
+      }
     });
+  }
+
+  // Check if the coin exists
+  // If not, create one
+  // #todo check this is working
+  if (!(document.getElementById(idStringByCallsign()))) {
+    addHeadmateTile(pkId)
   }
   updateBothSides();
   return true;
 }
+
+// #todo use a list of member IDs instead
 function updateAllHeadmateTiles () {
   getMemberList().forEach(updateHeadmateTile);
 }
