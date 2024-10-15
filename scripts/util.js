@@ -254,9 +254,13 @@ function mainCallsign (callsign) {
   return callsign;
 }
 function getNickname (pk) {
-  // Note: Does not include any parentheticals
+  // Note: Returned value does not include any parentheticals
   let name = pk.display_name || pk.name || "Unknown";
   return /^([\w\s]+)(?= |$)/.exec(name)[1]
+}
+function getPronouns (pk) {
+  // Note that this will break for names that don't follow the same pattern as our system if pronouns are not set
+  return pk.pronouns || /[^\w\s] ([\w\s\/]+)$/.exec(pk.display_name || pk.name)[1]
 }
 function getAvatarURL (pk) {
   // #later find better default image/way to do this

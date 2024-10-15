@@ -108,7 +108,8 @@ function updateHeadmateTile (pkId) {
   }
   function setAvatar (element) {
     // #todo add last fronted date to the title as well
-    element.title = pk.pronouns + '\n(double click to open the PK page for this member)'
+
+    element.title = getPronouns(pk) + '\n(double click to open the PK page for this member)'
     let url = getAvatarURL(pk);
     // #todo detect broken image urls
     if (url) {
