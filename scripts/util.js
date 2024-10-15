@@ -256,7 +256,7 @@ function mainCallsign (callsign) {
 function getNickname (pk) {
   // Note: Does not include any parentheticals
   let name = pk.display_name || pk.name || "Unknown";
-  return /^([\w\s]+?)(?= |$)/.exec(name)[1]
+  return /^([\w\s]+)(?= |$)/.exec(name)[1]
 }
 function getAvatarURL (pk) {
   // #later find better default image/way to do this
