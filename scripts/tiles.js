@@ -1,17 +1,17 @@
-function idStringByCallsign(cs) {
+function idStringByCallsign (cs) {
   // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
   return "tile-" + encodeURIComponent(cs).replace(
     /[!'()*]/g,
     (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`
   );
 }
-function elementByCallsign(callsign) {
+function elementByCallsign (callsign) {
   return document.getElementById(idStringByCallsign(callsign));
 }
 
 // used in init()
-function addHeadmateTile(mainCs) {  
-  function makeCoin() {
+function addHeadmateTile (mainCs) {  
+  function makeCoin () {
     let coin = document.createElement("div");
     coin.addEventListener("click", onTileClick);
     coin.classList.add("flip-coin");
@@ -24,7 +24,7 @@ function addHeadmateTile(mainCs) {
     coin.appendChild(coinFaces);
     return coinFaces;
   }
-  function coinFace(type = "front") {
+  function coinFace (type = "front") {
     let coinFront = document.createElement("div");
     coinFront.classList.add("flip-coin-" + type);
 
@@ -49,9 +49,9 @@ function addHeadmateTile(mainCs) {
   coin.appendChild(coinFace("front"));
   coin.appendChild(coinFace("back"));
 }
-function updateHeadmateTile(mainCs) {
+function updateHeadmateTile (mainCs) {
   let pk = getPkObject(mainCs);
-  function nameElement(type) {
+  function nameElement (type) {
     let element = document.createElement("div");
     element.id = `name-${type}-${mainCs}`;
     // #todo adjust for alt accounts
@@ -97,7 +97,7 @@ function updateHeadmateTile(mainCs) {
     */
     return element;
   }
-  function setAvatar(element) {
+  function setAvatar (element) {
     let url = getAvatarURL(pk);
     // #todo detect broken image urls
     if (url) {
@@ -110,7 +110,7 @@ function updateHeadmateTile(mainCs) {
     }
     element.style.backgroundColor = getBgColor(pk);
   }
-  function updateBothSides() {
+  function updateBothSides () {
     ["front", "back"].forEach(type => {
       let name = document.getElementById(`name-${type}-${mainCs}`);
       if (name) { name.replaceWith(nameElement(type)) }
@@ -123,13 +123,13 @@ function updateHeadmateTile(mainCs) {
   updateBothSides();
   return true;
 }
-function updateAllHeadmateTiles() {
+function updateAllHeadmateTiles () {
   getMemberList().forEach(updateHeadmateTile);
 }
 
 // #todo put this global in the data object with other toggles
 var tilesFlipped = false;
-function flipTiles() {
+function flipTiles () {
   // @todo get this working
   let elements = [...document.getElementsByClassName("flip-coin-inner")]
   if (elements.length === 0) {

@@ -11,39 +11,24 @@ Names and callsigns will pull up members; adding a + to a callsign or name will 
 
 ### Next
 - get it working again
-  - problem seems to be with url params? yeah, identified and commented it out
-  - new problem: clearing local storage isn't working effectively
+  - [x] problem seems to be with url params? yeah, identified and commented it out
+  - [x] new problem: clearing local storage isn't working effectively
     - actual problem was the default image hardcoded in here wasn't being hosted anymore
-  - why is the member list not being requested?
+  - [x] why is the member list not being requested?
     - it can be, by toggling on and off the 'live' checkbox to run loadFromPk()
-    - member list shown is a system model; let's not do that for now
+    - member list shown is a system model
+      - disable the system model, just show the existing member list
 - show what headers are commonly in descriptions
-- find a better way to get default image (system image? a list of fallbacks?) or else what to show for members with no image
-  - previous default broke, so it'll be better if it's something unhosted or relevant to the system being loaded
-- replace * with ★ in displaynames and descriptions?
-- add a pencil ✏️ "Edit" button
-  - make a tablet mode toggle that always shows the edit buttons?
-  - [ ] show only on hover
-    - allow folks to save notes to local storage
-    - allow folks to save cached notes to a google sheet with a name (column) and a password (and check that the password is the same?) and then obfuscade/encrypt the text using that password
-      - butler: https://script.google.com/home/projects/1LOGC9FVeLE6rWkBitDSibhlL1NMmGTsDJGnnWL1PZajWQC5JXgp-NQwS/edit?pli=1
-      - sheet: https://docs.google.com/spreadsheets/d/159uh1M7ut-kEBBnaeZuDR30Td_1B0MJ1x5m72Pmw5pQ/edit#gid=0
-      - beware that this could be used to over-write existing notes (save date-time to only silently over-write notes that are older? or just append?)
-      - allow folks to load in such notes
-- [ ] find encrypt and decrypt functions
-  - Z recommends AES
-  - also find something to generate a key from a password (a MD5 hashing function?)
-  - https://github.com/ricmoo/aes-js and https://github.com/ricmoo/scrypt-js should do this
-- [ ] get levenstein name recognition from active list working
-- [ ] new image for members with no PFP
 - [ ] add the URL parameter to the page for showing active fronters when that button is clicked
 - [ ] add a "donate"/<3 button and link it to Patreon (for now)
 - [ ] add a "View Source" button and link to the repository
 - [ ] Have one button for sign in/sign out and change the button text
 
+### Names
+- [ ] see if we can pull in names from another repo etc, doesn't make sense to have these stored here
+- [ ] get levenstein name recognition from active list working
 
 ### Support for Other Systems
-- [ ] check that we& can make notes on other systems and that works well
 - [ ] allow putting in a system ID as a URL parameter and just list the members to start
 - [ ] get the system name/tag and add to page title
 - [ ] show more than one system at once
@@ -56,6 +41,24 @@ Names and callsigns will pull up members; adding a + to a callsign or name will 
 - [ ] add a url parameter for maximum N fused members
 - [ ] new default image url; grab the pfp for the system?
 
+### Editing members
+- add a pencil ✏️ "Edit" button
+  - make a tablet mode toggle that always shows the edit buttons?
+  - [ ] show only on hover
+
+### Savimg notes on system members
+- mock up UI for this
+- allow folks to save notes to local storage
+- allow folks to save cached notes to a google sheet with a name (column) and a password (and check that the password is the same?) and then obfuscade/encrypt the text using that password
+  - butler: https://script.google.com/home/projects/1LOGC9FVeLE6rWkBitDSibhlL1NMmGTsDJGnnWL1PZajWQC5JXgp-NQwS/edit?pli=1
+  - sheet: https://docs.google.com/spreadsheets/d/159uh1M7ut-kEBBnaeZuDR30Td_1B0MJ1x5m72Pmw5pQ/edit#gid=0
+  - beware that this could be used to over-write existing notes (save date-time to only silently over-write notes that are older? or just append?)
+  - allow folks to load in such notes
+- [ ] find encrypt and decrypt functions
+  - Z recommends AES
+  - also find something to generate a key from a password (a MD5 hashing function?)
+  - https://github.com/ricmoo/aes-js and https://github.com/ricmoo/scrypt-js should do this
+- [ ] later, check that we& can make notes on other systems and that works well
 
 ### Viewing Modes
 - Allow local save of private notes for each headmate

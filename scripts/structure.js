@@ -1,12 +1,12 @@
 
 // sets an object that describes our system architecture and returns an array of callsigns
-function makeInitialList() {
+function makeInitialList () {
   let headmates = {}
   let count = 0;
   let baseNum = data.setup.digits;
   let cap = 4; // n-fusion maximum
 
-  function newMember(callsign) {
+  function newMember (callsign) {
     headmates[callsign + ''] = {
       big_sibs: [],
       lil_sibs: [],
@@ -14,7 +14,7 @@ function makeInitialList() {
     };
     count++;
   }
-  function mergeEntries(a, b) {
+  function mergeEntries (a, b) {
     // @later why does removing the length from here cause an infinite loop?
     let combined = (a + '' + b);
     let key = sortCallsign(combined);
@@ -33,7 +33,7 @@ function makeInitialList() {
       headmates[b].big_sibs.push(key);
     }
   }
-  function addMergeGeneration() {
+  function addMergeGeneration () {
     let currentKeys = Object.keys(headmates);
     currentKeys.forEach(a => {
       currentKeys.forEach(b => {
@@ -41,7 +41,7 @@ function makeInitialList() {
       });
     });
   }
-  function dedupCallsigns() {
+  function dedupCallsigns () {
     for (const [key, value] of Object.entries(headmates)) {
       for (const [p, list] of Object.entries(value)) {
         if (Array.isArray(list)) {
@@ -59,10 +59,10 @@ function makeInitialList() {
   }
 
   // fill in all sibs
-  function fillInSiblings(key) {
+  function fillInSiblings (key) {
     let sibs = [];
 
-    function addSibs(sibKey) {
+    function addSibs (sibKey) {
       let lilSib = headmates[key].lil_sibs.includes(sibKey);
       let bigSib = headmates[key].big_sibs.includes(sibKey)
       if (!lilSib & !bigSib) {

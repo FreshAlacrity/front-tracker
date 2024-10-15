@@ -29,7 +29,7 @@ var data = {
   callsigns_by_id: {}
 }
 
-function saveToken(input) {
+function saveToken (input) {
   data.setup.token = input;
   localforage.setItem('token', input).then(function (value) {
       // Do other things once the value has been saved.
@@ -40,7 +40,7 @@ function saveToken(input) {
   });
 }
 
-function inputToken() {
+function inputToken () {
   let input = window.prompt("Enter your PK Token:","Use `pk;token` to have the PK bot DM yours to you or request it from an admin.");
   if (validateToken(input)) {
     saveToken(input)
@@ -50,12 +50,12 @@ function inputToken() {
   }
 }
 
-function validateToken(input) {
+function validateToken (input) {
   // #later actually check this with the PK server
   return (input.length === 64)
 }
 
-function clearToken() {
+function clearToken () {
   data.setup.token = "";
   localforage.removeItem('token').then(function() {
       // Run this code once the key has been removed.
@@ -66,12 +66,13 @@ function clearToken() {
   });  
 }
 
-function toggleEditing() {
+function toggleEditing () {
   // #todo
 }
 
-function init() {
-  function makeCheckboxes() {
+function init () {
+  // Build/setup for the interactive parts of the UI
+  function makeCheckboxes () {
     // #todo add more informative titles + labels for the checkboxes
     // #todo add this to toggles instead:
     // flip to alt accounts
@@ -88,7 +89,7 @@ function init() {
       data.page.settings.appendChild(checkbox);
     };
   }
-  function addListInputListener() {
+  function addListInputListener () {
     data.page.active_list.addEventListener("focusout", activeListInput);
     data.page.active_list.addEventListener("keypress", function (event) {
       // If the user presses the "Enter" key on the keyboard

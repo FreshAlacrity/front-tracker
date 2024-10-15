@@ -1,8 +1,8 @@
-function showMessage(text) {
+function showMessage (text) {
   // #later have this show on the page in a designated area and support different background colors
   console.warn(text);
 }
-function loadFronters() {  
+function loadFronters () {  
   getFronters().then(d => {  
     showMessage("Loaded switch logged at: " + d.timestamp) // #later note the time logged and how long ago that was in a message
     log("Updating active members: " + d.members.map(d => d.id).join(", "))
@@ -10,7 +10,7 @@ function loadFronters() {
     updatePage(d.members.map(getCallsign), true)
   });
 }
-function activeListInput() {
+function activeListInput () {
   // runs on Enter key or when focus leaves active list text box
   if (getActive() !== "fronters") {
     updatePage(getActive(true));
@@ -18,7 +18,7 @@ function activeListInput() {
     loadFronters();
   }
 }
-function updatePage(active = getActive(), setTextbox) {
+function updatePage (active = getActive(), setTextbox) {
   active = sortByCallsign(active);
   updateTileClasses(active);
 
@@ -33,15 +33,16 @@ function updatePage(active = getActive(), setTextbox) {
     live: getToggle("live")
   });
 }
-function loadFromPkMemberList(list) {
+function loadFromPkMemberList (list) {
   list.forEach(pk => { updatePkInfo(pk) });
   updateAllHeadmateTiles();
 }
-function loadFromPk() {
+function loadFromPk () {
   log("Loading all members directly from PK");
   getMemberObjectList().then(loadFromPkMemberList);
 }
-function loadUrlParameters(localForageSuccessBool) {
+function loadUrlParameters (localForageSuccessBool) {
+  // Stores applicable url parameter values to data.page properties
   // see https://codepen.io/eahartmann/pen/bGvaMvy
   const urlParams = new URLSearchParams(window.location.search);
   
@@ -83,7 +84,7 @@ function loadUrlParameters(localForageSuccessBool) {
   }
 }
 
-function clearLocalData() {
+function clearLocalData () {
   // via https://localforage.github.io/localForage/#data-api-clear
   localforage.clear().then(function () {
     // Run this code once the database has been entirely deleted.
@@ -94,9 +95,9 @@ function clearLocalData() {
   });
 }
 
-function resetList() { updatePage(digits(), true) }
+function resetList () { updatePage(digits(), true) }
 
-function onTileClick(event) {
+function onTileClick (event) {
   if (window.event.ctrlKey) {
     let callsign = event.target.id.slice("icon-front-".length);
     if (event.target.id.slice(0, "icon-front-".length) !== "icon-front-") {
@@ -105,7 +106,7 @@ function onTileClick(event) {
     updatePage(updateActiveList(getActive(), callsign), true);
   }
 }
-function onDoubleClick(event) {
+function onDoubleClick (event) {
   // #later add public links too (if no auth key): https://dash.pluralkit.me/profile/m/cbkpk
   // #todo have it detect and make new members for alt mode also
 
@@ -135,10 +136,10 @@ function onDoubleClick(event) {
     }
   }
 }
-function updateOnToggle(event) {
+function updateOnToggle (event) {
   updatePage();
 }
-function toggleLive(event) {
+function toggleLive (event) {
   if (event.target.checked) {
     updatePage(); // #todo why is this called here?
     showMessage("Loading in most recent data from PK")
@@ -148,10 +149,10 @@ function toggleLive(event) {
   }
 }
 
-function nameChange(event) {
+function nameChange (event) {
   // #todo test + troubleshoot
   // #todo use updateNameList() also
-  function resetNameField() {
+  function resetNameField () {
     if (oldName !== "Unnamed") {
       event.target.value = oldName;
     } else {

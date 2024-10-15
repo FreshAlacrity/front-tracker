@@ -4,7 +4,7 @@
 
 let lastNamesList = [["Lotus"],["Hart"],["Gray"],["Davis"],["Wood"],["Evans"],["Lee","Ley"], ["Locke"],["Thorne"],["Foster"]];
 
-function lastNameGenerator(cs) {
+function lastNameGenerator (cs) {
   // #todo show and test
   
   //add a hyphen unless it's vowel-consonant (just compare to a list of vowels)
@@ -20,7 +20,7 @@ function lastNameGenerator(cs) {
   //foster-thorne
   //grey-hart
 }
-function lastToCallsign(lastName) {
+function lastToCallsign (lastName) {
   // #todo add tests and implement
   return sortCallsign(lastNamesList.filter(arr => arr.filter(d => {
     return has(lastName.toLowerCase())

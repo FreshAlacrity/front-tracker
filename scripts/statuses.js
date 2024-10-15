@@ -1,5 +1,5 @@
 // = Status Management =
-function updateTileClasses(active) {
+function updateTileClasses (active) {
   let unavailable = listUnavailable(active);
 
   let showAvailable = getToggle("available");
@@ -21,22 +21,22 @@ function updateTileClasses(active) {
   });
 }
 
-function listUnavailable(active) {
+function listUnavailable (active) {
   // takes as input an array of callsigns with + and - syntax
 
   let no = [];
   let all = getMemberList();
-  function isMember(cs) { return all.includes(cs) }
-  function has(key, str) {
+  function isMember (cs) { return all.includes(cs) }
+  function has (key, str) {
     if (key.length === 1) {
       return str.indexOf(key) > -1
     } else {
       return (key.split('').filter(d => (str.indexOf(d) > -1)).length >= key.length)
     }
   }
-  function have(key, arr, match = true) { return arr.filter(e => (has(key, e) === match)) }
-  function endsIn(end, str) { return str.slice(-1) === end }
-  function hasEach(arr, str) {
+  function have (key, arr, match = true) { return arr.filter(e => (has(key, e) === match)) }
+  function endsIn (end, str) { return str.slice(-1) === end }
+  function hasEach (arr, str) {
     return (arr.filter(wd => has(wd, str)).length === arr.length)
   }
    // #todo implement + and - here instead
@@ -65,18 +65,18 @@ function listUnavailable(active) {
   return sortByCallsign(no.flat());
 }
 
-function updateActiveList(active, targetCS) {
-  function c(cs) { return active.includes(cs) }
-  function r(cs) { active = remove(active, cs) }
-  function a(cs) { if (!c(cs)) { active.push(cs) } }
+function updateActiveList (active, targetCS) {
+  function c (cs) { return active.includes(cs) }
+  function r (cs) { active = remove(active, cs) }
+  function a (cs) { if (!c(cs)) { active.push(cs) } }
 
-  function toggleOff(cs) {
+  function toggleOff (cs) {
     if (cs.length > 1 && c(cs)) {
       cs.split('').forEach(a);
     }
     r(cs)
   }
-  function toggleOn(cs) {
+  function toggleOn (cs) {
     a(cs)
 
     // make sure only headmates that can coexist are present:
