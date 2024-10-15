@@ -1,24 +1,25 @@
-function idStringByCallsign (pkId) {
+function htmlIdStringByPkId (pkId) {
   // #todo consider if we need this at all when using PK Ids
   // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
-  return "tile-" + encodeURIComponent(pkId).replace(
+  return encodeURIComponent(pkId).replace(
     /[!'()*]/g,
     (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`
   );
 }
 function elementByPkId (pkId) {
-  return document.getElementById(idStringByCallsign(pkId));
+  return document.getElementById(`tile-${htmlIdStringByPkId(pkId)}`);
 }
 
 // used in init()
 // #todo rewrite so that the input is PK ID instead
-function addHeadmateTile (pkId) {  
+function addHeadmateTile (pkId) {
+  let idString = htmlIdStringByPkId(pkId);
   function makeCoin () {
     let coin = document.createElement("div");
     coin.addEventListener("click", onTileClick);
     coin.classList.add("flip-coin");
     coin.classList.add("hidden"); // #here
-    coin.id = idStringByCallsign(pkId);
+    coin.id = `tile-${idString}`;
     data.page.container.appendChild(coin);
 
     let coinFaces = document.createElement("div");
@@ -31,7 +32,7 @@ function addHeadmateTile (pkId) {
     coinFront.classList.add("flip-coin-" + type);
 
     let icon = document.createElement("div");
-    icon.id = `icon-${type}-${pkId}`;
+    icon.id = `icon-${type}-${idString}`;
     icon.addEventListener("dblclick", onDoubleClick);
     icon.classList.add("icon");
     icon.style.backgroundColor = getBgColor(pkId);
@@ -39,7 +40,7 @@ function addHeadmateTile (pkId) {
     //coinFront.title = '';
 
     let name = document.createElement("div");
-    name.id = `name-${type}-${pkId}`;
+    name.id = `name-${type}-${idString}`;
     name.textContent = pkId;
     coinFront.appendChild(name);
 
@@ -112,7 +113,7 @@ function updateHeadmateTile (pkId) {
       element.style.boxShadow = "inset 1em 1em 1em black"; 
       // syntax: h-shadow v-shadow blur spread color
     }
-    element.style.backgroundColor = getBgColor(pk);
+    element.style.backgroundColor = getBgColor(pk.id);
   }
   function updateBothSides () {
     // #todo consider throwing an error here if the elements are not found
@@ -130,10 +131,9 @@ function updateHeadmateTile (pkId) {
     });
   }
 
-  // Check if the coin exists
-  // If not, create one
+  // Check if the coin exists; if not, create one
   // #todo check this is working
-  if (!(document.getElementById(idStringByCallsign()))) {
+  if (!(document.getElementById(htmlIdStringByPkId()))) {
     addHeadmateTile(pkId)
   }
   updateBothSides();

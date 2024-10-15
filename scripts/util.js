@@ -290,6 +290,7 @@ function getAvatarURL (pk) {
   }
 }
 function getBgColor (cs) {
+  // #later get member color?
   //let pk = getPkObject(cs);
   //if (pk.name.name) {
     // #todo troubleshoot this and close the GitHub issue
