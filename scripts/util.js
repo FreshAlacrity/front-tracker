@@ -172,9 +172,6 @@ function sortByCallsign (arr) {
 // Now returns a list of PK IDs instead
 function getMemberList () {
   return Object.keys(data.members_by_id);
-  
-  // Previously returned a list of callsigns:
-  //return sortByCallsign(Object.keys(data.structure.relatives));
 }
 
 // = Find Individual Member Data =
@@ -196,6 +193,7 @@ function discordStringFromObj (d) {
   return string;
 }
 function updatedDescription (pk) {
+  // #todo update
   return fusionNote(getCallsign(pk)) + discordStringFromObj(objFromDescription(pk.description));
 }
 function newMemberPkFromCallsign (callsign) {
@@ -320,18 +318,9 @@ function updatePkInfo (pk, noSave = false) {
   pk = checkMemberObject(pk);
   let callsign = getCallsign(pk);
 
-  data.callsigns_by_id[pk.id] = callsign;
-  data.callsigns_by_name[getNickname(pk).toLowerCase()] = callsign;
-  if (pk.name && /^[a-zA-Z]+$/.test(pk.name)) {
-    data.callsigns_by_name[pk.name.toLowerCase()] = callsign;
-  }
-
-  // old method:
-  data.members_by_callsign[callsign] = pk;
-
-  // new method:
   data.members_by_id[pk.id] = pk;
 
+  // Add all the various references to this member to the dict
   data.ids_by_ref[pk.id] = pk.id;
   data.ids_by_ref[callsign] = pk.id;
   data.ids_by_ref[callsign.normalize('NFKD')] = pk.id; // normalize('NFKD') makes subscript numbers into regular digits
@@ -360,7 +349,7 @@ function inputListToIds (string, doAlert = false) {
   // split into an array and substitute in ids for names and callsigns
   let arr = splitByEach(string, ",.~ ;:/").map(entry => {
 
-    let match = callsignFromNickname(plain(entry));
+    let match = data.ids_by_ref[plain(entry)];
     if (match) {
       return entry.replace(plain(entry), match);
     } else {

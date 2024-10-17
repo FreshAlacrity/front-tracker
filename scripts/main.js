@@ -24,12 +24,6 @@ var data = {
     relatives: {},
     statuses: {}
   },
-  // old:
-  members_by_callsign: {},
-  callsigns_by_name: {},
-  callsigns_by_id: {},
-
-  // new:
   members_by_id: {},
   ids_by_ref: {}
 }
