@@ -264,13 +264,6 @@ function mainCallsign (callsign) {
   return callsign;
 }
 // Lookups:
-function idFromCallsign (callsign) {
-  if (data.members_by_callsign.hasOwnProperty(callsign)) {
-    return data.members_by_callsign[callsign].id;
-  } else {
-    return undefined
-  }
-}
 function callsignFromNickname (nickname) {
   // later also find close matches
   return data.callsigns_by_name[nickname.toLowerCase()];
@@ -328,7 +321,10 @@ function updatePkInfo (pk, noSave = false) {
 
   let callsign = getCallsign(pk);
   data.callsigns_by_id[pk.id] = callsign;
-  data.callsigns_by_name[name.toLowerCase()] = callsign;
+  data.callsigns_by_name[getNickname(pk).toLowerCase()] = callsign;
+  if (pk.name && /^[a-zA-Z]+$/.test(pk.name)) {
+    data.callsigns_by_name[pk.name.toLowerCase()] = callsign;
+  }
 
   // old method:
   data.members_by_callsign[callsign] = pk;
