@@ -114,6 +114,7 @@ function updateHeadmateTile (pkId) {
     // #todo detect broken image urls
     if (url) {
       element.style.backgroundImage = `url('${url}')`
+      //element.onerror = function(e){ console.log("broken") } // not working
       element.style.boxShadow = "none";
     } else {
       // @later add default image (color shifted glitter lattice?)

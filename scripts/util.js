@@ -263,11 +263,11 @@ function mainCallsign (callsign) {
 }
 // Lookups:
 function callsignFromNickname (nickname) {
-  // later also find close matches
+  // #later also find close matches
   return data.callsigns_by_name[nickname.toLowerCase()];
 }
 function getAvatarURL (pk) {
-  // #later find better default image/way to do this
+  // #later use the system image like PK does
   let defaultImg = 'https://cdn.pluralkit.me/images/ff/jfjson7surajrye64b52ia2a.webp'
   return pk.avatar_url || pk.webhook_avatar_url || defaultImg;
 }
