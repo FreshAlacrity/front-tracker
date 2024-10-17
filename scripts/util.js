@@ -231,6 +231,39 @@ function getPkObject (pkId) {
     return newMemberPkFromCallsign(pkId);
   }
 }
+// Regex from display_name:
+function regExFromDisplayName (exp, pk, index = 0) {
+  let fallback = "Unknown {?} they/them"
+  let name = pk.display_name || pk.name || fallback;
+  let match = exp.exec(name)
+  if (match && match[index]) { 
+    return match[index] 
+  } else {
+    log(`Using fallback value for ${name} with regex ${exp}`)
+    return exp.exec(fallback)[index]
+  }
+}
+function getCallsign (pk, index = 1) {
+  // 1 will return without {}
+  return regExFromDisplayName(/[\{\[](.+)[\}\]]/, pk, index)
+}
+function getNickname (pk) {
+  // Note: Returned value does not include any parentheticals
+  return regExFromDisplayName(/^([\w\s]+)(?= |$)/, pk, 1)
+}
+function getPronouns (pk) {
+  // Note that this will break for names that don't follow the same pattern as our system if pronouns are not set
+  return pk.pronouns || /[^\w\s] ([\w\s\/]+)$/.exec(pk.display_name || pk.name)[1]
+}
+function mainCallsign (callsign) {
+  // #todo check if this is even needed, if so
+  // #todo check this is working
+  data.structure.proxies.forEach(s => {
+    callsign = callsign.replaceAll(s, '');
+  });
+  return callsign;
+}
+// Lookups:
 function idFromCallsign (callsign) {
   if (data.members_by_callsign.hasOwnProperty(callsign)) {
     return data.members_by_callsign[callsign].id;
@@ -241,26 +274,6 @@ function idFromCallsign (callsign) {
 function callsignFromNickname (nickname) {
   // later also find close matches
   return data.callsigns_by_name[nickname.toLowerCase()];
-}
-function getCallsign (pk, index = 1) {
-  let name = pk.display_name || pk.name || "Unknown";
-  return /\{(.+)\}/.exec(name)[index] // 1 will return without {}
-}
-function mainCallsign (callsign) {
-  // #todo check this is working
-  data.structure.proxies.forEach(s => {
-    callsign = callsign.replaceAll(s, '');
-  });
-  return callsign;
-}
-function getNickname (pk) {
-  // Note: Returned value does not include any parentheticals
-  let name = pk.display_name || pk.name || "Unknown";
-  return /^([\w\s]+)(?= |$)/.exec(name)[1]
-}
-function getPronouns (pk) {
-  // Note that this will break for names that don't follow the same pattern as our system if pronouns are not set
-  return pk.pronouns || /[^\w\s] ([\w\s\/]+)$/.exec(pk.display_name || pk.name)[1]
 }
 function getAvatarURL (pk) {
   // #later find better default image/way to do this
@@ -309,23 +322,15 @@ function isMainProxy (callsign) {
 function getToggle (string) {
   return document.getElementById("toggle-" + string).checked;
 }
-function updateNameList (name, callsign) {
-  // #todo use this when renaming members also
-  let nick = name.toLowerCase();
-  let previous = callsignFromNickname(nick);
-  if (previous && previous !== callsign) {
-    // this should never happen, but just in case:
-    error(`Name '${nick}' (${callsign}) already belongs to another member with callsign ${previous}:`);
-    log(pretty(getPkObject(previous)));
-  } else {
-    data.callsigns_by_name[nick] = callsign;
-  }
-}
 function updatePkInfo (pk, noSave = false) {
+  // #todo use this when changing callsign/name/etc also
   pk = checkMemberObject(pk);
+
   let callsign = getCallsign(pk);
   data.callsigns_by_id[pk.id] = callsign;
-  if (pk.name) { updateNameList(pk.name, callsign) }
+  data.callsigns_by_name[name.toLowerCase()] = callsign;
+
+  // old method:
   data.members_by_callsign[callsign] = pk;
 
   // new method:

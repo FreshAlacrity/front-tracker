@@ -84,6 +84,7 @@ function nameOccurs (name) {
 function checkMemberObject (pk, autoUpload = true) {
   return pk; // #todo reinstate this function later? this skips the entire thing
   /*
+  // #todo check pronoun field against displayname and alert if there's a mismatch for things like they/she not mapping to they/them, she/her?
   // #todo update to take edit mode into account better
   // used in util.js updatePkInfo()
   let editMode = getToggle("editing");
