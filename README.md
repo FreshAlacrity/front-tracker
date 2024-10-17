@@ -23,10 +23,7 @@ Names and callsigns will pull up members; adding a + to a callsign or name will 
 - [ ] add the URL parameter to the page for showing active fronters when that button is clicked
 - [ ] add a "donate"/<3 button and link it to Patreon (for now)
 - [ ] add a "View Source" button and link to the repository
-- [ ] Have one button for sign in/sign out and change the button text
-
-### Names
-- [ ] see if we can pull in names from another repo etc, doesn't make sense to have these stored here
+- [ ] Have one button for sign in/sign out and change the button text based on if a valid token is active
 - [ ] get levenstein name recognition from active list working
 
 ### Support for Other Systems
