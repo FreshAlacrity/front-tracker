@@ -26,10 +26,12 @@ var data = {
   },
   // old:
   members_by_callsign: {},
+  callsigns_by_name: {},
+  callsigns_by_id: {},
+
   // new:
   members_by_id: {},
-  callsigns_by_name: {},
-  callsigns_by_id: {}
+  ids_by_ref: {}
 }
 
 function saveToken (input) {

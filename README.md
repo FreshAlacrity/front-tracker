@@ -8,6 +8,7 @@ Names and callsigns will pull up members; adding a + to a callsign or name will 
 
 
 ## Planned
+ #todo: move these to Issues page instead
 
 ### Next
 - get it working again

@@ -123,6 +123,7 @@ function checkMemberObject (pk, autoUpload = true) {
   function checkPrivacy () {
     if (pk.privacy) {
       // check that name is set private
+      // #todo also check that proxy tags are private
       if (isMain && pk.privacy.name_privacy !== "private") {
         // note that this would erase any previous edits to privacy
         edits.privacy = { name_privacy: "private" };

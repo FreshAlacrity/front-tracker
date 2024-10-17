@@ -318,8 +318,8 @@ function getToggle (string) {
 function updatePkInfo (pk, noSave = false) {
   // #todo use this when changing callsign/name/etc also
   pk = checkMemberObject(pk);
-
   let callsign = getCallsign(pk);
+
   data.callsigns_by_id[pk.id] = callsign;
   data.callsigns_by_name[getNickname(pk).toLowerCase()] = callsign;
   if (pk.name && /^[a-zA-Z]+$/.test(pk.name)) {
@@ -332,18 +332,34 @@ function updatePkInfo (pk, noSave = false) {
   // new method:
   data.members_by_id[pk.id] = pk;
 
+  data.ids_by_ref[pk.id] = pk.id;
+  data.ids_by_ref[callsign] = pk.id;
+  data.ids_by_ref[callsign.normalize('NFKD')] = pk.id; // normalize('NFKD') makes subscript numbers into regular digits
+  data.ids_by_ref[getNickname(pk).toLowerCase()] = pk.id;
+  if (pk.name && /^[a-zA-Z]+$/.test(pk.name)) {
+    data.ids_by_ref[pk.name.toLowerCase()] = pk.id;
+  }
+  if (pk.proxy_tags) {
+    for (i in pk.proxy_tags) {
+      let nn = pk.proxy_tags[i].suffix.slice(2)
+      data.ids_by_ref[nn] = pk.id;
+    }
+  }
+
   if (!noSave) {
     //log(`Saving member to localForage: ${pk.id}`)
     localforage.setItem(pk.id, pk).catch(err => error);    
   }
 }
-function namesListToCallsigns (string, doAlert = false) {
-  // called with active input, usually from the text box but also URL params
+function inputListToIds (string, doAlert = false) {
+  // #todo rework to use pk Ids not callsigns
+  // Usually called from the text box, can also be from URL params
 
   function plain (string) { return replaceEach(string, "+-") };
 
-  // split into an array and substitute in callsigns for names
-  let arr = splitByEach(string, ",.~ ;:/").map(entry => {     
+  // split into an array and substitute in ids for names and callsigns
+  let arr = splitByEach(string, ",.~ ;:/").map(entry => {
+
     let match = callsignFromNickname(plain(entry));
     if (match) {
       return entry.replace(plain(entry), match);
@@ -356,12 +372,12 @@ function namesListToCallsigns (string, doAlert = false) {
   let notMembers = arr.filter(cs => !all.includes(plain(cs)));
   if (notMembers.length > 0) {
     // currently can cause a softlock if using alert()
-    showMessage(`These are not registered member(s): ${notMembers.join(", ")}`);
+    showMessage(`These are not recognized as registered member(s): ${notMembers.join(", ")}`);
   }
   return sortByCallsign(arr.filter(cs => all.includes(plain(cs)))); // does this need to be sorted?
 }
 function getActive (doAlert) {
-  return namesListToCallsigns(data.page.active_list.value, doAlert)
+  return inputListToIds(data.page.active_list.value, doAlert)
 }
 async function updateDataFromMemberList (list = exported.members) {
   console.groupCollapsed("Updating from member list:");
