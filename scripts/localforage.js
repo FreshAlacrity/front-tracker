@@ -4,7 +4,7 @@
     https://localforage.github.io/localForage
     (c) 2013-2017 Mozilla, Apache License 2.0
 */
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.localforage = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw (f.code="MODULE_NOT_FOUND", f)}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.localforage = f()}})(function(){var define,module,exports;return (function e (t,n,r){function s (o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw (f.code="MODULE_NOT_FOUND", f)}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 (function (global){
 'use strict';
 var Mutation = global.MutationObserver || global.WebKitMutationObserver;
@@ -53,7 +53,7 @@ var scheduleDrain;
 var draining;
 var queue = [];
 //named nextTick for less confusing stack traces
-function nextTick() {
+function nextTick () {
   draining = true;
   var i, oldQueue;
   var len = queue.length;
@@ -70,7 +70,7 @@ function nextTick() {
 }
 
 module.exports = immediate;
-function immediate(task) {
+function immediate (task) {
   if (queue.push(task) === 1 && !draining) {
     scheduleDrain();
   }
@@ -82,7 +82,7 @@ function immediate(task) {
 var immediate = _dereq_(1);
 
 /* istanbul ignore next */
-function INTERNAL() {}
+function INTERNAL () {}
 
 var handlers = {};
 
@@ -92,7 +92,7 @@ var PENDING = ['PENDING'];
 
 module.exports = Promise;
 
-function Promise(resolver) {
+function Promise (resolver) {
   if (typeof resolver !== 'function') {
     throw new TypeError('resolver must be a function');
   }
@@ -122,7 +122,7 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
 
   return promise;
 };
-function QueueItem(promise, onFulfilled, onRejected) {
+function QueueItem (promise, onFulfilled, onRejected) {
   this.promise = promise;
   if (typeof onFulfilled === 'function') {
     this.onFulfilled = onFulfilled;
@@ -146,7 +146,7 @@ QueueItem.prototype.otherCallRejected = function (value) {
   unwrap(this.promise, this.onRejected, value);
 };
 
-function unwrap(promise, func, value) {
+function unwrap (promise, func, value) {
   immediate(function () {
     var returnValue;
     try {
@@ -193,20 +193,20 @@ handlers.reject = function (self, error) {
   return self;
 };
 
-function getThen(obj) {
+function getThen (obj) {
   // Make sure we only access the accessor once as required by the spec
   var then = obj && obj.then;
   if (obj && (typeof obj === 'object' || typeof obj === 'function') && typeof then === 'function') {
-    return function appyThen() {
+    return function appyThen () {
       then.apply(obj, arguments);
     };
   }
 }
 
-function safelyResolveThenable(self, thenable) {
+function safelyResolveThenable (self, thenable) {
   // Either fulfill, reject or reject with error
   var called = false;
-  function onError(value) {
+  function onError (value) {
     if (called) {
       return;
     }
@@ -214,7 +214,7 @@ function safelyResolveThenable(self, thenable) {
     handlers.reject(self, value);
   }
 
-  function onSuccess(value) {
+  function onSuccess (value) {
     if (called) {
       return;
     }
@@ -222,7 +222,7 @@ function safelyResolveThenable(self, thenable) {
     handlers.resolve(self, value);
   }
 
-  function tryToUnwrap() {
+  function tryToUnwrap () {
     thenable(onSuccess, onError);
   }
 
@@ -232,7 +232,7 @@ function safelyResolveThenable(self, thenable) {
   }
 }
 
-function tryCatch(func, value) {
+function tryCatch (func, value) {
   var out = {};
   try {
     out.value = func(value);
@@ -245,7 +245,7 @@ function tryCatch(func, value) {
 }
 
 Promise.resolve = resolve;
-function resolve(value) {
+function resolve (value) {
   if (value instanceof this) {
     return value;
   }
@@ -253,13 +253,13 @@ function resolve(value) {
 }
 
 Promise.reject = reject;
-function reject(reason) {
+function reject (reason) {
   var promise = new this(INTERNAL);
   return handlers.reject(promise, reason);
 }
 
 Promise.all = all;
-function all(iterable) {
+function all (iterable) {
   var self = this;
   if (Object.prototype.toString.call(iterable) !== '[object Array]') {
     return this.reject(new TypeError('must be an array'));
@@ -280,14 +280,14 @@ function all(iterable) {
     allResolver(iterable[i], i);
   }
   return promise;
-  function allResolver(value, i) {
+  function allResolver (value, i) {
     self.resolve(value).then(resolveFromAll, function (error) {
       if (!called) {
         called = true;
         handlers.reject(promise, error);
       }
     });
-    function resolveFromAll(outValue) {
+    function resolveFromAll (outValue) {
       values[i] = outValue;
       if (++resolved === len && !called) {
         called = true;
@@ -298,7 +298,7 @@ function all(iterable) {
 }
 
 Promise.race = race;
-function race(iterable) {
+function race (iterable) {
   var self = this;
   if (Object.prototype.toString.call(iterable) !== '[object Array]') {
     return this.reject(new TypeError('must be an array'));
@@ -317,7 +317,7 @@ function race(iterable) {
     resolver(iterable[i]);
   }
   return promise;
-  function resolver(value) {
+  function resolver (value) {
     self.resolve(value).then(function (response) {
       if (!called) {
         called = true;
@@ -345,9 +345,9 @@ if (typeof global.Promise !== 'function') {
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function getIDB() {
+function getIDB () {
     /* global indexedDB,webkitIndexedDB,mozIndexedDB,OIndexedDB,msIndexedDB */
     try {
         if (typeof indexedDB !== 'undefined') {
@@ -372,7 +372,7 @@ function getIDB() {
 
 var idb = getIDB();
 
-function isIndexedDBValid() {
+function isIndexedDBValid () {
     try {
         // Initialize IndexedDB; fall back to vendor-prefixed versions
         // if needed.
@@ -410,7 +410,7 @@ function isIndexedDBValid() {
 // Abstracts constructing a Blob object, so it also works in older
 // browsers that don't support the native Blob constructor. (i.e.
 // old QtWebKit versions, at least).
-function createBlob(parts, properties) {
+function createBlob (parts, properties) {
     /* global BlobBuilder,MSBlobBuilder,MozBlobBuilder,WebKitBlobBuilder */
     parts = parts || [];
     properties = properties || {};
@@ -438,7 +438,7 @@ if (typeof Promise === 'undefined') {
 }
 var Promise$1 = Promise;
 
-function executeCallback(promise, callback) {
+function executeCallback (promise, callback) {
     if (callback) {
         promise.then(function (result) {
             callback(null, result);
@@ -448,7 +448,7 @@ function executeCallback(promise, callback) {
     }
 }
 
-function executeTwoCallbacks(promise, callback, errorCallback) {
+function executeTwoCallbacks (promise, callback, errorCallback) {
     if (typeof callback === 'function') {
         promise.then(callback);
     }
@@ -458,7 +458,7 @@ function executeTwoCallbacks(promise, callback, errorCallback) {
     }
 }
 
-function normalizeKey(key) {
+function normalizeKey (key) {
     // Cast the key to a string, as that's all we can set as a key.
     if (typeof key !== 'string') {
         console.warn(key + ' used as a key, but it is not a string.');
@@ -468,7 +468,7 @@ function normalizeKey(key) {
     return key;
 }
 
-function getCallback() {
+function getCallback () {
     if (arguments.length && typeof arguments[arguments.length - 1] === 'function') {
         return arguments[arguments.length - 1];
     }
@@ -491,7 +491,7 @@ var READ_WRITE = 'readwrite';
 // It is known.
 // From http://stackoverflow.com/questions/14967647/ (continues on next line)
 // encode-decode-image-with-base64-breaks-image (2013-04-21)
-function _binStringToArrayBuffer(bin) {
+function _binStringToArrayBuffer (bin) {
     var length = bin.length;
     var buf = new ArrayBuffer(length);
     var arr = new Uint8Array(buf);
@@ -516,7 +516,7 @@ function _binStringToArrayBuffer(bin) {
 // Code borrowed from PouchDB. See:
 // https://github.com/pouchdb/pouchdb/blob/master/packages/node_modules/pouchdb-adapter-idb/src/blobSupport.js
 //
-function _checkBlobSupportWithoutCaching(idb) {
+function _checkBlobSupportWithoutCaching (idb) {
     return new Promise$1(function (resolve) {
         var txn = idb.transaction(DETECT_BLOB_SUPPORT_STORE, READ_WRITE);
         var blob = createBlob(['']);
@@ -542,7 +542,7 @@ function _checkBlobSupportWithoutCaching(idb) {
     });
 }
 
-function _checkBlobSupport(idb) {
+function _checkBlobSupport (idb) {
     if (typeof supportsBlobs === 'boolean') {
         return Promise$1.resolve(supportsBlobs);
     }
@@ -552,7 +552,7 @@ function _checkBlobSupport(idb) {
     });
 }
 
-function _deferReadiness(dbInfo) {
+function _deferReadiness (dbInfo) {
     var dbContext = dbContexts[dbInfo.name];
 
     // Create a deferred object representing the current database operation.
@@ -576,7 +576,7 @@ function _deferReadiness(dbInfo) {
     }
 }
 
-function _advanceReadiness(dbInfo) {
+function _advanceReadiness (dbInfo) {
     var dbContext = dbContexts[dbInfo.name];
 
     // Dequeue a deferred operation.
@@ -590,7 +590,7 @@ function _advanceReadiness(dbInfo) {
     }
 }
 
-function _rejectReadiness(dbInfo, err) {
+function _rejectReadiness (dbInfo, err) {
     var dbContext = dbContexts[dbInfo.name];
 
     // Dequeue a deferred operation.
@@ -604,7 +604,7 @@ function _rejectReadiness(dbInfo, err) {
     }
 }
 
-function _getConnection(dbInfo, upgradeNeeded) {
+function _getConnection (dbInfo, upgradeNeeded) {
     return new Promise$1(function (resolve, reject) {
         dbContexts[dbInfo.name] = dbContexts[dbInfo.name] || createDbContext();
 
@@ -665,15 +665,15 @@ function _getConnection(dbInfo, upgradeNeeded) {
     });
 }
 
-function _getOriginalConnection(dbInfo) {
+function _getOriginalConnection (dbInfo) {
     return _getConnection(dbInfo, false);
 }
 
-function _getUpgradedConnection(dbInfo) {
+function _getUpgradedConnection (dbInfo) {
     return _getConnection(dbInfo, true);
 }
 
-function _isUpgradeNeeded(dbInfo, defaultVersion) {
+function _isUpgradeNeeded (dbInfo, defaultVersion) {
     if (!dbInfo.db) {
         return true;
     }
@@ -710,7 +710,7 @@ function _isUpgradeNeeded(dbInfo, defaultVersion) {
 }
 
 // encode a blob for indexeddb engines that don't support blobs
-function _encodeBlob(blob) {
+function _encodeBlob (blob) {
     return new Promise$1(function (resolve, reject) {
         var reader = new FileReader();
         reader.onerror = reject;
@@ -727,13 +727,13 @@ function _encodeBlob(blob) {
 }
 
 // decode an encoded blob
-function _decodeBlob(encodedBlob) {
+function _decodeBlob (encodedBlob) {
     var arrayBuff = _binStringToArrayBuffer(atob(encodedBlob.data));
     return createBlob([arrayBuff], { type: encodedBlob.type });
 }
 
 // is this one of our fancy encoded blobs?
-function _isEncodedBlob(value) {
+function _isEncodedBlob (value) {
     return value && value.__local_forage_encoded_blob;
 }
 
@@ -741,7 +741,7 @@ function _isEncodedBlob(value) {
 // on the current database operations. Thus, the driver will be actually
 // ready when it's been initialized (default) *and* there are no pending
 // operations on the database (initiated by some other instances).
-function _fullyReady(callback) {
+function _fullyReady (callback) {
     var self = this;
 
     var promise = self._initReady().then(function () {
@@ -759,7 +759,7 @@ function _fullyReady(callback) {
 // Try to establish a new db connection to replace the
 // current one which is broken (i.e. experiencing
 // InvalidStateError while creating a transaction).
-function _tryReconnect(dbInfo) {
+function _tryReconnect (dbInfo) {
     _deferReadiness(dbInfo);
 
     var dbContext = dbContexts[dbInfo.name];
@@ -796,7 +796,7 @@ function _tryReconnect(dbInfo) {
 
 // FF doesn't like Promises (micro-tasks) and IDDB store operations,
 // so we have to do it with callbacks
-function createTransaction(dbInfo, mode, callback, retries) {
+function createTransaction (dbInfo, mode, callback, retries) {
     if (retries === undefined) {
         retries = 1;
     }
@@ -826,7 +826,7 @@ function createTransaction(dbInfo, mode, callback, retries) {
     }
 }
 
-function createDbContext() {
+function createDbContext () {
     return {
         // Running localForages sharing a database.
         forages: [],
@@ -841,7 +841,7 @@ function createDbContext() {
 
 // Open the IndexedDB database (automatically creates one if one didn't
 // previously exist), using any options set in the config.
-function _initStorage(options) {
+function _initStorage (options) {
     var self = this;
     var dbInfo = {
         db: null
@@ -875,7 +875,7 @@ function _initStorage(options) {
     // Create an array of initialization states of the related localForages.
     var initPromises = [];
 
-    function ignoreErrors() {
+    function ignoreErrors () {
         // Don't handle errors here,
         // just makes sure related localForages aren't pending.
         return Promise$1.resolve();
@@ -920,7 +920,7 @@ function _initStorage(options) {
     });
 }
 
-function getItem(key, callback) {
+function getItem (key, callback) {
     var self = this;
 
     key = normalizeKey(key);
@@ -962,7 +962,7 @@ function getItem(key, callback) {
 }
 
 // Iterate over all items stored in database.
-function iterate(iterator, callback) {
+function iterate (iterator, callback) {
     var self = this;
 
     var promise = new Promise$1(function (resolve, reject) {
@@ -1015,7 +1015,7 @@ function iterate(iterator, callback) {
     return promise;
 }
 
-function setItem(key, value, callback) {
+function setItem (key, value, callback) {
     var self = this;
 
     key = normalizeKey(key);
@@ -1080,7 +1080,7 @@ function setItem(key, value, callback) {
     return promise;
 }
 
-function removeItem(key, callback) {
+function removeItem (key, callback) {
     var self = this;
 
     key = normalizeKey(key);
@@ -1125,7 +1125,7 @@ function removeItem(key, callback) {
     return promise;
 }
 
-function clear(callback) {
+function clear (callback) {
     var self = this;
 
     var promise = new Promise$1(function (resolve, reject) {
@@ -1158,7 +1158,7 @@ function clear(callback) {
     return promise;
 }
 
-function length(callback) {
+function length (callback) {
     var self = this;
 
     var promise = new Promise$1(function (resolve, reject) {
@@ -1190,7 +1190,7 @@ function length(callback) {
     return promise;
 }
 
-function key(n, callback) {
+function key (n, callback) {
     var self = this;
 
     var promise = new Promise$1(function (resolve, reject) {
@@ -1251,7 +1251,7 @@ function key(n, callback) {
     return promise;
 }
 
-function keys(callback) {
+function keys (callback) {
     var self = this;
 
     var promise = new Promise$1(function (resolve, reject) {
@@ -1292,7 +1292,7 @@ function keys(callback) {
     return promise;
 }
 
-function dropInstance(options, callback) {
+function dropInstance (options, callback) {
     callback = getCallback.apply(this, arguments);
 
     var currentConfig = this.config();
@@ -1444,7 +1444,7 @@ var asyncStorage = {
     dropInstance: dropInstance
 };
 
-function isWebSQLValid() {
+function isWebSQLValid () {
     return typeof openDatabase === 'function';
 }
 
@@ -1475,7 +1475,7 @@ var TYPE_SERIALIZED_MARKER_LENGTH = SERIALIZED_MARKER_LENGTH + TYPE_ARRAYBUFFER.
 
 var toString$1 = Object.prototype.toString;
 
-function stringToBuffer(serializedString) {
+function stringToBuffer (serializedString) {
     // Fill the string into a ArrayBuffer.
     var bufferLength = serializedString.length * 0.75;
     var len = serializedString.length;
@@ -1509,7 +1509,7 @@ function stringToBuffer(serializedString) {
 
 // Converts a buffer to a string to store, serialized, in the backend
 // storage library.
-function bufferToString(buffer) {
+function bufferToString (buffer) {
     // base64-arraybuffer
     var bytes = new Uint8Array(buffer);
     var base64String = '';
@@ -1535,7 +1535,7 @@ function bufferToString(buffer) {
 // Serialize a value, afterwards executing a callback (which usually
 // instructs the `setItem()` callback/promise to be executed). This is how
 // we store binary data with localStorage.
-function serialize(value, callback) {
+function serialize (value, callback) {
     var valueType = '';
     if (value) {
         valueType = toString$1.call(value);
@@ -1612,7 +1612,7 @@ function serialize(value, callback) {
 // Oftentimes this will just deserialize JSON content, but if we have a
 // special marker (SERIALIZED_MARKER, defined above), we will extract
 // some kind of arraybuffer/binary data/typed array out of the string.
-function deserialize(value) {
+function deserialize (value) {
     // If we haven't marked this string as being specially serialized (i.e.
     // something other than serialized JSON), we can just return it and be
     // done with it.
@@ -1683,7 +1683,7 @@ var localforageSerializer = {
  * Licensed under the MIT license.
  */
 
-function createDbTable(t, dbInfo, callback, errorCallback) {
+function createDbTable (t, dbInfo, callback, errorCallback) {
     t.executeSql('CREATE TABLE IF NOT EXISTS ' + dbInfo.storeName + ' ' + '(id INTEGER PRIMARY KEY, key unique, value)', [], callback, errorCallback);
 }
 
@@ -1725,7 +1725,7 @@ function _initStorage$1(options) {
     return dbInfoPromise;
 }
 
-function tryExecuteSql(t, dbInfo, sqlStatement, args, callback, errorCallback) {
+function tryExecuteSql (t, dbInfo, sqlStatement, args, callback, errorCallback) {
     t.executeSql(sqlStatement, args, callback, function (t, error) {
         if (error.code === error.SYNTAX_ERR) {
             t.executeSql('SELECT name FROM sqlite_master ' + "WHERE type='table' AND name = ?", [dbInfo.storeName], function (t, results) {
@@ -1819,7 +1819,7 @@ function iterate$1(iterator, callback) {
     return promise;
 }
 
-function _setItem(key, value, callback, retriesLeft) {
+function _setItem (key, value, callback, retriesLeft) {
     var self = this;
 
     key = normalizeKey(key);
@@ -2002,7 +2002,7 @@ function keys$1(callback) {
 
 // https://www.w3.org/TR/webdatabase/#databases
 // > There is no way to enumerate or delete the databases available for an origin from this API.
-function getAllStoreNames(db) {
+function getAllStoreNames (db) {
     return new Promise$1(function (resolve, reject) {
         db.transaction(function (t) {
             t.executeSql('SELECT name FROM sqlite_master ' + "WHERE type='table' AND name <> '__WebKitDatabaseInfoTable__'", [], function (t, results) {
@@ -2061,7 +2061,7 @@ function dropInstance$1(options, callback) {
         }).then(function (operationInfo) {
             return new Promise$1(function (resolve, reject) {
                 operationInfo.db.transaction(function (t) {
-                    function dropTable(storeName) {
+                    function dropTable (storeName) {
                         return new Promise$1(function (resolve, reject) {
                             t.executeSql('DROP TABLE IF EXISTS ' + storeName, [], function () {
                                 resolve();
@@ -2107,7 +2107,7 @@ var webSQLStorage = {
     dropInstance: dropInstance$1
 };
 
-function isLocalStorageValid() {
+function isLocalStorageValid () {
     try {
         return typeof localStorage !== 'undefined' && 'setItem' in localStorage &&
         // in IE8 typeof localStorage.setItem === 'object'
@@ -2117,7 +2117,7 @@ function isLocalStorageValid() {
     }
 }
 
-function _getKeyPrefix(options, defaultConfig) {
+function _getKeyPrefix (options, defaultConfig) {
     var keyPrefix = options.name + '/';
 
     if (options.storeName !== defaultConfig.storeName) {
@@ -2127,7 +2127,7 @@ function _getKeyPrefix(options, defaultConfig) {
 }
 
 // Check if localStorage throws when saving an item
-function checkIfLocalStorageThrows() {
+function checkIfLocalStorageThrows () {
     var localStorageTestKey = '_localforage_support_test';
 
     try {
@@ -2144,7 +2144,7 @@ function checkIfLocalStorageThrows() {
 // This method checks if localStorage is usable in Safari Private Browsing
 // mode, or in any other case where the available quota for localStorage
 // is 0 and there wasn't any saved items yet.
-function _isLocalStorageUsable() {
+function _isLocalStorageUsable () {
     return !checkIfLocalStorageThrows() || localStorage.length > 0;
 }
 
@@ -2429,11 +2429,11 @@ var localStorageWrapper = {
     dropInstance: dropInstance$2
 };
 
-var sameValue = function sameValue(x, y) {
+var sameValue = function sameValue (x, y) {
     return x === y || typeof x === 'number' && typeof y === 'number' && isNaN(x) && isNaN(y);
 };
 
-var includes = function includes(array, searchElement) {
+var includes = function includes (array, searchElement) {
     var len = array.length;
     var i = 0;
     while (i < len) {
@@ -2479,7 +2479,7 @@ var DefaultConfig = {
     version: 1.0
 };
 
-function callWhenReady(localForageInstance, libraryMethod) {
+function callWhenReady (localForageInstance, libraryMethod) {
     localForageInstance[libraryMethod] = function () {
         var _args = arguments;
         return localForageInstance.ready().then(function () {
@@ -2488,7 +2488,7 @@ function callWhenReady(localForageInstance, libraryMethod) {
     };
 }
 
-function extend() {
+function extend () {
     for (var i = 1; i < arguments.length; i++) {
         var arg = arguments[i];
 
@@ -2509,7 +2509,7 @@ function extend() {
 }
 
 var LocalForage = function () {
-    function LocalForage(options) {
+    function LocalForage (options) {
         _classCallCheck(this, LocalForage);
 
         for (var driverTypeKey in DefaultDrivers) {
@@ -2544,7 +2544,7 @@ var LocalForage = function () {
     // values.
 
 
-    LocalForage.prototype.config = function config(options) {
+    LocalForage.prototype.config = function config (options) {
         // If the options argument is an object, we use it to set values.
         // Otherwise, we return either a specified config value or all
         // config values.
@@ -2585,7 +2585,7 @@ var LocalForage = function () {
     // localForage.
 
 
-    LocalForage.prototype.defineDriver = function defineDriver(driverObject, callback, errorCallback) {
+    LocalForage.prototype.defineDriver = function defineDriver (driverObject, callback, errorCallback) {
         var promise = new Promise$1(function (resolve, reject) {
             try {
                 var driverName = driverObject._driver;
@@ -2611,8 +2611,8 @@ var LocalForage = function () {
                     }
                 }
 
-                var configureMissingMethods = function configureMissingMethods() {
-                    var methodNotImplementedFactory = function methodNotImplementedFactory(methodName) {
+                var configureMissingMethods = function configureMissingMethods () {
+                    var methodNotImplementedFactory = function methodNotImplementedFactory (methodName) {
                         return function () {
                             var error = new Error('Method ' + methodName + ' is not implemented by the current driver');
                             var promise = Promise$1.reject(error);
@@ -2631,7 +2631,7 @@ var LocalForage = function () {
 
                 configureMissingMethods();
 
-                var setDriverSupport = function setDriverSupport(support) {
+                var setDriverSupport = function setDriverSupport (support) {
                     if (DefinedDrivers[driverName]) {
                         console.info('Redefining LocalForage driver: ' + driverName);
                     }
@@ -2661,24 +2661,24 @@ var LocalForage = function () {
         return promise;
     };
 
-    LocalForage.prototype.driver = function driver() {
+    LocalForage.prototype.driver = function driver () {
         return this._driver || null;
     };
 
-    LocalForage.prototype.getDriver = function getDriver(driverName, callback, errorCallback) {
+    LocalForage.prototype.getDriver = function getDriver (driverName, callback, errorCallback) {
         var getDriverPromise = DefinedDrivers[driverName] ? Promise$1.resolve(DefinedDrivers[driverName]) : Promise$1.reject(new Error('Driver not found.'));
 
         executeTwoCallbacks(getDriverPromise, callback, errorCallback);
         return getDriverPromise;
     };
 
-    LocalForage.prototype.getSerializer = function getSerializer(callback) {
+    LocalForage.prototype.getSerializer = function getSerializer (callback) {
         var serializerPromise = Promise$1.resolve(localforageSerializer);
         executeTwoCallbacks(serializerPromise, callback);
         return serializerPromise;
     };
 
-    LocalForage.prototype.ready = function ready(callback) {
+    LocalForage.prototype.ready = function ready (callback) {
         var self = this;
 
         var promise = self._driverSet.then(function () {
@@ -2693,7 +2693,7 @@ var LocalForage = function () {
         return promise;
     };
 
-    LocalForage.prototype.setDriver = function setDriver(drivers, callback, errorCallback) {
+    LocalForage.prototype.setDriver = function setDriver (drivers, callback, errorCallback) {
         var self = this;
 
         if (!isArray(drivers)) {
@@ -2702,11 +2702,11 @@ var LocalForage = function () {
 
         var supportedDrivers = this._getSupportedDrivers(drivers);
 
-        function setDriverToConfig() {
+        function setDriverToConfig () {
             self._config.driver = self.driver();
         }
 
-        function extendSelfWithDriver(driver) {
+        function extendSelfWithDriver (driver) {
             self._extend(driver);
             setDriverToConfig();
 
@@ -2714,11 +2714,11 @@ var LocalForage = function () {
             return self._ready;
         }
 
-        function initDriver(supportedDrivers) {
+        function initDriver (supportedDrivers) {
             return function () {
                 var currentDriverIndex = 0;
 
-                function driverPromiseLoop() {
+                function driverPromiseLoop () {
                     while (currentDriverIndex < supportedDrivers.length) {
                         var driverName = supportedDrivers[currentDriverIndex];
                         currentDriverIndex++;
@@ -2768,15 +2768,15 @@ var LocalForage = function () {
         return this._driverSet;
     };
 
-    LocalForage.prototype.supports = function supports(driverName) {
+    LocalForage.prototype.supports = function supports (driverName) {
         return !!DriverSupport[driverName];
     };
 
-    LocalForage.prototype._extend = function _extend(libraryMethodsAndProperties) {
+    LocalForage.prototype._extend = function _extend (libraryMethodsAndProperties) {
         extend(this, libraryMethodsAndProperties);
     };
 
-    LocalForage.prototype._getSupportedDrivers = function _getSupportedDrivers(drivers) {
+    LocalForage.prototype._getSupportedDrivers = function _getSupportedDrivers (drivers) {
         var supportedDrivers = [];
         for (var i = 0, len = drivers.length; i < len; i++) {
             var driverName = drivers[i];
@@ -2787,7 +2787,7 @@ var LocalForage = function () {
         return supportedDrivers;
     };
 
-    LocalForage.prototype._wrapLibraryMethodsWithReady = function _wrapLibraryMethodsWithReady() {
+    LocalForage.prototype._wrapLibraryMethodsWithReady = function _wrapLibraryMethodsWithReady () {
         // Add a stub for each driver API method that delays the call to the
         // corresponding driver method until localForage is ready. These stubs
         // will be replaced by the driver methods as soon as the driver is
@@ -2797,7 +2797,7 @@ var LocalForage = function () {
         }
     };
 
-    LocalForage.prototype.createInstance = function createInstance(options) {
+    LocalForage.prototype.createInstance = function createInstance (options) {
         return new LocalForage(options);
     };
 

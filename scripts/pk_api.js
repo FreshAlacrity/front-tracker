@@ -6,7 +6,7 @@ let currentRequests = 0;
 let requestAfter = 0;
 let rootUrl = "https://api.pluralkit.me/v2"
 
-function basicAuth(neccessary) {
+function basicAuth (neccessary) {
   if (data.setup.token === '' && neccessary) {
     // #todo add a better way to resolve invalid token input here
     while (data.setup.token === '') {
@@ -16,7 +16,7 @@ function basicAuth(neccessary) {
   return { headers: { Authorization: data.setup.token } }
 }
 
-async function delayedFetch(url, data) {
+async function delayedFetch (url, data) {
   // see https://stackoverflow.com/questions/38956121/how-to-add-delay-to-promise-inside-then
   totalRequests++
   let num = totalRequests;
@@ -43,7 +43,7 @@ async function delayedFetch(url, data) {
   }
 }
 
-async function getSystemInfo(system = 'lhexq') {
+async function getSystemInfo (system = 'lhexq') {
   let url = rootUrl + `/systems/${system}`
   try {
     let res = await delayedFetch(url, basicAuth())
@@ -52,7 +52,7 @@ async function getSystemInfo(system = 'lhexq') {
     console.log(error);
   }
 }
-async function getMemberObjectList(system = 'lhexq') {
+async function getMemberObjectList (system = 'lhexq') {
   let url = rootUrl + `/systems/${system}/members`
   try {
     let res = await delayedFetch(url, basicAuth())
@@ -61,7 +61,7 @@ async function getMemberObjectList(system = 'lhexq') {
     console.log(error);
   }
 }
-async function getMember(id = 'qkxux') { // Lucky's member ID
+async function getMember (id = 'qkxux') { // Lucky's member ID
   let url = rootUrl + "/members/" + id
   try {
     let res = await delayedFetch(url, basicAuth())
@@ -71,7 +71,7 @@ async function getMember(id = 'qkxux') { // Lucky's member ID
   }
 }
 
-async function newMember(callsign, details) {
+async function newMember (callsign, details) {
   // #todo combine with validate function/have those work together
   let url = rootUrl + "/members"
   let memberData = newMemberPkFromCallsign(callsign);
@@ -96,7 +96,7 @@ async function newMember(callsign, details) {
   }
 }
 
-async function reportBack(comment, data) {
+async function reportBack (comment, data) {
   // @todo test
   let json = await data
   if (!json) {
@@ -105,7 +105,7 @@ async function reportBack(comment, data) {
     log(comment + ": " + pretty(json));
   }
 }
-async function editMember(id, obj) {
+async function editMember (id, obj) {
   let url = rootUrl + "/members/" + id
   let etc = {
     method: 'PATCH', // GET, POST, PUT, DELETE, etc.
@@ -124,12 +124,12 @@ async function editMember(id, obj) {
   }
 }
 
-async function setDisplayName(id, newName) {
+async function setDisplayName (id, newName) {
   return editMember(id, { display_name: newName })
 }
 
 // see https://pluralkit.me/api/endpoints/#switches
-async function getFronters(system = 'lhexq') {
+async function getFronters (system = 'lhexq') {
   let url = rootUrl + "/systems/" + system + "/fronters"
   let etc = {
     method: 'GET', // GET, POST, PUT, DELETE, etc.
@@ -148,7 +148,8 @@ async function getFronters(system = 'lhexq') {
     return { members: [] };
   }
 }
-async function isMember(m) {
+// #todo rewrite
+async function isMember (m) {
   if (!idFromCallsign(m)) {
     let nm = await newMember(m);
     return nm.id;
@@ -156,12 +157,12 @@ async function isMember(m) {
     return idFromCallsign(m);
   }
 }
-async function reportSwitch(active = getActive(), system = 'lhexq') {
+async function reportSwitch (active = getActive(), system = 'lhexq') {
 
   // ONLY REPORT MAIN IDs, NEVER ALT IDs:
   active = active.map(mainCallsign);
   
-  function validateSwitch() {
+  function validateSwitch () {
     let ok = true;
     digits().forEach(d => {
       if (occurs(active.join(''), d) > 1) {

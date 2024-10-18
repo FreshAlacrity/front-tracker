@@ -1,6 +1,6 @@
-function fusionNote(callsign) {
+function fusionNote (callsign) {
   // #later check these automatically
-  let names = ["☸️ Moth", "🍀 Clover", "🧮 Val", "🏗️ Kent", "🐏 Faun", "🤝 Ruth", "🎇 Lucky", "📜 Giles", "🌑 Thorn", "🌃 Glitter"];
+  let names = ["1 ☸️ Moth", "2 🍀 Clover", "3 🧮 Val", "4 🏗️ Kent", "5 🐏 Faun", "6 🤝 Ruth", "7 🎇 Lucky", "8 📜 Giles", "9 🌑 Thorn", "* 🌃 Starling"];
   let numDigits = callsign.split('').filter(c => (digitIndex(c) > -1)).length;
   if (numDigits === callsign.length) {
     if (callsign.length === 1 && callsign !== "*") {
@@ -9,7 +9,7 @@ function fusionNote(callsign) {
       return `Non-representative, non-voting adviser to the council`
     } else {
       let districtList = oxfordCommaList((callsign + '').split('').filter(d => (d !== "*")))
-      return `Temporary fusion of ${oxfordCommaList((callsign + '').split('').map(d => names[digitIndex(d)]))}\nRepresents districts ${districtList}`;
+      return `Temporary fusion of ${oxfordCommaList((callsign + '').split('').map(d => names[digitIndex(d)]))}`;
     }
   } else {
     return "Unconventional headmate";
@@ -17,13 +17,13 @@ function fusionNote(callsign) {
 }
 quickTest(fusionNote("E"), "Unconventional headmate", "No digit fusionNote() test");
 quickTest(fusionNote("6"), "Represents district 6 on our internal council", "One digit fusionNote() test");
-quickTest(fusionNote("24"), "Temporary fusion of 🍀 Clover and 🏗️ Kent\nRepresents districts 2 and 4", "Two digit fusionNote() test");
-quickTest(fusionNote("246"), "Temporary fusion of 🍀 Clover, 🏗️ Kent, and 🤝 Ruth\nRepresents districts 2, 4, and 6", "Three digit fusionNote() test");
+quickTest(fusionNote("24"), "Temporary fusion of 2 🍀 Clover and 4 🏗️ Kent", "Two digit fusionNote() test");
+quickTest(fusionNote("246"), "Temporary fusion of 2 🍀 Clover, 4 🏗️ Kent, and 6 🤝 Ruth", "Three digit fusionNote() test");
 
-function deduplicateProxyList(arr) {
+function deduplicateProxyList (arr) {
   return [...new Set(arr)].sort(function (x, y) {
-    function smooshProxy(p) {
-      function nullToBlank(s) {
+    function smooshProxy (p) {
+      function nullToBlank (s) {
         if (s && s !== "null") {
           return s
         } else {
@@ -45,7 +45,7 @@ function deduplicateProxyList(arr) {
 }
 
 // #redo and use:
-function updateRequiredProxyTags(pk) {
+function updateRequiredProxyTags (pk) {
   // - all members including alts should have:
   // - CS: text and text -CS proxies
   // - Name: text and text -Name proxies (if name != CS)
@@ -53,12 +53,12 @@ function updateRequiredProxyTags(pk) {
   // #later make sure these proxies do not conflict with any other members'
   // #later remove emoji proxies
   // #todo include a way to remove an old name?
-  function newProxyTag(prefix = null, suffix = null) {
+  function newProxyTag (prefix = null, suffix = null) {
     // #todo just push this already
     return { "prefix": prefix, "suffix": suffix }
   }
   /*
-  function addProxyTag(a, b) { pk.pk.proxy_tags.push(newProxyTag(a, b)) }
+  function addProxyTag (a, b) { pk.pk.proxy_tags.push(newProxyTag(a, b)) }
   addProxyTag(null, ` -${pk.etc.callsign + pk.etc.suffix}`);
   addProxyTag(`${pk.etc.callsign + pk.etc.suffix}: `);
   if (pk.name !== (pk.etc.callsign + pk.etc.suffix)) {
@@ -71,7 +71,7 @@ function updateRequiredProxyTags(pk) {
   pk.proxy_tags = deduplicateProxyList(pk.proxy_tags);
   return pk;
 }
-function nameOccurs(name) {
+function nameOccurs (name) {
   // returns the number of times this name is currently used
   // #todo implement
   // #todo use in name updates
@@ -81,7 +81,10 @@ function nameOccurs(name) {
   return count
 }
 
-function checkMemberObject(pk, autoUpload = true) {
+function checkMemberObject (pk, autoUpload = true) {
+  return pk; // #todo reinstate this function later? this skips the entire thing
+  /*
+  // #todo check pronoun field against displayname and alert if there's a mismatch for things like they/she not mapping to they/them, she/her?
   // #todo update to take edit mode into account better
   // used in util.js updatePkInfo()
   let editMode = getToggle("editing");
@@ -91,13 +94,13 @@ function checkMemberObject(pk, autoUpload = true) {
   let isMain = isMainProxy(callsign);
   // #later, also detect if we're getting a public-facing pk object or not by looking at privacy: null and/or lack of display_name?
 
-  function objection(property, issue = "has no") {
+  function objection (property, issue = "has no") {
     if (editMode) {
       console.warn(`${pk.display_name} with id '${pk.id}' ${issue} ${property}`);
     }
   }
   
-  function checkNames() {
+  function checkNames () {
     // #todo check name format, #### | Nickname
 
     if (pk.name === "Unnamed") {
@@ -117,9 +120,10 @@ function checkMemberObject(pk, autoUpload = true) {
       // #todo prompt to resolve?
     }
   }
-  function checkPrivacy() {
+  function checkPrivacy () {
     if (pk.privacy) {
       // check that name is set private
+      // #todo also check that proxy tags are private
       if (isMain && pk.privacy.name_privacy !== "private") {
         // note that this would erase any previous edits to privacy
         edits.privacy = { name_privacy: "private" };
@@ -130,7 +134,7 @@ function checkMemberObject(pk, autoUpload = true) {
       // loading without a token
     }
   }
-  function checkAvatar() {
+  function checkAvatar () {
     if (pk.avatar_url) {
       if (pk.avatar_url.indexOf("picrew.me/shareImg") > 0) {
         pk.avatar_url = ""
@@ -142,9 +146,9 @@ function checkMemberObject(pk, autoUpload = true) {
       }
     }
   }
-  function checkProxies() {
+  function checkProxies () {
     let updated = updateRequiredProxyTags(pk);
-    function compareProxyTagList(a, b) {
+    function compareProxyTagList (a, b) {
       // #todo test
       let prettyListA = JSON.stringify(deduplicateProxyList(a.proxy_tags));
       return (prettyListA === JSON.stringify(b.proxy_tags))
@@ -154,7 +158,7 @@ function checkMemberObject(pk, autoUpload = true) {
       edits.proxy_tags = updated.proxy_tags;
     }
   }
-  function checkPronouns() {
+  function checkPronouns () {
     if (!pk.pronouns) {
       // #todo just autofix, don't object?
       //objection("preferred pronouns");
@@ -166,7 +170,7 @@ function checkMemberObject(pk, autoUpload = true) {
       objection("pronouns", "doesn't have they/them in their");
     }
   }
-  function checkDescription() {
+  function checkDescription () {
     if (isMain && pk.description !== updatedDescription(pk)) {
       // description is wrong format or fusion note is old
       edits.description = updatedDescription(pk);
@@ -210,4 +214,5 @@ function checkMemberObject(pk, autoUpload = true) {
     }
   }
   return Object.assign(pk, edits)
+  */
 }
