@@ -8,7 +8,7 @@ var data = {
     toggles: {
       available:   { action: updateOnToggle, default: true },
       unavailable: { action: updateOnToggle },
-      live:        { action: toggleLive, default: true },
+      live:        { action: toggleLive, default: false }, // #todo revert this to true for
       editing:     { action: toggleEditing  }
     }
   },
@@ -66,7 +66,7 @@ function clearToken () {
 }
 
 function toggleEditing () {
-  // #todo
+  // #todo #later
 }
 
 function init () {

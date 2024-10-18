@@ -1,32 +1,38 @@
 function showMessage (text) {
   // #later have this show on the page in a designated area and support different background colors
-  console.warn(text);
+  log(text)
 }
 function loadFronters () {  
   getFronters().then(d => {  
     showMessage("Loaded switch logged at: " + d.timestamp) // #later note the time logged and how long ago that was in a message
     log("Updating active members: " + d.members.map(d => d.id).join(", "))
-    // #later make a way to check this data against existing data? as in, ID matches callsign?  
-    updatePage(d.members.map(getCallsign), true)
+
+    // Without changing the search box to names it's harder to search for possible copilots, but this is clunky
+    // #todo sort out how to preload this in a nice way and then include as a search result match + add a css class for fronters to show that nicely
+    data.page.active_list.value = d.members.map(d => getNickname(d))
+    // #todo alert if no fronters found
+    updatePage(d.members.map(d => d.id))
   });
 }
 function activeListInput () {
-  // runs on Enter key or when focus leaves active list text box
-  if (getActive() !== "fronters") {
-    updatePage(getActive(true));
+  // Runs on Enter key or when focus leaves active list text box
+  let mapToFront = ["fronters", "front", "fronter", "", undefined]
+  if (mapToFront.includes(data.page.active_list.value.toLowerCase())) {
+    loadFronters()
   } else {
-    loadFronters();
+    updatePage()
   }
 }
-function updatePage (active = getActive(), setTextbox) {
-  active = sortByCallsign(active);
-  updateTileClasses(active);
+function updatePage (overrideList = []) {
+  updateTileClasses(overrideList);
 
   let show = "active"
   if (getToggle("unavailable")) { show = "all" }
   else if (getToggle("available")) { show = "available" }
 
-  if (setTextbox) { data.page.active_list.value = active.join(", ") }
+  // #todo get this working - broken part is elsewhere
+  // this doesn't actually do what we want either; putting a list of Ids in the textbox is needlessly confusing, maybe convert to names?
+  //if (setTextbox) { data.page.active_list.value = active.join(", ") }
   updateUrl({
     active: data.page.active_list.value,
     show: show,
@@ -99,11 +105,12 @@ function resetList () { updatePage(digits(), true) }
 
 function onTileClick (event) {
   if (window.event.ctrlKey) {
-    let callsign = event.target.id.slice("icon-front-".length);
+    let pkId = event.target.id.slice("icon-front-".length);
     if (event.target.id.slice(0, "icon-front-".length) !== "icon-front-") {
-      callsign = event.target.id.slice("icon-back-".length);
+      pkId = event.target.id.slice("icon-back-".length);
     }
-    updatePage(updateActiveList(getActive(), callsign), true);
+    // #todo get this working again
+    updatePage(updateActiveList(listActive(), pkId), true);
   }
 }
 function onDoubleClick (event) {

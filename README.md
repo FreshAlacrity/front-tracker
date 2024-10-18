@@ -25,6 +25,7 @@ Names and callsigns will pull up members; adding a + to a callsign or name will 
 - [ ] add a "View Source" button and link to the repository
 - [ ] Have one button for sign in/sign out and change the button text based on if a valid token is active
 - [ ] get levenstein name recognition from active list working
+- [ ] better names for checkbox toggles, so available -> "Show members available to front" etc
 
 ### Support for Other Systems
 - [ ] allow putting in a system ID as a URL parameter and just list the members to start

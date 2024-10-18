@@ -148,6 +148,7 @@ async function getFronters (system = 'lhexq') {
     return { members: [] };
   }
 }
+// #todo rewrite
 async function isMember (m) {
   if (!idFromCallsign(m)) {
     let nm = await newMember(m);

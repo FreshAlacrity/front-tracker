@@ -14,6 +14,11 @@ function oxfordCommaList (arr) {
 }
 quickTest(oxfordCommaList([1, 2]), "1 and 2", `oxfordCommaList() for less than three entries`)
 quickTest(oxfordCommaList([1, 2, 3]), "1, 2, and 3", `oxfordCommaList() for more than three entries`)
+function intersect(a, b) {
+  // Return elements of array a that are also in b in linear time:
+  // via https://stackoverflow.com/a/43820518
+  return a.filter(Set.prototype.has, new Set(b));
+}
 function copy (obj) { return JSON.parse(JSON.stringify(obj)) }
 function assignDown (target, source) {
   // applies the properties from the source to the target, two levels down
@@ -298,7 +303,7 @@ function getSideSibsList (cs) {
 function getAllSibsList (cs) {
   let h = data.structure.relatives;
   if (!h.hasOwnProperty(cs)) { 
-    log(cs + " has no sibling entry") 
+    //log(cs + " has no sibling entry") 
     return [];
   } else {
     let all = [].concat(h[cs].sibs, h[cs].lil_sibs, h[cs].big_sibs);
@@ -339,34 +344,6 @@ function updatePkInfo (pk, noSave = false) {
     //log(`Saving member to localForage: ${pk.id}`)
     localforage.setItem(pk.id, pk).catch(err => error);    
   }
-}
-function inputListToIds (string, doAlert = false) {
-  // #todo rework to use pk Ids not callsigns
-  // Usually called from the text box, can also be from URL params
-
-  function plain (string) { return replaceEach(string, "+-") };
-
-  // split into an array and substitute in ids for names and callsigns
-  let arr = splitByEach(string, ",.~ ;:/").map(entry => {
-
-    let match = data.ids_by_ref[plain(entry)];
-    if (match) {
-      return entry.replace(plain(entry), match);
-    } else {
-      return entry
-    }
-  });
-
-  let all = getMemberList();
-  let notMembers = arr.filter(cs => !all.includes(plain(cs)));
-  if (notMembers.length > 0) {
-    // currently can cause a softlock if using alert()
-    showMessage(`These are not recognized as registered member(s): ${notMembers.join(", ")}`);
-  }
-  return sortByCallsign(arr.filter(cs => all.includes(plain(cs)))); // does this need to be sorted?
-}
-function getActive (doAlert) {
-  return inputListToIds(data.page.active_list.value, doAlert)
 }
 async function updateDataFromMemberList (list = exported.members) {
   console.groupCollapsed("Updating from member list:");
