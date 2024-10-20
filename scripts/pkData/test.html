@@ -1,15 +1,17 @@
+<!DOCTYPE html>
 <script src="tinytest.js"></script>
 <script src="handler.js"></script>
 <script>
- tests({
+  const d = pkData
+  tests({
     /* TinyTest Function Reference
     see https://github.com/joewalnes/jstinytest
 
     // Force a failure
-    fail(reason);
+    fail(reason)
 
     // Assert expression is truthy (fail with reason)
-    assert(expression, reason);
+    assert(expression, reason)
 
     // Assert expected == actual
     assertEquals(expected, actual)
@@ -19,14 +21,29 @@
     assertStrictEquals(expected, actual)
     */
 
-   'adds numbers': function() {
-     eq(6, add(2, 4));
-     eq(6.4, add(2.4, 4));
-   },
+    'logging': function () {
+      eq(d.prettyPrint(["A", "B", "C"]), `["A","B","C"]`)
+      try {
+        d.logWith("foo")
+      } catch (error) {
+        //console.error(error);
+        // Error is expected
+      }
+      d.logWith(console.log.bind(d, "TESTING..."))
+      d.log("THIS SHOULD HAVE NO HEADER AND START WITH 'TESTING...'")
+      d.hello()
+    },
 
-   'subtracts numbers': function() {
-     eq(-2, add(2, -4)); 
-   },
+    /* Examples:
+    'adds numbers': function() {
+      eq(6, add(2, 4));
+      eq(6.4, add(2.4, 4));
+    },
+ 
+    'subtracts numbers': function() {
+      eq(-2, add(2, -4)); 
+    },
+    */
 
- });
+  });
 </script>
