@@ -3,7 +3,10 @@
 <script src="handler.js"></script>
 <script>
   const d = pkData
+  function eqs (a, b) { return eq(JSON.stringify(a), JSON.stringify(b)) }
   tests({
+    // #todo make a sample system with data this can trawl through
+
     /* TinyTest Function Reference
     see https://github.com/joewalnes/jstinytest
 
@@ -14,8 +17,7 @@
     assert(expression, reason)
 
     // Assert expected == actual
-    assertEquals(expected, actual)
-    eq(expected, actual) // Alias for assertEquals
+    eq(expected, actual)
 
     // Assert expected === actual
     assertStrictEquals(expected, actual)
@@ -34,15 +36,93 @@
       d.hello()
     },
 
-    /* Examples:
-    'adds numbers': function() {
-      eq(6, add(2, 4));
-      eq(6.4, add(2.4, 4));
+    'copy': function () {
+      eqs(d.copy({ foo: 2, beep: 'A', bop: 1000, bip: undefined }), { foo: 2, beep: 'A', bop: 1000 })
     },
- 
-    'subtracts numbers': function() {
-      eq(-2, add(2, -4)); 
-    },
+    
+    // previous format: testName, setupResult, actualResult, expectedResult
+    /* to convert
+      // #todo figure out why this fails
+      //unitTests.add('exportSystemData() overrideSystemData()', ["none", test_sysMangement(), true])
+
+      unitTests.add('setGlobal() getGlobal()',
+        //[setGlobal('foo', [1, 2]), getGlobal('foo'), [1, 2]]
+      )
+      // #todo delete foo later
+
+    function runMemberTypeTest (k) {
+        let pk = getById('member', k) // note: this will only work after the lib is initiated
+        return [getNickname, isUtility, isAlt, isPrimary].map(f => f(pk))
+      }
+      let memberTypeFunctionTestNames = 'getNickname() isUtility() isAlt() isPrimary()'
+      let memberTypeTests = {
+        "knaqg": ["Echo",        true, false, false],
+        "hdfqk": ["Damson",      false, false, true],
+        "eedvu": ["Floop (Tea)", false, true, false]
+      }
+      Object.keys(memberTypeTests).forEach(pkId => {
+        unitTests.add([memberTypeFunctionTestNames, runMemberTypeTest(pkId).join(' '), memberTypeTests[pkId]].join(' '))
+      });
+
+      function test_sysMangement () {
+        let backup = exportSystemData()
+        let initial = Object.keys(SYSTEM_STORAGE).length
+        overrideSystemData({ 'foo': 'bar' }, false)
+        let temp = Object.keys(SYSTEM_STORAGE).length
+        overrideSystemData(backup, false)
+        return (initial != temp) && (Object.keys(SYSTEM_STORAGE).length == initial)
+      }
+      
+      function test_getFronters () {
+        log(getFronters(2))
+      }
+
+      
+      // #todo #later make this into a unit test and change it back after
+      function test_updateEntryByType () {
+        let testMember = {
+          "privacy": {
+            "visibility": "public",
+            "name_privacy": "private",
+            "description_privacy": "public",
+            "pronoun_privacy": "public",
+            "birthday_privacy": "public",
+            "avatar_privacy": "public",
+            "proxy_privacy": "public",
+            "metadata_privacy": "public"
+          },
+          "uuid": "b62f0ab2-dc4f-4536-bb7f-7797690d3253"
+        }
+        let id = "kzkww" // Bee
+        let testMember = getById("member", id)
+        let field = "pronouns"
+        //testMember["id"] = null
+
+        log("Initial value set?", testMember[field] != "foo")
+        testMember[field] = "foo"
+        let changedMember = updateEntryByType('member', testMember)
+        log("Updated in return value?", changedMember[field] == "foo")
+        let doubleCheck = getById("member", id)
+        log("Updated in system global?", doubleCheck[field] == "foo")
+      }
+
+      function test_objFromDescription () {
+        pkData.clear();
+        let description = getByName("member", "Hall")[0]["description"];
+        log(objFromDescription(description));
+      }
+
+      function test_descriptionParsing () {
+        let initial = log(twineObj().description, "(original)");
+        let recompiled = discordStringFromObj(log(objFromDescription(initial)));
+        if (recompiled !== initial) { log("Something is wrong with this recompiled description:", "\n" + recompiled) }
+      }
+
+      function test_getMemberGroups () {
+        pkData.clear(); // so the Butler will use live data
+        log(listNames(getMemberGroups()).join(", "))
+      }
+
     */
 
   });

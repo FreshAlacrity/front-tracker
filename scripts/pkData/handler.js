@@ -51,103 +51,13 @@ const pkData = (function () {
   }
   setLogFunction(titledLog) // set the initial log function
 
-
-  /* unit testing */
-  const unitTests = (function () {
-    const allTests = []
-
-    function add (...tests) {
-      allTests.push(tests)
-    }
-
-    /**
-    * Internal unit testing function.
-    * @version 1.2, as of Dec 12, 2020
-    * @param {*} setupResult - Output from any setup function run ahead of the test.
-    * @param {*} actualResult - The actual output, to be tested for equality.
-    * @param {*} expectedResult - The expected output to be tested against.
-    * @param {string} [testName] - The name of the test (providing a name returns a readout instead of a boolean value).
-    * @param {boolean} [suppressLog=false] - Truthy values suppress logging for false tests.
-    * @returns {boolean|string} - If given a testName returns a detailed test result readout, else returns a boolean value representing whether the test passed.
-    */
-    function doTest (testName, setupResult, actualResult, expectedResult) {
-      /* convert to strings so object comparisons work well */
-      setupResult = JSON.stringify(setupResult)
-      actualResult = JSON.stringify(actualResult)
-      expectedResult = JSON.stringify(expectedResult)
-
-      const result = (actualResult === expectedResult)
-
-      // #later trim to 1000 chars for readout?
-      const readout = [
-        `${testName} - ${result}`,
-        `Setup result:    ${setupResult}`,
-        `Actual result:   ${actualResult}`,
-        `Expected result: ${expectedResult}`, ``
-      ].join('\n\n       ')
-
-      return {
-        pass: result,
-        log: readout
-      }
-    }
-    add('unitTests.test()',
-      ['A', doTest('True Test', 'A', 1, 1).pass, true],
-      ['B', doTest('False Test', 'B', 1, 0).log, [
-        `False Test - false`,
-        `Setup result:    "B"`,
-        `Actual result:   1`,
-        `Expected result: 0`,
-        ``
-      ].join('\n\n       ')]
-    )
-
-    /** Run a sequence of tests from an array through test() */
-    function tests (name, ...testArrays) {
-      let failed = []
-      testArrays.forEach((a, i) => {
-        let result = doTest('', a[0], a[1], a[2])
-        if (!result.pass) {
-          // redo failed tests to get verbose logs
-          failed.push(`${name} Test ${i + 1}${result.log}`)
-        }
-      })
-
-      let message = name + ' - PASSED ' + testArrays.length
-      if (failed.length > 0) {
-        message = `----\n${failed.join('\n')}\n----`
-      }
-      return message
-    }
-
-    /** Run all the tests in the unitTests array. */
-    function runUnitTests () {
-      const testResults = allTests.map(a => tests(...a))
-      log('Unit Test Results:\n-------------------------\n\n' + testResults.join('\n'))
-    }
-
-    return {
-      add: add,
-      run: runUnitTests,
-      test: doTest
-    }
-  }())
-
-  /* other */
-
   /** Makes a deep copy of objects with simple properties
    * @note see https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
-   * @note Strips out properties whose values are functions or undefined, converts NaN and Infinity to null, stringifies dates, and converts regex to empty objects and otherwise messes up 'Maps, Sets, Blobs, FileLists, ImageDatas, sparse Arrays, Typed Arrays or other complex types'
+   * @note Strips out properties whose values are functions or undefined, converts NaN and Infinity to null, stringifies dates, and converts RegEx to empty objects and otherwise messes up 'Maps, Sets, Blobs, FileLists, ImageDatas, sparse Arrays, Typed Arrays or other complex types'
+   * @note Will probably also fail for very large objects
    */
   function copy (inputObj) { return JSON.parse(JSON.stringify(inputObj)) }
-  // #todo does this fail for large objects?
-  // #todo include in unit test a date, a regex, infinity, and a map
-  unitTests.add('copy()',
-    [1,
-      copy({ foo: 2, beep: 'A', bop: 1000, bip: undefined }),
-      { foo: 2, beep: 'A', bop: 1000 }
-    ]
-  )
+  
 
   /* PK API */
   // #todo import
@@ -180,17 +90,7 @@ const pkData = (function () {
   function exportSystemData () {
     return copy(SYSTEM_STORAGE)
   }
-  function test_sysMangement () {
-    let backup = exportSystemData()
-    let initial = Object.keys(SYSTEM_STORAGE).length
-    overrideSystemData({ 'foo': 'bar' }, false)
-    let temp = Object.keys(SYSTEM_STORAGE).length
-    overrideSystemData(backup, false)
-    return (initial != temp) && (Object.keys(SYSTEM_STORAGE).length == initial)
-  }
-  // #todo figure out why this fails
-  unitTests.add('exportSystemData() overrideSystemData()', ["none", test_sysMangement(), true])
-
+ 
   function setGlobal (type, data = []) {
     log(`Setting ${type}`)
     let newData = copy(data)
@@ -204,10 +104,6 @@ const pkData = (function () {
     if (!SYSTEM_STORAGE[type] || SYSTEM_STORAGE[type].length == 0) { fetchSystemData(type) }
     return SYSTEM_STORAGE[type];
   }
-  unitTests.add('setGlobal() getGlobal()',
-    //[setGlobal('foo', [1, 2]), getGlobal('foo'), [1, 2]]
-  )
-  // #todo delete foo later
 
   function clearSystemData () {
     // #later consider what properies this ought to have
@@ -291,9 +187,6 @@ const pkData = (function () {
   function getFronters (switchNum = 0) {
     return getGroupMemberObjects(getSwitch(switchNum));
   }
-  function test_getFronters () {
-    log(getFronters(2))
-  }
 
 
   function countMatching (type, obj) {
@@ -360,35 +253,6 @@ const pkData = (function () {
   function updateGroupInGlobals (obj) {
     return updateEntryByType('group', obj)
   }
-  // #todo #later make this into a unit test and change it back after
-  function test_updateEntryByType () {
-    /*
-    let testMember = {
-      "privacy": {
-        "visibility": "public",
-        "name_privacy": "private",
-        "description_privacy": "public",
-        "pronoun_privacy": "public",
-        "birthday_privacy": "public",
-        "avatar_privacy": "public",
-        "proxy_privacy": "public",
-        "metadata_privacy": "public"
-      },
-      "uuid": "b62f0ab2-dc4f-4536-bb7f-7797690d3253"
-    }
-    */
-    let id = "kzkww" // Bee
-    let testMember = getById("member", id)
-    let field = "pronouns"
-    //testMember["id"] = null
-
-    log("Initial value set?", testMember[field] != "foo")
-    testMember[field] = "foo"
-    let changedMember = updateEntryByType('member', testMember)
-    log("Updated in return value?", changedMember[field] == "foo")
-    let doubleCheck = getById("member", id)
-    log("Updated in system global?", doubleCheck[field] == "foo")
-  }
 
   // Format any linked properties into a hyperlink
   // @author August
@@ -429,11 +293,6 @@ const pkData = (function () {
     d = makeLinks(d);
     return d;
   }
-  function test_objFromDescription () {
-    pkData.clear();
-    let description = getByName("member", "Hall")[0]["description"];
-    log(objFromDescription(description));
-  }
 
   // @author August
   function listThese (descObj, headers = [], include = false, tail = "\n\n") {
@@ -458,11 +317,7 @@ const pkData = (function () {
     ].join(tail).slice(intro.length + 6);
     return string;
   }
-  function test_descriptionParsing () {
-    let initial = log(twineObj().description, "(original)");
-    let recompiled = discordStringFromObj(log(objFromDescription(initial)));
-    if (recompiled !== initial) { log("Something is wrong with this recompiled description:", "\n" + recompiled) }
-  }
+
 
   // @author Myr, August
   function getSectionFromDesc (pk, header) {
@@ -491,49 +346,10 @@ const pkData = (function () {
       return (g.members.includes(pk.id) || g.members.includes(pk.uuid))
     })
   }
-  function test_getMemberGroups () {
-    pkData.clear(); // so the Butler will use live data
-    log(listNames(getMemberGroups()).join(", "))
-  }
-
-  function getMemberAlts (pk) {
-    // #todo
-  }
 
   // = GROUPS =
-  function getNamedGroupId (name) {
-    let dict = {
-      copilots: "jxgrj",
-      alt_copilots: "edoeg",
-      atoms: "nbzrx",
-      dormant: "khyku",
-      council: "iacrr",
-      bounce: "kiwbl",
-      pass: "djruh",
-      regulars: "peokh",
-      tasked: "vwbqw",
-      staged: "guggr"
-    }
-    let groupId = dict[name.toLowerCase()];
-    if (!groupId) {
-      throw new Error(`No id set for group name ${name}`);
-    }
-    return groupId;
-  }
-  function getNamedGroup (name) {
-    let groupId = getNamedGroupId(name);
-    return getById("group", groupId);
-  }
-  function test_GetNamedGroup () {
-    //s.clear();
-    log(getNamedGroup("council"))
-  }
-
   function getGroupMemberObjects (pkGroupObj) {
     return pkGroupObj.members.map(id => getById("member", id))
-  }
-  function test_GetGroupMemberObjects () {
-    log(getGroupMemberObjects(getNamedGroup("council")))
   }
 
   /* MEMBERS */
@@ -541,18 +357,8 @@ const pkData = (function () {
   function isMember (pk, group) {
     return group["members"].includes(pk.id) || group["members"].includes(pk.uuid);
   }
-  function test_isMember () {
-    pkData.clear(); // clear the export data to use live data only
-    let pk = getByName("member", "June")[0];
-    let groupA = getById("group", "iyusd")
-    let groupB = getNamedGroup("regulars")
-    //log(getGroupMemberObjects(groupB).map(pk => pk.name).join(', '))
-    // ex - isMember(pk, getNamedGroup("tasked"))
-    log(`${pk.name} is in ${groupA.name}: ${isMember(pk, groupA)}`)
-    log(`${pk.name} is in ${groupB.name}: ${isMember(pk, groupB)}`)
-  }
 
-  function regex (type) {
+  function namedRegEx (type) {
     let key = {
       'isUtility': '[A-Z]'
     }
@@ -560,7 +366,7 @@ const pkData = (function () {
   }
   function isUtility (pk) {
     let text = getCompactSetString(pk)
-    return regex('isUtility').test(text)
+    return namedRegEx('isUtility').test(text)
   }
   function isAlt (pk) {
     let text = getCompactSetString(pk)
@@ -570,22 +376,6 @@ const pkData = (function () {
   function isPrimary (pk) {
     return (!isUtility(pk) && !isAlt(pk))
   }
-  /*
-  // Known issue: workflow for unit tests includes clobbering the system global before it gets here (should be fixed)
-  function runMemberTypeTest (k) {
-    let pk = getById('member', k) // note: this will only work after the lib is initiated
-    return [getNickname, isUtility, isAlt, isPrimary].map(f => f(pk))
-  }
-  let memberTypeFunctionTestNames = 'getNickname() isUtility() isAlt() isPrimary()'
-  let memberTypeTests = {
-    "knaqg": ["Echo",        true, false, false],
-    "hdfqk": ["Damson",      false, false, true],
-    "eedvu": ["Floop (Tea)", false, true, false]
-  }
-  Object.keys(memberTypeTests).forEach(pkId => {
-    unitTests.add([memberTypeFunctionTestNames, runMemberTypeTest(pkId).join(' '), memberTypeTests[pkId]].join(' '))
-  });
-  */
 
   /* Reveal functions and set aliases visible to outside scopes. */
   return {
@@ -598,6 +388,7 @@ const pkData = (function () {
     'logWith': setLogFunction,
     'hello': sayHello,
     'prettyPrint': pretty,
+    'copy': copy,
     /* GENERAL */
     'init': overrideSystemData,
     'clear': clearSystemData,
