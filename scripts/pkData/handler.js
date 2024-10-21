@@ -127,14 +127,17 @@ const pkData = (function () {
       // Will not go fetch new data
       return SYSTEM_STORAGE[systemId][type]
     }
+    function getIndexOfMatch (systemId, type, obj, matchBy = "id") {
+      return checkValue(systemId, type).map(m => m[matchBy]).indexOf(obj[matchBy])
+    }
     function countMatching (systemId, type, obj) {
       let matchBy = obj.id ? 'id' : 'uuid'
       if (!obj[matchBy]) {
-        throw new TypeError(`This object has no id or uuid value:\n${pretty(obj)}`);
+        throw new TypeError(`This object has no id or uuid value:\n${pretty(obj)}`)
       }
       let currentList = checkValue(systemId, type)
       if (!currentList || !Array.isArray(currentList)) {
-        throw new TypeError(`Trying to look for matches, but this isn't an array:\n${pretty(currentValue)}`);
+        throw new TypeError(`Trying to look for matches, but this isn't an array:\n${pretty(currentValue)}`)
       }
       return currentList.filter(m => m[matchBy] == obj[matchBy]).length
     }
@@ -146,46 +149,53 @@ const pkData = (function () {
       log(`Adding ${type} ${about(m)}`) // temp #todo remove
       let currentValue = checkValue(systemId, type)
       if (!Array.isArray(currentValue)) {
-        throw new TypeError(`Trying to add an entry, but this isn't an array:\n${pretty(currentValue)}`);
+        throw new TypeError(`Trying to add an entry, but this isn't an array:\n${pretty(currentValue)}`)
       }
       currentValue.push(m) // Remember that this returns *length* of new array
       setValue(systemId, type, currentValue)
       return true
     }
-    function updateEntryByType (systemId, type, m) {
+    function updateEntryObject (oldEntry, newObj) {
+      // Update existing entry object
+      for (let key in newObj) { 
+        // Detect a case of public/private name data clash
+        if (key == "name" && !newObj.display_name) {
+          // #todo consider if there is a better way to do this
+          key = display_name
+        }
+        oldEntry[key] = newObj[key] 
+      }
+      log(`Updated ${about(oldEntry)}`)
+
+      // Return updated version
+      return oldEntry
+    }
+    function updateEntryByType (systemId, type, obj) {
       // Currently only works for groups and members, for switches use timestamp?
 
       // Object must have a id or uuid to match to previous record
-      let matchBy = m.id ? 'id' : 'uuid'
+      let matchBy = obj.id ? 'id' : 'uuid'
 
       // Check that there's one and only one existing entry that matches this one
-      let count = countMatching(systemId, type, m)
+      let count = countMatching(systemId, type, obj)
       if (!count == 1) {
-        let msg = `${count} ${type}s found in the system with ${matchBy} ${m[matchBy]}`
+        let msg = `${count} ${type}s found in the system with ${matchBy} ${obj[matchBy]}`
         if (count == 0) {
           log(msg)
-          addEntry(systemId, type, m)
+          addEntry(systemId, type, obj)
         } else {
           // More than one entry with this ID was found
           throw new ReferenceError(msg)
         }
       } else {
-        log(`Updating ${type} ${about(m)}`)
-
-        // #todo do this in a way that doesn't keep traversing
-        setValue(systemId, type, checkValue(systemId, type).map(m => {
-          if (m[matchBy] == m[matchBy]) {
-            // Update existing entry
-            for (let key in m) { m[key] = m[key] }
-            log(`Updated ${type} ${about(m)}`)
-
-            // Keep updated version to return as a receipt
-            m = m
-          }
-          return m
-        }))
+        let index = getIndexOfMatch(systemId, type, obj)
+        log(`Updating ${type} ${about(obj)} at index ${index}`)
+        let currentList = checkValue(systemId, type)
+        obj = updateEntryObject(currentList[index], obj)
+        currentList[index] = obj
+        setValue(systemId, type, currentList)
       }
-      return m // this now includes any data that was present but not overwritten
+      return obj // this now includes any data that was present but not overwritten
     }
     function exportSystemData (systemId = listSystemIds()[0]) {
       if (isStored({ id: systemId })) {
@@ -461,7 +471,7 @@ const pkData = (function () {
 
 // Aliases used by in pkButler
 // #todo test and later set these up to use the names directly
-//const systemId = webhooks.pk.system // for Butler
+const systemId = "exmpl" //webhooks.pk.system // for Butler
 const headerList = pkData.headerList
 const objFromDescription = pkData.headerListToObj
 const clearSystemData = pkData.clearAll
