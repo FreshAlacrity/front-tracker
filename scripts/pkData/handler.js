@@ -62,7 +62,7 @@ const pkData = (function () {
       return JSON.parse(JSON.stringify(inputObj)) 
     }
   
-  /* STORAGE */
+  /* SYSTEM STORAGE */
     function systemDataReport (systemObj, intro = "System Data") {
       return intro + ":\n" + Object.keys(systemObj).map(k => {
         if (Array.isArray(systemObj[k])) {
@@ -97,16 +97,27 @@ const pkData = (function () {
     }
     function clearAllSystemData (systemId) { SYSTEM_STORAGE = {} }
 
-    /**
-     * Updates a member or group within the system object
-     * @author June
-     * @author Bryn
-     * @author Bee
-     * @author Quince
-     * @author Penelope
-     * @see {@link https://pluralkit.me/api/endpoints/#members PluralKit Endpoint Documentation}
-     */
-    
+  /* ENTRY MANAGEMENT */
+    function about(m) {
+      // Makes a quick little blurb to identify an entry for logging purposes
+      // Assumes a lot about what properties something might have; may need to update later
+      if (!m) {
+        return pretty(m)
+      } else if (typeof m == "string") {
+        return m
+      } else if (m.name || m.display_name) {
+        return `${m.name || m.display_name} (${m.id || m.uuid})`
+      } else {
+        return `${m.id || m.uuid || m.timestamp}`
+      }
+    }
+    function setValue (systemId, type, data) {
+      // Overrides values
+      //log(`Setting ${type} ${about(data)}`) // makes a LOT of logs on import
+      let newData = copy(data)
+      SYSTEM_STORAGE[systemId][type] = newData;
+      return newData;
+    }
     function checkValue (systemId, type) {
       // Will not go fetch new data
       return SYSTEM_STORAGE[systemId][type]
@@ -135,19 +146,6 @@ const pkData = (function () {
       currentValue.push(m) // Remember that this returns *length* of new array
       setValue(systemId, type, currentValue)
       return true
-    }
-    function about(m) {
-      // Makes a quick little blurb to identify an entry for logging purposes
-      // Assumes a lot about what properties something might have; may need to update later
-      if (!m) {
-        return pretty(m)
-      } else if (typeof m == "string") {
-        return m
-      } else if (m.name || m.display_name) {
-        return `${m.name || m.display_name} (${m.id || m.uuid})`
-      } else {
-        return `${m.id || m.uuid || m.timestamp}`
-      }
     }
     function updateEntryByType (systemId, type, m) {
       // Currently only works for groups and members, for switches use timestamp?
@@ -198,13 +196,6 @@ const pkData = (function () {
         return stored;
       }
     }
-    function setValue (systemId, type, data) {
-      // Overrides values
-      //log(`Setting ${type} ${about(data)}`) // makes a LOT of logs on import
-      let newData = copy(data)
-      SYSTEM_STORAGE[systemId][type] = newData;
-      return newData;
-    }
     function exportSystemData (systemId = listSystemIds()[0]) {
       if (isStored({ id: systemId })) {
         return copy(SYSTEM_STORAGE[systemId])
@@ -238,12 +229,6 @@ const pkData = (function () {
       return exportSystemData(systemId)
     }
 
-    function fullDataReport () {
-      // #later use system names?
-      return listSystemIds().map(sysId => {
-        systemDataReport(sysId, sysId + " System Data")
-      }).join("\n")
-    }
 
 
   /* GENERAL */
@@ -298,10 +283,6 @@ const pkData = (function () {
       }
     }
 
-    function getSwitches () {
-      // #todo #later fetch from PK and make these asynchronous?
-      return getValue("switches");
-    }
     function getSwitch (switchNum = 0) {
       // #todo make async and auto fetch older switches if the num is higher than whats currently available
       return getValue("switches")[switchNum];
@@ -454,10 +435,12 @@ const pkData = (function () {
     'hello': sayHello,
     'prettyPrint': pretty,
     'copy': copy,
-    'fullDataReport': fullDataReport,
     'exportSystem': exportSystemData, // note that this is not the same as the PK system export, but maybe it could be?
     'clearSystem': clearSystemData,
     'clearAll': clearAllSystemData, // deletes everything stored for all systems
+
+    /* SYSTEMS */
+    'listSystemIds': listSystemIds,
 
     /* SYSTEM DATA (all expect system object as the first parameter) */
     'checkId': checkId,
@@ -466,24 +449,21 @@ const pkData = (function () {
     'overrideSystem': overrideSystemData,
     'isStored': isStored, // doesn't check if the stored version is up to date, just if there is one
 
-    /* GENERAL */
-    
-    'listSystemIds': listSystemIds,
-    'switches': getSwitches,
-    /* ?? */
-    'headerList': listThese,
-    'headerListToObj': objFromDescription,
-    /* MEMBER */
-    'getMemberGroups': getMemberGroups, // rename? make member property? #todo
+    /* GENERAL ENTRY DATA (members, groups, switches etc) */
     'addEntry': addEntry,
     'updateEntry': updateEntryByType,
     'hasEntry': checkIfEntryExists,
-    /* PK OBJECT FINDERS */
-    'listAll': getValue, // #todo consider if this needs to be renamed or depreciated etc
-    'updateTypeList': setValue,
+    'setAll': setValue,
+    'getAll': getValue, // #todo consider if this needs to be renamed
+    
+    /* SPECIALIZED */
+    'getMemberGroups': getMemberGroups, // rename? make member property? #todo
     'objectFromName': getByName, // params: type, name
     'objectFromId': getById,
-    /* TEMP */
+
+    /* DESCRIPTIONS */
+    'headerList': listThese,
+    'headerListToObj': objFromDescription,
   }
 }())
 
@@ -496,10 +476,10 @@ const headerList = pkData.headerList
 const objFromDescription = pkData.headerListToObj
 const getMemberGroups = pkData.getMemberGroups.bind(pkData, systemId)
 const clearSystemData = pkData.clearAll
-const getGlobal = pkData.listAll.bind(pkData, systemId)
-const getGroups = pkData.listAll.bind(pkData, systemId, "groups")
-const setGlobal = pkData.updateTypeList.bind(pkData, systemId)
+const getGlobal = pkData.getAll.bind(pkData, systemId)
+const getGroups = pkData.getAll.bind(pkData, systemId, "groups")
+const getSwitches = pkData.getAll.bind(pkData, systemId, "switches")
+const setGlobal = pkData.setAll.bind(pkData, systemId)
 const updateMemberInGlobals = pkData.updateEntry.bind(pkData, systemId, "members") // first param is the 'this' value
 const updateGroupInGlobals = pkData.updateEntry.bind(pkData, systemId, "groups")
 const hasEntry = pkData.hasEntry
-const getSwitches = pkData.switches

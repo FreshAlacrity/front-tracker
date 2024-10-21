@@ -67,11 +67,11 @@
       d.overrideSystem(testSystem)
       testSystem["bar"] = [{ id: 1 }, { id: 2 }, { id: 3 }]
       d.importSystem(testSystem)
-      eq(d.listAll(testId, "bar").length, 3)
+      eq(d.getAll(testId, "bar").length, 3)
       testSystem["bar"] = [{ id: 3 }, { id: 4 }]
       d.importSystem(testSystem)
-      eq(d.listAll(testId, "bar").length, 4)
-      eq(d.listAll(testId, "biz"), undefined)
+      eq(d.getAll(testId, "bar").length, 4)
+      eq(d.getAll(testId, "biz"), undefined)
       assert(expectError("ReferenceError", d.exportSystem, "baz"), `Shouldn't find a system since this is not a stored id`)
       assert(d.isStored(testSystem), `Should have been imported`)
       eq(d.listSystemIds().length, 1)
@@ -83,8 +83,8 @@
     'system read': function () {
       let id = exampleSys["id"]
       d.importSystem(exampleSys)
-      eq(d.listAll(id, "members").length, exampleSys["members"].length)
-      eq(d.listAll(id, "members")[0]["id"], exampleSys["members"][0]["id"])
+      eq(d.getAll(id, "members").length, exampleSys["members"].length)
+      eq(d.getAll(id, "members")[0]["id"], exampleSys["members"][0]["id"])
 
     },
     // previous format: testName, setupResult, actualResult, expectedResult
