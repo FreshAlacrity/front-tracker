@@ -2,10 +2,12 @@
 
 // #TODO
 /*
-- get this working here, then upload to its own repo and add back here as submodule
-- remember that how tokens etc are stored varies between here and the Butler
-- separate out the functions we use to extend members as a 'members' or 'm' sub-object?
+- write more unit tests
+- make sure every function is used somewhere or returned as a property
 - pull PK API functions into this and make those their own sub-library
+- get this all working here and in the Butler, then upload to its own repo and add back here as submodule
+- remember that how tokens etc are stored varies between here and the Butler
+- separate out the functions we use to extend members as a sub-library (for example, nickname and callsign functions)
 */
 
 const pkData = (function () {
@@ -77,6 +79,9 @@ const pkData = (function () {
       }).join("\n")
     }
     function checkId (systemObj) {
+      // Note that systems (and members and groups etc) can both have a uuid instead
+      // The API can use ID, UUID, or the ID of a Discord account linked to the system, so really any of those should work for this purpose
+      // #later maybe add support for those, not now :)
       if (!systemObj) { throw new TypeError(`Not a valid system object: ${pretty(systemObj)}`) }
       if (!systemObj['id']) { throw new TypeError(`No id found in system object: ${systemDataReport(systemObj)}`) }
       return systemObj && systemObj['id']
@@ -182,20 +187,6 @@ const pkData = (function () {
       }
       return m // this now includes any data that was present but not overwritten
     }
-    function getValue (systemId, type) {
-      // Will only return a list with 0 entries if that's what it gets from the API etc
-      checkId({ "id": systemId })
-      log(`Getting ${type} for system with id ${systemId}`)
-
-      // If the data isn't present and can be gotten through the API, fetch it using an API call instead
-      let stored = checkValue(systemId, type)
-      let canFetch = ["switches", "groups", "members"] // #todo expand these when API functions are included
-      if (!stored && canFetch.includes(type)) {
-        return fetchSystemData(systemId, type)
-      } else {
-        return stored;
-      }
-    }
     function exportSystemData (systemId = listSystemIds()[0]) {
       if (isStored({ id: systemId })) {
         return copy(SYSTEM_STORAGE[systemId])
@@ -229,14 +220,30 @@ const pkData = (function () {
       return exportSystemData(systemId)
     }
 
+  /* PK API */
+  // #todo import
+  /* get PK data */
+  /* set PK data */
 
+    function getValue (systemId, type) {
+      // Will only return a list with 0 entries if that's what it gets from the API etc
+      checkId({ "id": systemId })
+      log(`Getting ${type} for system with id ${systemId}`)
 
-  /* GENERAL */
-    function hasId (pk, id) { return (pk.id === id || pk.uuid === id); }
+      // If the data isn't present and can be gotten through the API, fetch it using an API call instead
+      let stored = checkValue(systemId, type)
+      let canFetch = ["switches", "groups", "members"] // #todo expand these when API functions are included
+      if (!stored && canFetch.includes(type)) {
+        return fetchSystemData(systemId, type)
+      } else {
+        return stored;
+      }
+    }
 
-    function getById (type, id) {
-      if (type.slice(type.length - 1) !== 's') { type += 's' }
-      let list = getValue(type).filter(g => hasId(g, id));
+  /* RETURNING SPECIFIC ENTRIES */
+    function getById (systemId, type, id) {
+      function hasThisId (pk, id) { return (pk.id === id || pk.uuid === id); }
+      let list = getValue(systemId, type).filter(g => hasThisId(g, id));
       if (list.length != 1) { throw new Error(`No ${type} with id "${id}" found`) }
       return list[0];
     }
@@ -262,10 +269,9 @@ const pkData = (function () {
      * @returns {Array<Object>} group/member objects matching the name given
      * @author Myr
      */
-    function getByName (type, name) {
+    function getByName (systemId, type, name) {
       // #later sort by match quality
-      if (type.slice(type.length - 1) !== 's') { type += 's' }
-      let arr = getValue(type);
+      let arr = getValue(systemId, type);
 
       // Look for an exact match
       arr = arr.filter(pk => (hasName(name, pk) === 1))
@@ -274,129 +280,113 @@ const pkData = (function () {
       return arr;
     }
 
-    function listNames (objArr, preferDisplayName = false) {
-      // Mostly for debugging
-      if (preferDisplayName) {
-        return objArr.map(g => (g.display_name || g.name));
-      } else {
-        return objArr.map(g => g.name);
-      }
-    }
-
-    function getSwitch (switchNum = 0) {
+    function getSwitch (systemId, switchNum = 0) {
       // #todo make async and auto fetch older switches if the num is higher than whats currently available
-      return getValue("switches")[switchNum];
+      return getValue(systemId, "switches")[switchNum];
     }
 
-    function getFronters (switchNum = 0) {
-      return getGroupMemberObjects(getSwitch(switchNum));
+    function getFronters (systemId, switchNum = 0) {
+      return getGroupMemberObjects(getSwitch(systemId, switchNum));
     }
 
-
-
-
-  // Format any linked properties into a hyperlink
-  // @author August
-  function makeLinks (obj) {
-    let linked = Object.keys(obj).filter(h => Object.keys(obj).includes(h + " Link"));
-    linked.forEach(h => {
-      obj[h] = `[${obj[h]}](${obj[h + " Link"]})`;
-      delete obj[h + " Link"];
-    })
-    return obj;
-  }
-
-  // #later rewrite (use regex?)
-  // @author June
-  // @author Hall
-  function objFromDescription (string, intro = "Intro") {
-    let d = {};
-    if (string) {
-      let parts = string.split('\n**')
-      d[intro] = '';
-      parts.forEach(n => {
-        let pairs = n.split('**: ');
-        if (pairs.length < 2) {
-          d[intro] += pairs[0]
-        } else {
-          // Check that the key doesn't have a preceeding ** from not having an intro
-          key = pairs[0]
-          if (key.slice(0, 2) == "**") { key = key.slice(2) }
-
-          // Why the join here? -Hall
-          text = pairs.slice(1).join("**: ");
-
-          d[key] = text
-        }
-      });
-    }
     // Format any linked properties into a hyperlink
-    d = makeLinks(d);
-    return d;
-  }
-
-  // @author August
-  function listThese (descObj, headers = [], include = false, tail = "\n\n") {
-    // Returns a string with bolded headers for each of the object's properties
-    // Avoid side effecting by copying the object
-    let d = copy(descObj);
-    if (!include) {
-      // Exclude the listed headers instead
-      headers.forEach(h => delete d[h]);
-      headers = Object.keys(d);
+    // @author August
+    function makeLinks (obj) {
+      let linked = Object.keys(obj).filter(h => Object.keys(obj).includes(h + " Link"));
+      linked.forEach(h => {
+        obj[h] = `[${obj[h]}](${obj[h + " Link"]})`;
+        delete obj[h + " Link"];
+      })
+      return obj;
     }
-    headers = headers.filter(h => d.hasOwnProperty(h));
-    return headers.map(h => `**${h}**: ${d[h]}`).join(tail);
-  }
-  function discordStringFromObj (d, tail = "\n\n", intro = "Intro") {
-    let start = [intro, "Internal Name Translation", "Specific Boundaries"];
-    let end = ["Music", "Music Link", "Voice Recording", "Picrew"];
-    let string = [
-      listThese(d, start, true, tail),
-      listThese(d, [...start, ...end], false, tail),
-      listThese(d, end, true, tail)
-    ].join(tail).slice(intro.length + 6);
-    return string;
-  }
+
+    // @author June
+    // @author Hall
+    function objFromDescription (string, intro = "Intro") {
+      // #later rewrite (use regex?)
+      let d = {};
+      if (string) {
+        let parts = string.split('\n**')
+        d[intro] = '';
+        parts.forEach(n => {
+          let pairs = n.split('**: ');
+          if (pairs.length < 2) {
+            d[intro] += pairs[0]
+          } else {
+            // Check that the key doesn't have a preceeding ** from not having an intro
+            key = pairs[0]
+            if (key.slice(0, 2) == "**") { key = key.slice(2) }
+
+            // Why the join here? -Hall
+            text = pairs.slice(1).join("**: ");
+
+            d[key] = text
+          }
+        });
+      }
+      // Format any linked properties into a hyperlink
+      d = makeLinks(d);
+      return d;
+    }
+
+    // @author August
+    function listThese (descObj, headers = [], include = false, tail = "\n\n") {
+      // Returns a string with bolded headers for each of the object's properties
+      // Avoid side effecting by copying the object
+      let d = copy(descObj);
+      if (!include) {
+        // Exclude the listed headers instead
+        headers.forEach(h => delete d[h]);
+        headers = Object.keys(d);
+      }
+      headers = headers.filter(h => d.hasOwnProperty(h));
+      return headers.map(h => `**${h}**: ${d[h]}`).join(tail);
+    }
+    function discordStringFromObj (d, tail = "\n\n", intro = "Intro") {
+      let start = [intro, "Internal Name Translation", "Specific Boundaries"];
+      let end = ["Music", "Music Link", "Voice Recording", "Picrew"];
+      let string = [
+        listThese(d, start, true, tail),
+        listThese(d, [...start, ...end], false, tail),
+        listThese(d, end, true, tail)
+      ].join(tail).slice(intro.length + 6);
+      return string;
+    }
 
 
-  // @author Myr, August
-  function getSectionFromDesc (pk, header) {
-    let regex = new RegExp("\\*\\*" + header + "\\*\\*:(.+)$", "gim");
-    if (!pk.description) { return "" }
-    let matches = pk.description.match(regex);
-    if (!matches) { return "" }
-    if (matches.length > 1) { log(`${pk.name} has more than one header with title ${header} in their alt description`) }
-    return matches[0].slice(('**' + header + '**:').length);
-  }
-  // @author Myr, August
-  function getListFromDesc (pk, header) {
-    let str = getSectionFromDesc(pk, header);
-    return (str === '') ? [] : str.split(", ").map(p => p.trim());
-  }
+    // @author Myr, August
+    function getSectionFromDesc (pk, header) {
+      let regex = new RegExp("\\*\\*" + header + "\\*\\*:(.+)$", "gim");
+      if (!pk.description) { return "" }
+      let matches = pk.description.match(regex);
+      if (!matches) { return "" }
+      if (matches.length > 1) { log(`${pk.name} has more than one header with title ${header} in their alt description`) }
+      return matches[0].slice(('**' + header + '**:').length);
+    }
+    // @author Myr, August
+    function getListFromDesc (pk, header) {
+      let str = getSectionFromDesc(pk, header);
+      return (str === '') ? [] : str.split(", ").map(p => p.trim());
+    }
 
-  /**
-   * @param {string} id - the five-letter id or uuid of a member
-   * @returns {Array<Object>} group objects for every group that member belongs to
-   * @author Myr
-   */
-  function getMemberGroups (id = "uioxq") {
-    let pk = getById("member", id);
-    let groups = getValue("groups");
-    return groups.filter(g => {
-      return (g.members.includes(pk.id) || g.members.includes(pk.uuid))
-    })
-  }
+    /**
+     * @param {string} id - the five-letter id or uuid of a member
+     * @returns {Array<Object>} group objects for every group that member belongs to
+     * @author Myr
+     */
+    function getMemberGroups (id = "uioxq") {
+      let pk = getById("member", id);
+      let groups = getValue("groups");
+      return groups.filter(g => {
+        return (g.members.includes(pk.id) || g.members.includes(pk.uuid))
+      })
+    }
 
-  // = GROUPS =
-  function getGroupMemberObjects (pkGroupObj) {
-    return pkGroupObj.members.map(id => getById("member", id))
-  }
+    // = GROUPS =
+    function getGroupMemberObjects (pkGroupObj) {
+      return pkGroupObj.members.map(id => getById("member", id))
+    }
 
-  /* PK API */
-  // #todo import
-  /* get PK data */
-  /* set PK data */
 
   /* MEMBERS */
   // @author Bryn
@@ -454,7 +444,9 @@ const pkData = (function () {
     'updateEntry': updateEntryByType,
     'hasEntry': checkIfEntryExists,
     'setAll': setValue,
-    'getAll': getValue, // #todo consider if this needs to be renamed
+    'checkAll': checkValue, // returns what's stored, will never fetch api data
+    'getAll': getValue, // will fetch API data if it hasn't been loaded already
+    // #todo need a function to force loading API data
     
     /* SPECIALIZED */
     'getMemberGroups': getMemberGroups, // rename? make member property? #todo
@@ -470,16 +462,16 @@ const pkData = (function () {
 // Aliases used by in pkButler
 // #todo test and later set these up to use the names directly
 //const systemId = webhooks.pk.system // for Butler
-const getByName = pkData.objectFromName
-const getById = pkData.objectFromId
 const headerList = pkData.headerList
 const objFromDescription = pkData.headerListToObj
-const getMemberGroups = pkData.getMemberGroups.bind(pkData, systemId)
 const clearSystemData = pkData.clearAll
+const setGlobal = pkData.setAll.bind(pkData, systemId)
 const getGlobal = pkData.getAll.bind(pkData, systemId)
 const getGroups = pkData.getAll.bind(pkData, systemId, "groups")
 const getSwitches = pkData.getAll.bind(pkData, systemId, "switches")
-const setGlobal = pkData.setAll.bind(pkData, systemId)
-const updateMemberInGlobals = pkData.updateEntry.bind(pkData, systemId, "members") // first param is the 'this' value
 const updateGroupInGlobals = pkData.updateEntry.bind(pkData, systemId, "groups")
-const hasEntry = pkData.hasEntry
+const updateMemberInGlobals = pkData.updateEntry.bind(pkData, systemId, "members")
+const hasEntry = pkData.hasEntry.bind(pkData, systemId)
+const getById = pkData.objectFromId.bind(pkData, systemId)
+const getByName = pkData.objectFromName.bind(pkData, systemId)
+const getMemberGroups = pkData.getMemberGroups.bind(pkData, systemId)
