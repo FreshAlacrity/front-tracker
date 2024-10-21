@@ -7,13 +7,6 @@ const log = pkData.logger
 function quickTest (t1, t2, comment) {
   console.assert(t1 === t2, `${comment}failed: ${pretty(t1)} should be equal to ${pretty(t2)}`);
 }
-function oxfordCommaList (arr) {
-  if (arr.length < 3) {
-    return arr.join(" and ");
-  } else {
-    return arr.slice(0, -1).join(", ") + ", and " + arr.slice(-1);
-  }
-}
 function intersect(a, b) {
   // Return elements of array a that are also in b in linear time:
   // via https://stackoverflow.com/a/43820518
