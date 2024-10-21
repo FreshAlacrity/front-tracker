@@ -37,22 +37,44 @@ const pkData = (function () {
      * @returns {*} the first parameter, to be used for inline debugging
      */
     function titledLog (input) {
-      console.log(`    pkData.log:\n\n${[...arguments].map(pretty).join(' ')}\n\n`)
+      // Is there a way to get this to show the line where it was called from, instead of the line it's declared on?
+      /*
+      console.groupCollapsed("log examples:")
+      console.log("log");
+      console.debug("debug");
+      console.assert(false, "assert");
+      console.dir({ fancy: { foo: 1, bar: 2 }});
+      console.error("error")
+      console.info("info")
+      console.profile("profile")
+      console.profileEnd("profile") 
+      console.table([[1, 2], [3, 4]])
+      console.time("time")
+      console.timeEnd("time")
+      console.timeLog("time")
+      console.timeStamp("time stamp")
+      console.trace("trace")
+      console.warn("warn")
+      console.groupEnd()
+      */
+      console.log([...arguments].map(pretty).join(' '))
       return input
     }
-    function sayHello () { log("pkData library loaded - current version: 0.1 (unstable)") }
+
     function setLogFunction (fn) {
       if (typeof fn == "function") {
         this.log = fn
         log = fn // #later figure out how/why this works without setting it up as a global first
       } else {
         // Reset to original function
-        this.log = titledLog
+        this.log = console.log.bind(window.console, `    pkData.log:\n`)
         log = titledLog
         throw new TypeError(`This is not a function - ${typeof fn} ${JSON.stringify(fn)}; log function reset to default`)
       }
     }
-    setLogFunction(titledLog) // set the initial log function
+    setLogFunction(console.info) // set the initial log function
+
+    function sayHello () { log("pkData library loaded - current version: 0.1 (unstable)") }
 
     /** Makes a deep copy of objects with simple properties
      * @note see https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
@@ -442,7 +464,7 @@ const pkData = (function () {
     // Make sure everything here has a unit test please ^^
 
     /* UTILITY */
-    'log': log,
+    'logger': log,
     'logWith': setLogFunction,
     'hello': sayHello,
     'prettyPrint': pretty,
@@ -487,7 +509,6 @@ const pkData = (function () {
 const systemId = "exmpl" //webhooks.pk.system // for Butler
 const headerList = pkData.headerList
 const objFromDescription = pkData.headerListToObj
-const discordStringFromObj = pkData.objToHeaderList
 const clearSystemData = pkData.clearAll
 const setGlobal = pkData.setAll.bind(pkData, systemId)
 const getGlobal = pkData.getAll.bind(pkData, systemId)
@@ -499,3 +520,4 @@ const hasEntry = pkData.hasEntry.bind(pkData, systemId)
 const getById = pkData.objectFromId.bind(pkData, systemId)
 const getByName = pkData.objectFromName.bind(pkData, systemId)
 const getMemberGroups = pkData.getMemberGroups.bind(pkData, systemId)
+

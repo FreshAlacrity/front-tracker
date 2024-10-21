@@ -1,7 +1,9 @@
+// In use by front-tracker
+const discordStringFromObj = pkData.objToHeaderList
+const pretty = pkData.prettyPrint
+const log = pkData.logger
+
 // GENERAL UTILITIES
-function pretty (obj) {
-  return JSON.stringify(obj, null, 2);
-}
 function quickTest (t1, t2, comment) {
   console.assert(t1 === t2, `${comment}failed: ${pretty(t1)} should be equal to ${pretty(t2)}`);
 }
@@ -12,8 +14,6 @@ function oxfordCommaList (arr) {
     return arr.slice(0, -1).join(", ") + ", and " + arr.slice(-1);
   }
 }
-quickTest(oxfordCommaList([1, 2]), "1 and 2", `oxfordCommaList() for less than three entries`)
-quickTest(oxfordCommaList([1, 2, 3]), "1, 2, and 3", `oxfordCommaList() for more than three entries`)
 function intersect(a, b) {
   // Return elements of array a that are also in b in linear time:
   // via https://stackoverflow.com/a/43820518
@@ -31,33 +31,6 @@ function assignDown (target, source) {
     }
   }
   return n
-}
-function log (info = "--------------") {
-  /*
-  console.groupCollapsed("log examples:")
-  console.log("log");
-  console.debug("debug");
-  console.assert(false, "assert");
-  console.dir({ fancy: { foo: 1, bar: 2 }});
-  console.error("error")
-  console.info("info")
-  console.profile("profile")
-  console.profileEnd("profile") 
-  console.table([[1, 2], [3, 4]])
-  console.time("time")
-  console.timeEnd("time")
-  console.timeLog("time")
-  console.timeStamp("time stamp")
-  console.trace("trace")
-  console.warn("warn")
-  console.groupEnd()
-  */
-  if (typeof info === "string") {
-    console.info("%c" + info, "color: hsl(158, 50%, 30%)");
-  } else {
-    console.info(info);
-  }
-  return info;
 }
 function error (err) {
   console.error(err);
@@ -84,7 +57,7 @@ function updateUrl (paramsObj = {}) {
     // #later check to make sure there's no '#' in any of the paramsObj values
     let params = new URLSearchParams(window.location.search)
     for (const [key, value] of Object.entries(paramsObj)) {
-      if (value !== '') {
+      if (value && value !== '') {
         let encodedKey = encodeURIComponent(key, "UTF-8");
         let encodedVal = encodeURIComponent(value, "UTF-8");
         params.set(encodedKey, encodedVal);
@@ -95,7 +68,15 @@ function updateUrl (paramsObj = {}) {
     return `${window.location.origin}${window.location.pathname}?${params.toString()}`
   }
   // #later learn how/where the state information (here {}) can be accessed
-  //window.history.replaceState({}, 'New Page Title Here #todo', newUrl(paramsObj)) #todo this causes error
+  // see https://stackoverflow.com/questions/824349/how-do-i-modify-the-url-without-reloading-the-page
+  // and https://stackoverflow.com/questions/13348766/securityerror-the-operation-is-insecure-window-history-pushstate
+  let url = newUrl(paramsObj)
+  try {
+    window.history.pushState({}, 'New Page Title Here #todo', url) // #todo this causes error
+  } catch(error) {
+    console.log(url)
+    log(`Unsuccessfully attempted to load <`, url, `> - is the page running locally?`)
+  }
 }
 function paramValue (urlParams, key) {
   // decodes the encoding that updateUrl uses
@@ -180,10 +161,6 @@ function getMemberList () {
 }
 
 // = Find Individual Member Data =
-function updatedDescription (pk) {
-  // #todo update
-  return fusionNote(getCallsign(pk)) + discordStringFromObj(objFromDescription(pk.description));
-}
 function newMemberPkFromCallsign (callsign) {
   // #todo update
   // #todo add defaults for alt accounts also  
