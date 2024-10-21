@@ -1,4 +1,5 @@
 // see https://github.com/FreshAlacrity/pluralkit-data-handler
+
 // #TODO
 /*
 - get this working here, then upload to its own repo and add back here as submodule
@@ -9,250 +10,309 @@
 
 const pkData = (function () {
   /* INTERNAL GLOBALS */
-  var SYSTEM_STORAGE = {}
+    var SYSTEM_STORAGE = {}
 
   /* UTILITY */
-  /** Returns a neatly formatted string given most input; may butcher short objects containing strings with spaces. */
-  function pretty (x) {
-    if (typeof x === 'string') {
-      return x
-    } else {
-      if (x === undefined) { return 'undefined' }
-      if (typeof x === 'number' && isNaN(x)) { x = 'NaN' }
-      let longString = JSON.stringify(x, null, 2)
-      if (longString.replace(/\s/g, '').length < 120) {
-        /* So short arrays etc can fit on one line */
-        // may butcher short objects containing strings with spaces. Look into this @later
-        longString = JSON.stringify(x)
-      }
-      return longString
-    }
-  }
-  /**
-   * Logs things in the standard format for this library so it's clear where the error came from.
-   * @param {...*} - any number of inputs to be logged as a single entry
-   * @returns {*} the first parameter, to be used for inline debugging
-   */
-  function titledLog (input) {
-    console.log(`    pkData.log:\n\n${[...arguments].map(pretty).join(' ')}\n\n`)
-    return input
-  }
-  function sayHello () { log("pkData library loaded - current version: 0.1 (unstable)") }
-  function setLogFunction (fn) {
-    if (typeof fn == "function") {
-      this.log = fn
-      log = fn // #later figure out how/why this works without setting it up as a global first
-    } else {
-      // Reset to original function
-      this.log = titledLog
-      log = titledLog
-      throw new Error(`This is not a function - ${typeof fn} ${JSON.stringify(fn)}; log function reset to default`)
-    }
-  }
-  setLogFunction(titledLog) // set the initial log function
-
-  /** Makes a deep copy of objects with simple properties
-   * @note see https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
-   * @note Strips out properties whose values are functions or undefined, converts NaN and Infinity to null, stringifies dates, and converts RegEx to empty objects and otherwise messes up 'Maps, Sets, Blobs, FileLists, ImageDatas, sparse Arrays, Typed Arrays or other complex types'
-   * @note Will probably also fail for very large objects
-   */
-  function copy (inputObj) { return JSON.parse(JSON.stringify(inputObj)) }
-  
-
-  /* PK API */
-  // #todo import
-  /* get PK data */
-  /* set PK data */
-  /* GENERAL */
-  /* global */
-  function systemDataReport (sysObj = SYSTEM_STORAGE, intro = "System Data") {
-    return intro + ":\n" + Object.keys(sysObj).map(k => {
-      if (Array.isArray(sysObj[k])) {
-        return `${k}: ${sysObj[k].length} entries`
+    /** Returns a neatly formatted string given most input; may butcher short objects containing strings with spaces. */
+    function pretty (x) {
+      if (typeof x === 'string') {
+        return x
       } else {
-        let comment = JSON.stringify(sysObj[k])
-        if (comment.length > 100) {
-          comment = comment.slice(0, 50) + "..."
+        if (x === undefined) { return 'undefined' }
+        if (typeof x === 'number' && isNaN(x)) { x = 'NaN' }
+        let longString = JSON.stringify(x, null, 2)
+        if (longString.replace(/\s/g, '').length < 120) {
+          /* So short arrays etc can fit on one line */
+          // may butcher short objects containing strings with spaces. Look into this @later
+          longString = JSON.stringify(x)
         }
-        return `${k}: ${comment}`
+        return longString
       }
-    }).join("\n")
-  }
-  function overrideSystemData (systemObj, logImport = true) {
-    // If a system object was entered, use a copy of that object
-    // Otherwise overwrite the system entirely
-    // #later is this wise to do without requiring some sort of boolean to authorize it?
-    let newObj = systemObj ? copy(systemObj) : {};
-    SYSTEM_STORAGE = newObj
-    if (logImport) { log(systemDataReport(SYSTEM_STORAGE, "System data successfully imported")) }
-    return newObj;
-  }
-  function exportSystemData () {
-    return copy(SYSTEM_STORAGE)
-  }
- 
-  function setGlobal (type, data = []) {
-    log(`Setting ${type}`)
-    let newData = copy(data)
-    SYSTEM_STORAGE[type] = newData;
-    return newData;
-  }
-  function getGlobal (type) {
-    log(`Getting ${type}`)
-    // If the data isn't present, fetch it using an API call instead
-    // #todo check if it's even a valid type here too?
-    if (!SYSTEM_STORAGE[type] || SYSTEM_STORAGE[type].length == 0) { fetchSystemData(type) }
-    return SYSTEM_STORAGE[type];
-  }
-
-  function clearSystemData () {
-    // #later consider what properies this ought to have
-    SYSTEM_STORAGE = {
-      "members": [],
-      "groups": [],
-      "switches": []
     }
-    //["members", "groups", "switches"].forEach(type => setGlobal(type, []));
-  }
-
-  function hasId (pk, id) { return (pk.id === id || pk.uuid === id); }
-
-  function getById (type, id) {
-    if (type.slice(type.length - 1) !== 's') { type += 's' }
-    let list = getGlobal(type).filter(g => hasId(g, id));
-    if (list.length != 1) {
-      throw new Error(`No ${type} with id "${id}" found`);
+    /**
+     * Logs things in the standard format for this library so it's clear where the error came from.
+     * @param {...*} - any number of inputs to be logged as a single entry
+     * @returns {*} the first parameter, to be used for inline debugging
+     */
+    function titledLog (input) {
+      console.log(`    pkData.log:\n\n${[...arguments].map(pretty).join(' ')}\n\n`)
+      return input
     }
-    return list[0];
-  }
-
-  /**
-   * @param {string} name - a name or partial name of a member or group
-   * @param {Object} pk - a member or group object
-   * @returns {number} 1 for full match, 0 for no match
-   * @author Myr
-   */
-  function hasName (name, pk) {
-    // #later also return partial match values between 0 and 1
-    if (pk.name && pk.name.toLowerCase() === name.toLowerCase()) { return 1 }
-    if (pk.display_name && pk.display_name.toLowerCase() === name.toLowerCase()) { return 1 }
-    let matchArr = [0];
-    // if (g.display_name || g.name).includes(name)
-    return Math.max(...matchArr)
-  }
-
-  /**
-   * @param {string} type - "member" or "group"
-   * @param {string} name - a name or partial name of a member or group
-   * @returns {Array<Object>} group/member objects matching the name given
-   * @author Myr
-   */
-  function getByName (type, name) {
-    // #later sort by match quality
-    if (type.slice(type.length - 1) !== 's') { type += 's' }
-    let arr = getGlobal(type);
-
-    // Look for an exact match
-    arr = arr.filter(pk => (hasName(name, pk) === 1))
-
-    // #todo also match by nickname for folks like Sweet William
-    return arr;
-  }
-
-  /* group functions */
-  /* member list functions */
-
-  function listNames (objArr, preferDisplayName = false) {
-    // Mostly for debugging
-    if (preferDisplayName) {
-      return objArr.map(g => (g.display_name || g.name));
-    } else {
-      return objArr.map(g => g.name);
-    }
-  }
-  /* member functions */
-
-
-  function getSwitches () {
-    // #todo #later fetch from PK and make these asynchronous?
-    return getGlobal("switches");
-  }
-  function getSwitch (switchNum = 0) {
-    // #todo make async and auto fetch older switches if the num is higher than whats currently available
-    return getGlobal("switches")[switchNum];
-  }
-
-
-  // = MEMBERS =
-  function getFronters (switchNum = 0) {
-    return getGroupMemberObjects(getSwitch(switchNum));
-  }
-
-
-  function countMatching (type, obj) {
-    let matchBy = obj.id ? 'id' : 'uuid'
-    if (!obj[matchBy]) {
-      throw new Error(`This object has no id or uuid value:\n${pretty(obj)}`);
-    }
-    return getGlobal(type + "s").filter(m => m[matchBy] == obj[matchBy]).length
-  }
-  function checkIfEntryExists (type, obj) {
-    // #todo alert if more than 1?
-    return countMatching(type, obj) == 1
-  }
-  function addEntry (type, obj) {
-    if (type.slice(-1) != "s") { type = type + "s" }
-    setGlobal(type, getGlobal(type).push(obj))
-    return true
-  }
-
-  /**
-   * Updates a member or group within the system object
-   * @author June
-   * @author Bryn
-   * @author Bee
-   * @author Quince
-   * @author Penelope
-   * @see {@link https://pluralkit.me/api/endpoints/#members PluralKit Endpoint Documentation}
-   */
-  function updateEntryByType (type, obj) {
-    // #todo finish and test
-    // Currently only works for groups and members
-    // Object must have a id or uuid to match to previous record
-
-    // Check that there's one and only one existing entry that matches this one
-    let count = countMatching(type, obj)
-    if (!count == 1) {
-      let msg = `${count} ${type}s found in the system with ${matchBy} ${obj[matchBy]}`
-      if (count == 0) {
-        log(msg)
-        addEntry(type, obj)
+    function sayHello () { log("pkData library loaded - current version: 0.1 (unstable)") }
+    function setLogFunction (fn) {
+      if (typeof fn == "function") {
+        this.log = fn
+        log = fn // #later figure out how/why this works without setting it up as a global first
       } else {
-        // More than one entry with this ID was found
-        throw new Error(msg)
+        // Reset to original function
+        this.log = titledLog
+        log = titledLog
+        throw new TypeError(`This is not a function - ${typeof fn} ${JSON.stringify(fn)}; log function reset to default`)
+      }
+    }
+    setLogFunction(titledLog) // set the initial log function
+
+    /** Makes a deep copy of objects with simple properties
+     * @note see https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
+     * @note Strips out properties whose values are functions or undefined, converts NaN and Infinity to null, stringifies dates, and converts RegEx to empty objects and otherwise messes up 'Maps, Sets, Blobs, FileLists, ImageDatas, sparse Arrays, Typed Arrays or other complex types'
+     * @note Will probably also fail for very large objects
+     */
+    function copy (inputObj) {
+      if (typeof(inputObj) == "undefined") { throw new TypeError (`Undefined input`) }
+      return JSON.parse(JSON.stringify(inputObj)) 
+    }
+  
+  /* STORAGE */
+    function systemDataReport (systemObj, intro = "System Data") {
+      return intro + ":\n" + Object.keys(systemObj).map(k => {
+        if (Array.isArray(systemObj[k])) {
+          return `${k}: ${systemObj[k].length} entries`
+        } else {
+          let comment = JSON.stringify(systemObj[k])
+          if (comment.length > 100) {
+            comment = comment.slice(0, 50) + "..."
+          }
+          return `${k}: ${comment}`
+        }
+      }).join("\n")
+    }
+    function checkId (systemObj) {
+      if (!systemObj) { throw new TypeError(`Not a valid system object: ${pretty(systemObj)}`) }
+      if (!systemObj['id']) { throw new TypeError(`No id found in system object: ${systemDataReport(systemObj)}`) }
+      return systemObj && systemObj['id']
+    }
+    function listSystemIds () { return Object.keys(SYSTEM_STORAGE) }
+    function isStored (systemObj) { return !!SYSTEM_STORAGE[systemObj["id"]] }
+    function overrideSystemData (systemObj) {
+      checkId(systemObj)
+      // If a system object was entered, overwrite the system data entirely using a copy of that object
+      SYSTEM_STORAGE[systemObj['id']] = copy(systemObj)
+      return SYSTEM_STORAGE[systemObj['id']];
+    }
+    function clearSystemData (systemId) {
+      checkId({ "id": systemId })
+      return overrideSystemData({
+            "id": systemId
+          })
+    }
+    function clearAllSystemData (systemId) { SYSTEM_STORAGE = {} }
+
+    /**
+     * Updates a member or group within the system object
+     * @author June
+     * @author Bryn
+     * @author Bee
+     * @author Quince
+     * @author Penelope
+     * @see {@link https://pluralkit.me/api/endpoints/#members PluralKit Endpoint Documentation}
+     */
+    
+    function checkValue (systemId, type) {
+      // Will not go fetch new data
+      return SYSTEM_STORAGE[systemId][type]
+    }
+    function countMatching (systemId, type, obj) {
+      let matchBy = obj.id ? 'id' : 'uuid'
+      if (!obj[matchBy]) {
+        throw new TypeError(`This object has no id or uuid value:\n${pretty(obj)}`);
+      }
+      let currentList = checkValue(systemId, type)
+      if (!currentList || !Array.isArray(currentList)) {
+        throw new TypeError(`Trying to look for matches, but this isn't an array:\n${pretty(currentValue)}`);
+      }
+      return currentList.filter(m => m[matchBy] == obj[matchBy]).length
+    }
+    function checkIfEntryExists (systemId, type, obj) {
+      // #todo alert if more than 1?
+      return countMatching(systemId, type, obj) == 1
+    }
+    function addEntry (systemId, type, m) {
+      log(`Adding ${type} ${about(m)}`) // temp #todo remove
+      let currentValue = checkValue(systemId, type)
+      if (!Array.isArray(currentValue)) {
+        throw new TypeError(`Trying to add an entry, but this isn't an array:\n${pretty(currentValue)}`);
+      }
+      currentValue.push(m) // Remember that this returns *length* of new array
+      setValue(systemId, type, currentValue)
+      return true
+    }
+    function about(m) {
+      // Makes a quick little blurb to identify an entry for logging purposes
+      // Assumes a lot about what properties something might have; may need to update later
+      if (!m) {
+        return pretty(m)
+      } else if (typeof m == "string") {
+        return m
+      } else if (m.name || m.display_name) {
+        return `${m.name || m.display_name} (${m.id || m.uuid})`
+      } else {
+        return `${m.id || m.uuid || m.timestamp}`
+      }
+    }
+    function updateEntryByType (systemId, type, m) {
+      // Currently only works for groups and members, for switches use timestamp?
+
+      // Object must have a id or uuid to match to previous record
+      let matchBy = m.id ? 'id' : 'uuid'
+
+      // Check that there's one and only one existing entry that matches this one
+      let count = countMatching(systemId, type, m)
+      if (!count == 1) {
+        let msg = `${count} ${type}s found in the system with ${matchBy} ${m[matchBy]}`
+        if (count == 0) {
+          log(msg)
+          addEntry(systemId, type, m)
+        } else {
+          // More than one entry with this ID was found
+          throw new ReferenceError(msg)
+        }
+      } else {
+        log(`Updating ${type} ${about(m)}`)
+
+        // #todo do this in a way that doesn't keep traversing
+        setValue(systemId, type, checkValue(systemId, type).map(m => {
+          if (m[matchBy] == m[matchBy]) {
+            // Update existing entry
+            for (let key in m) { m[key] = m[key] }
+            log(`Updated ${type} ${about(m)}`)
+
+            // Keep updated version to return as a receipt
+            m = m
+          }
+          return m
+        }))
+      }
+      return m // this now includes any data that was present but not overwritten
+    }
+    function getValue (systemId, type) {
+      // Will only return a list with 0 entries if that's what it gets from the API etc
+      checkId({ "id": systemId })
+      log(`Getting ${type} for system with id ${systemId}`)
+
+      // If the data isn't present and can be gotten through the API, fetch it using an API call instead
+      let stored = checkValue(systemId, type)
+      let canFetch = ["switches", "groups", "members"] // #todo expand these when API functions are included
+      if (!stored && canFetch.includes(type)) {
+        return fetchSystemData(systemId, type)
+      } else {
+        return stored;
+      }
+    }
+    function setValue (systemId, type, data) {
+      // Overrides values
+      //log(`Setting ${type} ${about(data)}`) // makes a LOT of logs on import
+      let newData = copy(data)
+      SYSTEM_STORAGE[systemId][type] = newData;
+      return newData;
+    }
+    function exportSystemData (systemId = listSystemIds()[0]) {
+      if (isStored({ id: systemId })) {
+        return copy(SYSTEM_STORAGE[systemId])
+      } else {
+        throw new ReferenceError(`System with id "${systemId}" not found`)
+      }
+    }
+    function importSystemData (systemObj) {
+      checkId(systemObj)
+
+      // Get the system Id from the object
+      let systemId = systemObj['id']
+
+      // If this system has not been previously imported, start with a clean slate
+      if (!isStored(systemObj)) { clearSystemData(systemId) }
+
+      // Add without overwriting
+      for ([type, data] of Object.entries(systemObj)) {
+        // If there are any stored values for lists, merge them
+        // note: this should include the properties "accounts", "switches", "groups", "members"
+        
+        let currentValue = checkValue(systemId, type)
+        if (Array.isArray(data) && currentValue && currentValue.length != 0) {
+          data.forEach(entry => updateEntryByType(systemId, type, entry))
+        } else {
+          setValue(systemId, type, data)
+        }
+      }
+
+      // Return a clean copy of the new system with merged data
+      return exportSystemData(systemId)
+    }
+
+    function fullDataReport () {
+      // #later use system names?
+      return listSystemIds().map(sysId => {
+        systemDataReport(sysId, sysId + " System Data")
+      }).join("\n")
+    }
+
+
+  /* GENERAL */
+    function hasId (pk, id) { return (pk.id === id || pk.uuid === id); }
+
+    function getById (type, id) {
+      if (type.slice(type.length - 1) !== 's') { type += 's' }
+      let list = getValue(type).filter(g => hasId(g, id));
+      if (list.length != 1) { throw new Error(`No ${type} with id "${id}" found`) }
+      return list[0];
+    }
+
+    /**
+     * @param {string} name - a name or partial name of a member or group
+     * @param {Object} pk - a member or group object
+     * @returns {number} 1 for full match, 0 for no match
+     * @author Myr
+     */
+    function hasName (name, pk) {
+      // #later also return partial match values between 0 and 1
+      if (pk.name && pk.name.toLowerCase() === name.toLowerCase()) { return 1 }
+      if (pk.display_name && pk.display_name.toLowerCase() === name.toLowerCase()) { return 1 }
+      let matchArr = [0];
+      // if (g.display_name || g.name).includes(name)
+      return Math.max(...matchArr)
+    }
+
+    /**
+     * @param {string} type - "member" or "group"
+     * @param {string} name - a name or partial name of a member or group
+     * @returns {Array<Object>} group/member objects matching the name given
+     * @author Myr
+     */
+    function getByName (type, name) {
+      // #later sort by match quality
+      if (type.slice(type.length - 1) !== 's') { type += 's' }
+      let arr = getValue(type);
+
+      // Look for an exact match
+      arr = arr.filter(pk => (hasName(name, pk) === 1))
+
+      // #todo also match by nickname for folks like Sweet William
+      return arr;
+    }
+
+    function listNames (objArr, preferDisplayName = false) {
+      // Mostly for debugging
+      if (preferDisplayName) {
+        return objArr.map(g => (g.display_name || g.name));
+      } else {
+        return objArr.map(g => g.name);
       }
     }
 
-    let matchBy = obj.id ? 'id' : 'uuid'
-    log(`Updating ${type} in globals with ${matchBy} ${obj[matchBy]}`)
+    function getSwitches () {
+      // #todo #later fetch from PK and make these asynchronous?
+      return getValue("switches");
+    }
+    function getSwitch (switchNum = 0) {
+      // #todo make async and auto fetch older switches if the num is higher than whats currently available
+      return getValue("switches")[switchNum];
+    }
 
-    // #todo do this in a way that doesn't keep traversing
-    setGlobal(type + "s", getGlobal(type + "s").map(m => {
-      if (m[matchBy] == obj[matchBy]) {
-        // Update existing entry
-        for (let key in obj) { m[key] = obj[key] }
-        log(`Updated ${type} ${m.name || m.display_name} (${m.id || m.uuid})`)
+    function getFronters (switchNum = 0) {
+      return getGroupMemberObjects(getSwitch(switchNum));
+    }
 
-        // Keep the updated version to return as a receipt
-        obj = m
-      }
-      return m
-    }))
-    return obj // this now includes any data that was present but not overwritten
-  }
-  function updateGroupInGlobals (obj) {
-    return updateEntryByType('group', obj)
-  }
+
+
 
   // Format any linked properties into a hyperlink
   // @author August
@@ -341,7 +401,7 @@ const pkData = (function () {
    */
   function getMemberGroups (id = "uioxq") {
     let pk = getById("member", id);
-    let groups = getGlobal("groups");
+    let groups = getValue("groups");
     return groups.filter(g => {
       return (g.members.includes(pk.id) || g.members.includes(pk.uuid))
     })
@@ -351,6 +411,11 @@ const pkData = (function () {
   function getGroupMemberObjects (pkGroupObj) {
     return pkGroupObj.members.map(id => getById("member", id))
   }
+
+  /* PK API */
+  // #todo import
+  /* get PK data */
+  /* set PK data */
 
   /* MEMBERS */
   // @author Bryn
@@ -389,11 +454,21 @@ const pkData = (function () {
     'hello': sayHello,
     'prettyPrint': pretty,
     'copy': copy,
+    'fullDataReport': fullDataReport,
+    'exportSystem': exportSystemData, // note that this is not the same as the PK system export, but maybe it could be?
+    'clearSystem': clearSystemData,
+    'clearAll': clearAllSystemData, // deletes everything stored for all systems
+
+    /* SYSTEM DATA (all expect system object as the first parameter) */
+    'checkId': checkId,
+    'describe': systemDataReport,
+    'importSystem': importSystemData,
+    'overrideSystem': overrideSystemData,
+    'isStored': isStored, // doesn't check if the stored version is up to date, just if there is one
+
     /* GENERAL */
-    'init': overrideSystemData,
-    'clear': clearSystemData,
-    'export': exportSystemData, // note that this is not the same as the PK system export, but maybe it could be?
-    'report': systemDataReport,
+    
+    'listSystemIds': listSystemIds,
     'switches': getSwitches,
     /* ?? */
     'headerList': listThese,
@@ -403,10 +478,9 @@ const pkData = (function () {
     'addEntry': addEntry,
     'updateEntry': updateEntryByType,
     'hasEntry': checkIfEntryExists,
-    'updateGroup': updateGroupInGlobals,
     /* PK OBJECT FINDERS */
-    'listAll': getGlobal, // #todo consider if this needs to be renamed or depreciated etc
-    'updateTypeList': setGlobal,
+    'listAll': getValue, // #todo consider if this needs to be renamed or depreciated etc
+    'updateTypeList': setValue,
     'objectFromName': getByName, // params: type, name
     'objectFromId': getById,
     /* TEMP */
@@ -415,16 +489,17 @@ const pkData = (function () {
 
 // Aliases used by in pkButler
 // #todo test and later set these up to use the names directly
+//const systemId = webhooks.pk.system // for Butler
 const getByName = pkData.objectFromName
 const getById = pkData.objectFromId
 const headerList = pkData.headerList
 const objFromDescription = pkData.headerListToObj
-const getMemberGroups = pkData.getMemberGroups
-const clearSystemData = pkData.clear
-const getGlobal = pkData.listAll
-const getGroups = pkData.listAll.bind(pkData, "groups")
-const setGlobal = pkData.updateTypeList
-const updateMemberInGlobals = pkData.updateEntry.bind(pkData, "member") // first param is the 'this' value
-const updateGroupInGlobals = pkData.updateGroup
+const getMemberGroups = pkData.getMemberGroups.bind(pkData, systemId)
+const clearSystemData = pkData.clearAll
+const getGlobal = pkData.listAll.bind(pkData, systemId)
+const getGroups = pkData.listAll.bind(pkData, systemId, "groups")
+const setGlobal = pkData.updateTypeList.bind(pkData, systemId)
+const updateMemberInGlobals = pkData.updateEntry.bind(pkData, systemId, "members") // first param is the 'this' value
+const updateGroupInGlobals = pkData.updateEntry.bind(pkData, systemId, "groups")
 const hasEntry = pkData.hasEntry
 const getSwitches = pkData.switches

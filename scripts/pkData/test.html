@@ -5,6 +5,23 @@
 <script>
   const d = pkData
   function eqs (a, b) { return eq(JSON.stringify(a), JSON.stringify(b)) }
+  function expectError(type, fn, ...args) {
+    if (typeof fn != "function") {
+      throw new TypeError(`This is not a function - ${typeof fn} ${JSON.stringify(fn)}; remember to not just call it`)
+    }
+    try {
+      fn(...args)
+      fail("Should have thrown " + type)
+    } catch (error) {
+      if (error.name = type) {
+        return true
+      } else {
+        fail("Should have thrown " + type)
+      }
+    }
+    return false
+  }
+
   tests({
     // #todo fill in the exmpl sys data and use that for testing
 
@@ -26,12 +43,7 @@
 
     'logging': function () {
       eq(d.prettyPrint(["A", "B", "C"]), `["A","B","C"]`)
-      try {
-        d.logWith("foo")
-      } catch (error) {
-        //console.error(error);
-        // Error is expected
-      }
+      assert(expectError("TypeError",d.logWith, "foo"), `Not a function, should error`)
       d.logWith(console.log.bind(d, "TESTING..."))
       d.log("THIS SHOULD HAVE NO HEADER AND START WITH 'TESTING...'")
       d.hello()
@@ -39,8 +51,42 @@
 
     'copy': function () {
       eqs(d.copy({ foo: 2, beep: 'A', bop: 1000, bip: undefined }), { foo: 2, beep: 'A', bop: 1000 })
+      assert(expectError("TypeError", d.copy, undefined), `Shouldn't take 'undefined' as input`)
     },
     
+    'system import': function () {
+      assert(expectError("TypeError", d.checkId, {}), `No id, should error`)
+      assert(expectError("TypeError", d.checkId, { id: "" }), `No valid id, should error`)
+      let testId = "foo"
+      let testSystem = { id: testId } // any empty lists will be disregarded
+      assert(d.checkId(testSystem), `Has id, should return true`)
+      eq(typeof d.describe(testSystem), "string")
+      eq(d.listSystemIds().length, 0) // no systems imported yet
+      assert(expectError("TypeError", d.importSystem, {}), `No id, should error`)
+      assert(d.listSystemIds().length == 0, `System without ID shouldn't have been imported`)
+      d.overrideSystem(testSystem)
+      testSystem["bar"] = [{ id: 1 }, { id: 2 }, { id: 3 }]
+      d.importSystem(testSystem)
+      eq(d.listAll(testId, "bar").length, 3)
+      testSystem["bar"] = [{ id: 3 }, { id: 4 }]
+      d.importSystem(testSystem)
+      eq(d.listAll(testId, "bar").length, 4)
+      eq(d.listAll(testId, "biz"), undefined)
+      assert(expectError("ReferenceError", d.exportSystem, "baz"), `Shouldn't find a system since this is not a stored id`)
+      assert(d.isStored(testSystem), `Should have been imported`)
+      eq(d.listSystemIds().length, 1)
+      d.clearAll()
+      assert(d.listSystemIds().length == 0, `System should have been deleted`)
+      assert(expectError("ReferenceError", d.exportSystem, testId), `Shouldn't find a system, data should be cleared`)
+    },
+
+    'system read': function () {
+      let id = exampleSys["id"]
+      d.importSystem(exampleSys)
+      eq(d.listAll(id, "members").length, exampleSys["members"].length)
+      eq(d.listAll(id, "members")[0]["id"], exampleSys["members"][0]["id"])
+
+    },
     // previous format: testName, setupResult, actualResult, expectedResult
     /* to convert
       // #todo figure out why this fails
