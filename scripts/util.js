@@ -45,30 +45,27 @@ function remove (arr, value) {
   return arr;
 }
 function updateUrl (paramsObj = {}) {
-  // set new url parameters
-  function newUrl (paramsObj = {}) {
-    // #later check to make sure there's no '#' in any of the paramsObj values
-    let params = new URLSearchParams(window.location.search)
-    for (const [key, value] of Object.entries(paramsObj)) {
-      if (value && value !== '') {
-        let encodedKey = encodeURIComponent(key, "UTF-8");
-        let encodedVal = encodeURIComponent(value, "UTF-8");
-        params.set(encodedKey, encodedVal);
-      } else {
-        params.delete(key)
-      }
+  // Set new url parameters
+
+  // #later check to make sure there's no '#' in any of the paramsObj values (why?)
+  let params = new URLSearchParams(window.location.search)
+  for (const [key, value] of Object.entries(paramsObj)) {
+    if (value && value !== '') {
+      let encodedKey = encodeURIComponent(key, "UTF-8");
+      let encodedVal = encodeURIComponent(value, "UTF-8");
+      params.set(encodedKey, encodedVal);
+    } else {
+      params.delete(key)
     }
-    return `${window.location.origin}${window.location.pathname}?${params.toString()}`
   }
-  // #later learn how/where the state information (here {}) can be accessed
+
   // see https://stackoverflow.com/questions/824349/how-do-i-modify-the-url-without-reloading-the-page
   // and https://stackoverflow.com/questions/13348766/securityerror-the-operation-is-insecure-window-history-pushstate
-  let url = newUrl(paramsObj)
-  try {
-    window.history.pushState({}, 'New Page Title Here #todo', url) // #todo this causes error
-  } catch(error) {
-    console.log(url)
-    log(`Unsuccessfully attempted to load <`, url, `> - is the page running locally?`)
+  if (window.location.origin == "null") {
+    log(`Running locally; url params would have been set to ${params.toString()}`)
+  } else {
+    let url = `${window.location.origin}${window.location.pathname}?${params.toString()}`
+    window.history.pushState({}, 'New Page Title Here #todo', url) // this causes an error when running locally
   }
 }
 function paramValue (urlParams, key) {
