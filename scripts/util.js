@@ -146,7 +146,7 @@ function digitIndex (d) {
   return digits().indexOf(d + '');
 }
 function sortCallsign (callsign) {
-  // sorts digits within a callsign
+  // sorts digits and then letters #todo
   let key = callsign + '';
   if (key.length > 1) {
     key = sortByCallsign(key.split('')).join('');
@@ -180,23 +180,6 @@ function getMemberList () {
 }
 
 // = Find Individual Member Data =
-function objFromDescription (string) {
-  let d = {};
-  if (string) {
-    string.split('\n**').slice(1).forEach(n => {
-      let pairs = n.split('**: ');
-      d[pairs[0]] = pairs.slice(1).join("**: ");
-    });
-  }
-  return d;
-}
-function discordStringFromObj (d) {
-  let string = '';
-  for ([key, value] of Object.entries(d)) {
-    string += `\n**${key}**: ${value}`;
-  }
-  return string;
-}
 function updatedDescription (pk) {
   // #todo update
   return fusionNote(getCallsign(pk)) + discordStringFromObj(objFromDescription(pk.description));
@@ -307,7 +290,7 @@ function getAllSibsList (cs) {
     return [];
   } else {
     let all = [].concat(h[cs].sibs, h[cs].lil_sibs, h[cs].big_sibs);
-    return sortByCallsign(all).reverse();
+    return all.reverse();
   }
 }
 function isMainProxy (callsign) {  

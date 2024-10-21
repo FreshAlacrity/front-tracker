@@ -312,6 +312,19 @@ const pkData = (function () {
 
     // @author June
     // @author Hall
+    /*
+    // Previous version
+    function objFromDescription (string) {
+      let d = {};
+      if (string) {
+        string.split('\n**').slice(1).forEach(n => {
+          let pairs = n.split('**: ');
+          d[pairs[0]] = pairs.slice(1).join("**: ");
+        });
+      }
+      return d;
+    }
+    */
     function objFromDescription (string, intro = "Intro") {
       // #later rewrite (use regex?)
       let d = {};
@@ -362,7 +375,6 @@ const pkData = (function () {
       ].join(tail).slice(intro.length + 6);
       return string;
     }
-
 
     // @author Myr, August
     function getSectionFromDesc (pk, header) {
@@ -466,6 +478,7 @@ const pkData = (function () {
     /* DESCRIPTIONS */
     'headerList': listThese,
     'headerListToObj': objFromDescription,
+    'objToHeaderList': discordStringFromObj
   }
 }())
 
@@ -474,6 +487,7 @@ const pkData = (function () {
 const systemId = "exmpl" //webhooks.pk.system // for Butler
 const headerList = pkData.headerList
 const objFromDescription = pkData.headerListToObj
+const discordStringFromObj = pkData.objToHeaderList
 const clearSystemData = pkData.clearAll
 const setGlobal = pkData.setAll.bind(pkData, systemId)
 const getGlobal = pkData.getAll.bind(pkData, systemId)
