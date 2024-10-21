@@ -1,7 +1,7 @@
 function splitIntoTerms (searchString) {
   log(`Search string input: "${searchString}"`)
   // Break the search string into separate terms
-  return splitByEach(searchString, ",.~ ;:/").map(t => t.trim())
+  return splitByEach(searchString, ",.~;:/").map(t => t.trim())
 }
 function getMemberId (searchTerm) {
   return data.ids_by_ref[searchTerm.toLowerCase()]
