@@ -3,7 +3,7 @@ function splitIntoTerms (searchString) {
   // Break the search string into separate terms
   return splitByEach(searchString, ",.~;:/").map(t => t.trim())
 }
-function getMemberId (searchTerm) {
+function memberIdFromRef (searchTerm) {
   return data.ids_by_ref[searchTerm.toLowerCase()]
 }
 function validMember (searchTerm) {
@@ -40,7 +40,7 @@ function listActive (searchString = data.page.active_list.value) {
   let searchTerms = splitIntoTerms(searchString)
   // #todo make this less redundant/better organized later as this is also called in updateTileClasses()
 
-  let foundMembers = searchTerms.filter(validMember).map(getMemberId)
+  let foundMembers = searchTerms.filter(validMember).map(memberIdFromRef)
   
   if (foundMembers.length == 0) { showMessage(`No direct matches found from search terms "${searchTerms.join('", "')}"`); }
   return [...new Set(foundMembers)] // deduplicates list just for neatness

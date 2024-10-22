@@ -129,7 +129,7 @@ function init () {
 
     // load in from PK and update tiles unless that's actively prevented
     if (getToggle("live")) { loadFromPk() } else {
-      log("Loading remote data prevented by url parameter 'live=false'");
+      log("Loading remote data prevented setting 'live=false'");
     }
 }
 init()

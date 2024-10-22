@@ -50,7 +50,7 @@ function updateUrl (paramsObj = {}) {
   // #later check to make sure there's no '#' in any of the paramsObj values (why?)
   let params = new URLSearchParams(window.location.search)
   for (const [key, value] of Object.entries(paramsObj)) {
-    if (value && value !== '') {
+    if (value !== '') {
       let encodedKey = encodeURIComponent(key, "UTF-8");
       let encodedVal = encodeURIComponent(value, "UTF-8");
       params.set(encodedKey, encodedVal);

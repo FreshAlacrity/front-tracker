@@ -56,6 +56,7 @@ const pkData = (function () {
       console.trace("trace")
       console.warn("warn")
       console.groupEnd()
+      // remember also console.log("foo", {var}) gives more information about var
       */
       console.log([...arguments].map(pretty).join(' '))
       return input
@@ -67,12 +68,12 @@ const pkData = (function () {
         log = fn // #later figure out how/why this works without setting it up as a global first
       } else {
         // Reset to original function
-        this.log = console.log.bind(window.console, `    pkData.log:\n`)
+        this.log = console.debug
         log = titledLog
         throw new TypeError(`This is not a function - ${typeof fn} ${JSON.stringify(fn)}; log function reset to default`)
       }
     }
-    setLogFunction(console.info) // set the initial log function
+    setLogFunction(console.debug) // set the initial log function
 
     function sayHello () { log("pkData library loaded - current version: 0.1 (unstable)") }
 
