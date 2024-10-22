@@ -25,9 +25,6 @@ function assignDown (target, source) {
   }
   return n
 }
-function error (err) {
-  console.error(err);
-}
 function reflow () {
   // see https://gist.github.com/paulirish/5d52fb081b3570c81e3a
   let foo = window.scrollX;
@@ -263,7 +260,7 @@ function updatePkInfo (pk, noSave = false) {
 
   if (!noSave) {
     //log(`Saving member to localForage: ${pk.id}`)
-    localforage.setItem(pk.id, pk).catch(err => error);    
+    localforage.setItem(pk.id, pk).catch(err => console.error);    
   }
 }
 async function updateDataFromMemberList (list = exported.members) {

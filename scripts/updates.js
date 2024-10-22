@@ -118,10 +118,7 @@ function clearLocalData () {
   localforage.clear().then(function () {
     // Run this code once the database has been entirely deleted.
     log('Local storage cleared');
-  }).catch(function (err) {
-    // This code runs if there were any errors
-    error(err);
-  });
+  }).catch(function (err) { console.error(err) });
 }
 
 function resetList () { updatePage(digits(), true) }
