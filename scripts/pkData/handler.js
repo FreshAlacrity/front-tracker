@@ -32,6 +32,7 @@ const pkData = (function () {
       }
     }
     
+    var log = console.debug.bind(window.console, "PkData: ")
     function setLogFunction (fn) {
       /*
       Reference:
@@ -60,17 +61,15 @@ const pkData = (function () {
       console.assert(t1 === t2, `${comment}failed: ${pretty(t1)} should be equal to ${pretty(t2)}`);
 
       */
-      if (typeof fn == "function") {
-        this.log = fn
-        log = fn // #later figure out how/why this works without setting it up as a global first
-      } else {
+      if (typeof fn != "function") {
         // Reset to original function
-        this.log = console.debug.bind(window.console, "PkData:")
-        log = titledLog
         throw new TypeError(`This is not a function - ${typeof fn} ${JSON.stringify(fn)}; log function reset to default`)
+        fn = console.debug.bind(window.console, "PkData:")
       }
+    
+      this.log = fn
+      log = fn // #later figure out how/why this works without setting it up as a global first
     }
-    setLogFunction(console.debug.bind(window.console, "PkData: ")) // set the initial log function
 
     function sayHello () { log("pkData library loaded - current version: 0.1 (unstable)") }
 
@@ -249,11 +248,6 @@ const pkData = (function () {
       // Return a clean copy of the new system with merged data
       return exportSystemData(systemId)
     }
-
-  /* PK API */
-  // #todo import
-  /* get PK data */
-  /* set PK data */
 
     function getValue (systemId, type) {
       // Will only return a list with 0 entries if that's what it gets from the API etc

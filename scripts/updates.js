@@ -54,14 +54,15 @@ function updatePage (overrideList = []) {
       window.history.pushState({}, 'New Page Title Here #todo', url) // this causes an error when running locally
     }
   }
+  
+  log("Updating the page")
   updateTileClasses(overrideList);
 
   let show = "active"
   if (getToggle("unavailable")) { show = "all" }
   else if (getToggle("available")) { show = "available" }
 
-  // #todo get this working - broken part is elsewhere
-  // this doesn't actually do what we want either; putting a list of Ids in the textbox is needlessly confusing, maybe convert to names?
+  // this doesn't actually do what we want; putting a list of Ids in the textbox is needlessly confusing, maybe convert to names?
   //if (setTextbox) { data.page.active_list.value = active.join(", ") }
   updateUrl({
     active: data.page.active_list.value,
@@ -69,14 +70,7 @@ function updatePage (overrideList = []) {
     live: getToggle("live")
   });
 }
-function loadFromPkMemberList (list) {
-  list.forEach(pk => { updatePkInfo(pk) });
-  updateAllHeadmateTiles();
-}
-function loadFromPk () {
-  log("Loading all members directly from PK");
-  getMemberObjectList().then(loadFromPkMemberList);
-}
+
 function loadUrlParameters (localForageSuccessBool) {
   function paramValue (urlParams, key) {
     // decodes the encoding that updateUrl uses
@@ -126,8 +120,6 @@ function clearLocalData () {
   }).catch(function (err) { console.error(err) });
 }
 
-function resetList () { updatePage(digits(), true) }
-
 function onTileClick (event) {
   if (window.event.ctrlKey) {
     let pkId = event.target.id.slice("icon-front-".length);
@@ -168,16 +160,14 @@ function onDoubleClick (event) {
     }
   }
 }
-function updateOnToggle (event) {
-  updatePage();
-}
+
 function toggleLive (event) {
   if (event.target.checked) {
-    updatePage(); // #todo why is this called here?
+    updatePage() // updates the URL params etc
     showMessage("Loading in most recent data from PK")
-    loadFromPk();
+    loadFromPk()
   } else {
-    updatePage();
+    updatePage() // updates the URL params etc
   }
 }
 

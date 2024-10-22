@@ -1,23 +1,28 @@
-// see https://www.javascripttutorial.net/javascript-fetch-api/
-// requires an auth token set to pkToken variable
+function getHeaders (requireAuth, hasContent, method, body) {
+  let obj = { 'headers': {} }
+  if (hasContent) { obj['headers']['Content-Type'] = 'application/json' }
+  if (method) { obj['method'] = method }
+  if (body) { obj['body'] = JSON.stringify(body) }
+  if (requireAuth && data.setup.token === '') {
+    // Remember that running functions that require a token before local data is loaded
+    // means that won't be used even if there is one saved
 
+    // #todo add a better way to resolve invalid token input here
+    // #todo also add a way to cancel the action that prompted this
+    while (data.setup.token === '') { inputToken() }
+  }
+  obj['headers']['Authorization'] = data.setup.token
+  return obj
+}
+
+// Settings:
 let totalRequests = 0;
 let currentRequests = 0;
 let requestAfter = 0;
-let rootUrl = "https://api.pluralkit.me/v2"
-
-function basicAuth (neccessary) {
-  if (data.setup.token === '' && neccessary) {
-    // #todo add a better way to resolve invalid token input here
-    while (data.setup.token === '') {
-      inputToken()
-    }
-  }
-  return { headers: { Authorization: data.setup.token } }
-}
-
 async function delayedFetch (url, data) {
+  // see https://www.javascripttutorial.net/javascript-fetch-api/
   // see https://stackoverflow.com/questions/38956121/how-to-add-delay-to-promise-inside-then
+  let rootUrl = "https://api.pluralkit.me/v2"
   totalRequests++
   let num = totalRequests;
   currentRequests++
@@ -35,109 +40,33 @@ async function delayedFetch (url, data) {
     }
     console.log(`Setting up request ${totalRequests} with delay: ${waitFor} (${currentRequests} requests cued up)`)
     await new Promise(resolve => setTimeout(resolve, waitFor));
-    console.log(`Sending API request ${num}`);
-    let result = await fetch(url, data);
-    console.log(`Received API request ${num}`);
+    console.log(`Sending API request ${num} to ${url}`);
+    let result = await fetch(rootUrl + url, data);
+    console.log(`Received API request ${num} for ${url}`);
     currentRequests--
     return result;
   }
 }
-
-async function getSystemInfo (system = 'lhexq') {
-  let url = rootUrl + `/systems/${system}`
+async function fetchPkData (url) {
   try {
-    let res = await delayedFetch(url, basicAuth())
-    return await res.json();
-  } catch (error) {
-    console.log(error);
-  }
+    let response = await delayedFetch(url, getHeaders())
+    return await response.json();
+  } catch (error) { console.log(error) }
 }
-async function getMemberObjectList (system = 'lhexq') {
-  let url = rootUrl + `/systems/${system}/members`
-  try {
-    let res = await delayedFetch(url, basicAuth())
-    return await res.json();
-  } catch (error) {
-    console.log(error);
-  }
+function fetchSystemInfo (system = 'lhexq') {
+  return fetchPkData(`/systems/${system}`)
 }
-async function getMember (id = 'qkxux') { // Lucky's member ID
-  let url = rootUrl + "/members/" + id
-  try {
-    let res = await delayedFetch(url, basicAuth())
-    return await res.json();
-  } catch (error) {
-    console.log(error);
-  }
+function fetchMemberObjectList (system = 'lhexq') {
+  return fetchPkData(`/systems/${system}/members`)
 }
-
-async function newMember (callsign, details) {
-  // #todo combine with validate function/have those work together
-  let url = rootUrl + "/members"
-  let memberData = newMemberPkFromCallsign(callsign);
-  // #todo add details
-  let data = {
-    method: 'POST', // GET, POST, PUT, DELETE, etc.
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: basicAuth().headers.Authorization
-    },
-    body: JSON.stringify(memberData)
-  }  
-  // if alt, set entirely private
-  // if alt, add to group zdytf
-  try {
-    let res = await delayedFetch(url, data)
-    let pk = await res.json()
-    updatePkInfo(pk); // update current data with new member
-    return pk;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-async function reportBack (comment, data) {
-  // @todo test
-  let json = await data
-  if (!json) {
-    console.error(comment + ": " + "No value returned")
-  } else {
-    log(comment + ": " + pretty(json));
-  }
-}
-async function editMember (id, obj) {
-  let url = rootUrl + "/members/" + id
-  let etc = {
-    method: 'PATCH', // GET, POST, PUT, DELETE, etc.
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: basicAuth().headers.Authorization
-    },
-    body: JSON.stringify(obj)
-  }
-  try {
-    delayedFetch(url, etc).then(d => reportBack("Member edited", d.json()));
-    return true;
-  } catch (error) {
-    console.log(error);
-    return false;
-  }
-}
-
-async function setDisplayName (id, newName) {
-  return editMember(id, { display_name: newName })
+function fetchMemberInfo (id = 'qkxux') { // Lucky's member ID
+  return fetchPkData(`/members/${id}`)
 }
 
 // see https://pluralkit.me/api/endpoints/#switches
 async function getFronters (system = 'lhexq') {
-  let url = rootUrl + "/systems/" + system + "/fronters"
-  let etc = {
-    method: 'GET', // GET, POST, PUT, DELETE, etc.
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: basicAuth().headers.Authorization
-    }
-  }
+  let url = `/systems/${system}/fronters`
+  let etc = getHeaders(true, true, 'GET')
   try {
     let response = await delayedFetch(url, data)
     let fronters = await response.json()
@@ -148,54 +77,49 @@ async function getFronters (system = 'lhexq') {
     return { members: [] };
   }
 }
-// #todo rewrite
-async function isMember (m) {
-  if (!idFromCallsign(m)) {
-    let nm = await newMember(m);
-    return nm.id;
-  } else {
-    return idFromCallsign(m);
+
+async function newMember (callsign, details) {
+  // #todo combine with validate function/have those work together
+  let url = `/members`
+  let memberObj = { 'name' : "TEST" } // Name field is required
+  // #todo add details
+
+  let etc = getHeaders(true, true, 'POST', memberObj)
+
+  try {
+    let res = await delayedFetch(url, data)
+    let pk = await res.json()
+    updatePkInfo(pk); // update current data with new member
+    // #todo make new tile
+    return pk;
+  } catch (error) {
+    console.log(error);
   }
 }
-async function reportSwitch (active = getActive(), system = 'lhexq') {
 
-  // ONLY REPORT MAIN IDs, NEVER ALT IDs:
-  active = active.map(mainCallsign);
-  
-  function validateSwitch () {
-    let ok = true;
-    digits().forEach(d => {
-      if (occurs(active.join(''), d) > 1) {
-        error(`${d} cannot be in two fusions at once!`);
-        ok = false;
-      }
-    });
-    return ok;
-  }
-
-  if (validateSwitch()) {
-    try {
-      let idList = active.map(isMember);
-      let url = rootUrl + "/systems/" + system + "/switches"
-      Promise.all(idList).then(list => {
-        log("Reporting switch with IDs: " + list.join(', '));
-        let etc = {
-          method: 'POST', // GET, POST, PUT, DELETE, etc.
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: basicAuth(true).headers.Authorization
-          },
-          // #later support also timestamp?
-          body: JSON.stringify({ members: list })
-        }
-        delayedFetch(url, etc)
-      });
-      return true;
-    } catch (error) {
-      alert(error);
-      return false;
-    }
+async function reportBack (comment, data) {
+  // #todo test
+  let json = await data
+  if (!json) {
+    console.error(comment + ": " + "No value returned")
   } else {
-    return false;
+    log(comment + ": " + pretty(json));
   }
+}
+async function editMember (id, memberObj) {
+  let url = `/members/${id}`
+  let etc = getHeaders(true, true, 'PATCH', memberObj)
+  delayedFetch(url, etc).then(d => reportBack("Member edited", d.json()));
+}
+async function setDisplayName (id, newName) {
+  return editMember(id, { display_name: newName })
+}
+
+async function reportSwitch (active = getActive(), system = 'lhexq') {
+  let url = `/systems/${system}/switches`
+  log(`Reporting switch with IDs: ${active.join(', ')}`);
+  // #later also add timestamp in the object?
+  let etc = getHeaders(true, true, 'POST', { members: active })
+  log(`WIP - check that the above message has a list of member IDs`)
+  //delayedFetch(url, etc) // #todo double check and enable
 }

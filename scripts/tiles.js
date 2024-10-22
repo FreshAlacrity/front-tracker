@@ -52,7 +52,6 @@ function addHeadmateTile (pkId) {
   coin.appendChild(coinFace("back"));
 }
 
-// #todo update local variable name, using PK ID now instead of callsigns
 function updateHeadmateTile (pkId) {
   let pk = getPkObject(pkId);
   let idString = htmlIdStringByPkId(pkId);
@@ -141,8 +140,8 @@ function updateHeadmateTile (pkId) {
   return true;
 }
 
-// #todo use a list of member IDs instead
 function updateAllHeadmateTiles () {
+  // Only needs to be called when the whole member list is updated
   getMemberList().forEach(updateHeadmateTile);
 }
 

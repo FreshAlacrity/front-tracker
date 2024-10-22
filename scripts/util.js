@@ -1,17 +1,15 @@
 // In use by front-tracker
 const discordStringFromObj = pkData.objToHeaderList
 const pretty = pkData.prettyPrint
-const log = pkData.logger
+const log = console.debug.bind(window.console, "Front-Tracker:")
+const copy = pkData.copy
 
 // GENERAL UTILITIES
-
-
 function intersect(a, b) {
   // Return elements of array a that are also in b in linear time:
   // via https://stackoverflow.com/a/43820518
   return a.filter(Set.prototype.has, new Set(b));
 }
-function copy (obj) { return JSON.parse(JSON.stringify(obj)) }
 function assignDown (target, source) {
   // applies the properties from the source to the target, two levels down
   // assumes that the target already has all the keys the source does
@@ -116,9 +114,7 @@ function getMemberList () {
 // = Find Individual Member Data =
 function newMemberPkFromCallsign (callsign) {
   // #todo update
-  // #todo add defaults for alt accounts also  
-  // if alt, add a parenthetical to name with nickname from main
-  // #todo if alt has same name as main, add the alt suffix after the pk.name to avoid duplicates
+  // #todo add defaults for alt accounts also
   if (isMainProxy(callsign)) {
     return {
       name: callsign,
@@ -130,7 +126,7 @@ function newMemberPkFromCallsign (callsign) {
       "privacy": {
         "name_privacy": "private",
       },
-      description: fusionNote(callsign)
+      description: "..."
     }
   } else {
     // alt account
@@ -168,8 +164,9 @@ function getNickname (pk) {
   return regExFromDisplayName(/^([\w\s]+)(?= |$)/, pk, 1)
 }
 function getPronouns (pk) {
+  // #todo use function from pkData/handler.js instead
   // Note that this will break for names that don't follow the same pattern as our system if pronouns are not set
-  return pk.pronouns || /[^\w\s] ([\w\s\/]+)$/.exec(pk.display_name || pk.name)[1]
+  return pk.pronouns || "unknown pronouns"
 }
 function mainCallsign (callsign) {
   // #todo check if this is even needed, if so
@@ -255,7 +252,7 @@ function updatePkInfo (pk, noSave = false) {
 
   if (!noSave) {
     //log(`Saving member to localForage: ${pk.id}`)
-    localforage.setItem(pk.id, pk).catch(err => console.error);    
+    localforage.setItem(pk.id, pk).catch(function (err) { console.error(err) });
   }
 }
 async function updateDataFromMemberList (list = exported.members) {

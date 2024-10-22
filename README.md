@@ -48,6 +48,7 @@ Allows users of [Plural Kit](https://pluralkit.me/) to show, manage, analyse, an
   [3+, 478, 19-, -9] some fusion of Val but not any fusion of Aster and not Thorn specifically (but like 39 could see it) but if Milo is around it'll show up even if a Val fusion isn't around
 
 ### Later
+- how to handle if Alt + Main have identical vs different names
 - [ ] function + template generation for making new alt proxies
 - add a way to include non-system members (or show multiple systems) for contributor lists (like sweeties and artists)
 - output stats on how many members have what description headers (internal name translation etc) in edit mode

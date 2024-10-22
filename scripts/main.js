@@ -6,9 +6,10 @@ var data = {
     active_list: document.getElementById("active-list"),
     settings:    document.getElementById("controls"),
     toggles: {
-      available:   { action: updateOnToggle, default: true },
-      unavailable: { action: updateOnToggle },
-      live:        { action: toggleLive, default: false }, // #todo revert this to true for
+      available:   { action: updatePage, default: true },
+      unavailable: { action: updatePage },
+      live:        { action: toggleLive, default: true }, // #todo revert this to true for live version
+      local:       { action: updatePage, default: true }, // #todo revert this to true for live version
       editing:     { action: toggleEditing  }
     }
   },
@@ -31,12 +32,8 @@ var data = {
 function saveToken (input) {
   data.setup.token = input;
   localforage.setItem('token', input).then(function (value) {
-      // Do other things once the value has been saved.
-      log("Token saved to local storage");
-  }).catch(function(err) {
-      // This code runs if there were any errors
-      log(err);
-  });
+    log("Token saved to local storage");
+  }).catch(function (err) { console.error(err) });
 }
 
 function inputToken () {
@@ -59,17 +56,17 @@ function clearToken () {
   localforage.removeItem('token').then(function() {
       // Run this code once the key has been removed.
       alert("Token cleared.");
-  }).catch(function(err) {
-      // This code runs if there were any errors
-     alert("Issue clearing token: " + err);
-  });  
+  }).catch(function (err) { console.error(err) });
 }
 
 function toggleEditing () {
   // #todo #later
+  log(`WIP - edit mode currently not implemented`)
 }
 
 function init () {
+  pkData.hello()
+
   // Build/setup for the interactive parts of the UI
   function makeCheckboxes () {
     // #todo add more informative titles + labels for the checkboxes
@@ -99,37 +96,58 @@ function init () {
       }
     });
   }
+  function loadFromPk () {
+    if (getToggle("live")) {
+      log("Loading all members directly from PK");
+      fetchMemberObjectList().then(list => {
+        list.forEach(pk => { updatePkInfo(pk) });
+        updateAllHeadmateTiles()
+        activeListInput() // also updates the page
+        log("PluralKit member data loaded through via API")
+      }).catch(function (err) { console.error(err) });
+    } else {
+      log("Loading remote data prevented setting 'live=false'");
+    }
+  }
+  async function loadLocal () {
+    if (getToggle("local")) { 
+      log("Loading locally cached member data")
+      // load any member objects that have been cached
+      await localforage.iterate(function (data, key, iterationNumber) {
+        if (key !== "token") {
+          // currently all non-token values saved to storage are pk member objects
+          updatePkInfo(data, true); // bool prevents immediately re-saving
+        } else {
+          if (validateToken(data)) { 
+            log("Saved token validated");
+            saveToken(data);
+          } else {
+            log("Saved token invalid");
+          }
+        }
+      })
+      updateAllHeadmateTiles()
+      activeListInput() // also updates the page
+      log("Locally cached member data loaded")
+      return true
+    } else {
+      log("Loading local data prevented setting 'local=false'");
+      return false
+    }
+  }
 
   makeCheckboxes();
   addListInputListener();
+  loadUrlParameters(); // can we do this ahead of the checkboxes, so those reflect url values when they load?
+  
+  // Load in local data first in case it contains a token used to authenticate PK API calls
+  loadLocal().then(r => {
+      loadFromPk()
 
-  // make the base member list and add tiles for each member
-  // #todo make this dynamic so it adds a tile for each PK ID instead
-  sortByCallsign(makeInitialList()).forEach(addHeadmateTile)
-  loadUrlParameters();
-
-  // load any member objects that have been cached
-  localforage.iterate(function (pk, id, iterationNumber) {
-      if (id !== "token") {
-        // currently all non-token values saved to storage are pk member objects
-        updatePkInfo(pk, true); // bool prevents immediately re-saving
-      } else {
-        if (validateToken(pk)) { 
-          log("Saved token validated");
-          saveToken(pk);
-        } else {
-          log("Saved token invalid");
-        }
-      }
-    }).then(function () {
-      updateAllHeadmateTiles();
-      activeListInput();
-      log("Locally cached member data loaded"); // #todo #debug
-    }).catch(err => { console.error(err) })
-
-    // load in from PK and update tiles unless that's actively prevented
-    if (getToggle("live")) { loadFromPk() } else {
-      log("Loading remote data prevented setting 'live=false'");
-    }
+      // Test functions can go here for now:
+      
+      
+    })
+  
 }
 init()
