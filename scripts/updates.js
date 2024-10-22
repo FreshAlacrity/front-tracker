@@ -73,18 +73,16 @@ function loadFromPk () {
   getMemberObjectList().then(loadFromPkMemberList);
 }
 function loadUrlParameters (localForageSuccessBool) {
+  function paramValue (urlParams, key) {
+    // decodes the encoding that updateUrl uses
+    // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent
+    return decodeURIComponent(urlParams.get(key).replace(/\+/g, " "));
+  }
+
   // Stores applicable url parameter values to data.page properties
   // see https://codepen.io/eahartmann/pen/bGvaMvy
   const urlParams = new URLSearchParams(window.location.search);
   
-  if (urlParams.has('token')) {
-    if (validateToken(urlParams.get('token'))) {
-      saveToken(urlParams.get('token'))
-    } else {
-      error("Invalid token in URL parameters")
-    }
-  }
-
   let viewing = "active"; // default value
   if (urlParams.has('show')) { viewing = urlParams.get('show') }
   //`?show=active/available/all`

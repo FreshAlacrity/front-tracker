@@ -44,12 +44,6 @@ function remove (arr, value) {
   }
   return arr;
 }
-
-function paramValue (urlParams, key) {
-  // decodes the encoding that updateUrl uses
-  // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent
-  return decodeURIComponent(urlParams.get(key).replace(/\+/g, " "));
-}
 function splitByEach (string, breakAt = ", ") {
   let br = '<!split!>'
   return replaceEach(string, breakAt, br).split(br).filter(a => (a !== ''));
