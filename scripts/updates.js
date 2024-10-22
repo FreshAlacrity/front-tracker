@@ -24,6 +24,31 @@ function activeListInput () {
   }
 }
 function updatePage (overrideList = []) {
+  function updateUrl (paramsObj = {}) {
+    // Set new url parameters
+
+    // #todo set as params anything that is not set to defaults
+    // #later check to make sure there's no '#' in any of the paramsObj values (why?)
+    let params = new URLSearchParams(window.location.search)
+    for (const [key, value] of Object.entries(paramsObj)) {
+      if (value !== '') {
+        let encodedKey = encodeURIComponent(key, "UTF-8");
+        let encodedVal = encodeURIComponent(value, "UTF-8");
+        params.set(encodedKey, encodedVal);
+      } else {
+        params.delete(key)
+      }
+    }
+
+    // see https://stackoverflow.com/questions/824349/how-do-i-modify-the-url-without-reloading-the-page
+    // and https://stackoverflow.com/questions/13348766/securityerror-the-operation-is-insecure-window-history-pushstate
+    if (window.location.origin == "null") {
+      log(`Running locally; url params would have been set to ${params.toString()}`)
+    } else {
+      let url = `${window.location.origin}${window.location.pathname}?${params.toString()}`
+      window.history.pushState({}, 'New Page Title Here #todo', url) // this causes an error when running locally
+    }
+  }
   updateTileClasses(overrideList);
 
   let show = "active"
@@ -222,3 +247,4 @@ function nameChange (event) {
     }
   }
 }
+
