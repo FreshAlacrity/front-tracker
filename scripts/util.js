@@ -4,9 +4,8 @@ const pretty = pkData.prettyPrint
 const log = pkData.logger
 
 // GENERAL UTILITIES
-function quickTest (t1, t2, comment) {
-  console.assert(t1 === t2, `${comment}failed: ${pretty(t1)} should be equal to ${pretty(t2)}`);
-}
+
+
 function intersect(a, b) {
   // Return elements of array a that are also in b in linear time:
   // via https://stackoverflow.com/a/43820518
@@ -24,10 +23,6 @@ function assignDown (target, source) {
     }
   }
   return n
-}
-function reflow () {
-  // see https://gist.github.com/paulirish/5d52fb081b3570c81e3a
-  let foo = window.scrollX;
 }
 function remove (arr, value) {
   // source: https://stackoverflow.com/a/5767357

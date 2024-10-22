@@ -31,14 +31,10 @@ const pkData = (function () {
         return longString
       }
     }
-    /**
-     * Logs things in the standard format for this library so it's clear where the error came from.
-     * @param {...*} - any number of inputs to be logged as a single entry
-     * @returns {*} the first parameter, to be used for inline debugging
-     */
-    function titledLog (input) {
-      // Is there a way to get this to show the line where it was called from, instead of the line it's declared on?
+    
+    function setLogFunction (fn) {
       /*
+      Reference:
       console.groupCollapsed("log examples:")
       console.log("log");
       console.debug("debug");
@@ -57,23 +53,24 @@ const pkData = (function () {
       console.warn("warn")
       console.groupEnd()
       // remember also console.log("foo", {var}) gives more information about var
-      */
-      console.log([...arguments].map(pretty).join(' '))
-      return input
-    }
 
-    function setLogFunction (fn) {
+      example:
+      let t1 = 1
+      let t2 = 2
+      console.assert(t1 === t2, `${comment}failed: ${pretty(t1)} should be equal to ${pretty(t2)}`);
+
+      */
       if (typeof fn == "function") {
         this.log = fn
         log = fn // #later figure out how/why this works without setting it up as a global first
       } else {
         // Reset to original function
-        this.log = console.debug
+        this.log = console.debug.bind(window.console, "PkData:")
         log = titledLog
         throw new TypeError(`This is not a function - ${typeof fn} ${JSON.stringify(fn)}; log function reset to default`)
       }
     }
-    setLogFunction(console.debug) // set the initial log function
+    setLogFunction(console.debug.bind(window.console, "PkData: ")) // set the initial log function
 
     function sayHello () { log("pkData library loaded - current version: 0.1 (unstable)") }
 

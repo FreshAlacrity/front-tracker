@@ -1,6 +1,11 @@
+function reflow () {
+  // Currently unused, but may come in handy; triggers DOM reflow
+  // see https://gist.github.com/paulirish/5d52fb081b3570c81e3a
+  let foo = window.scrollX;
+}
 function showMessage (text) {
   // #later have this show on the page in a designated area and support different background colors
-  log(text)
+  console.info(text)
 }
 function loadFronters () {  
   getFronters().then(d => {  
