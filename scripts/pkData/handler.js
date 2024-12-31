@@ -1,7 +1,12 @@
+
+// pkData Mini Library
 // see https://github.com/FreshAlacrity/pluralkit-data-handler
 
 // #TODO
 /*
+- move all todos here and in readme to Issues
+- get async shit working and update everything to use the syntax above
+- getAll especially needs to be async
 - write more unit tests
 - make sure every function is used somewhere or returned as a property
 - pull PK API functions into this and make those their own sub-library
@@ -9,6 +14,28 @@
 - remember that how tokens etc are stored varies between here and the Butler
 - separate out the functions we use to extend members as a sub-library (for example, nickname and callsign functions)
 */
+/*
+## Init
+
+### #later Pass in functions to use for: 
+- load and save
+- API calls (should return either JSON or true, else throw an error)
+- logging
+*/
+/*
+## Syntax: 
+- `checkFoo()` retrieves the currently loaded value (or maybe `peekFoo()`?)
+- `updateFoo()` will update the currently loaded value (or maybe `pokeFoo()`?)
+- `loadFoo()` is async and will load from localForage etc
+- `saveFoo()` is async and will save to localForage etc
+- `fetchFoo()` is async and will always use the API
+- `pushFoo()` is async and will always use the API
+- `getFoo()` is async will use localForage (if present) or the API (as a fallback)
+- `setFoo()` will store to loaded values, localForage, *and* push to the API
+- `importFoo()` is async and will prompt the user to select a file to import (if possible) or prompt for pasted data
+- `exportFoo()` is async and will export a file (if possible) or offer contents to copy/paste
+*/
+
 
 const pkData = (function () {
   /* INTERNAL GLOBALS */
@@ -32,6 +59,8 @@ const pkData = (function () {
       }
     }
     
+    // #todo fix this so it works in Apps Script too
+    // var log = console.log.bind(console, "PkData: ")
     var log = console.debug.bind(window.console, "PkData: ")
     function setLogFunction (fn) {
       /*
@@ -195,6 +224,9 @@ const pkData = (function () {
       // Object must have a id or uuid to match to previous record
       let matchBy = obj.id ? 'id' : 'uuid'
 
+      // Todo check that there are existing objects of this type in the system
+      // #todo error if there are none (for example, if this is called before that data is loaded)?
+
       // Check that there's one and only one existing entry that matches this one
       let count = countMatching(systemId, type, obj)
       if (!count == 1) {
@@ -313,7 +345,7 @@ const pkData = (function () {
       return getGroupMemberObjects(getSwitch(systemId, switchNum));
     }
 
-    // Format any linked properties into a hyperlink
+    // Formats any linked properties into a hyperlink
     // @author August
     function makeLinks (obj) {
       let linked = Object.keys(obj).filter(h => Object.keys(obj).includes(h + " Link"));
@@ -323,48 +355,17 @@ const pkData = (function () {
       })
       return obj;
     }
-
+    
     // @author June
     // @author Hall
-    /*
-    // Previous version
-    function objFromDescription (string) {
-      let d = {};
-      if (string) {
-        string.split('\n**').slice(1).forEach(n => {
-          let pairs = n.split('**: ');
-          d[pairs[0]] = pairs.slice(1).join("**: ");
-        });
-      }
-      return d;
-    }
-    */
     function objFromDescription (string, intro = "Intro") {
-      // #later rewrite (use regex?)
-      let d = {};
-      if (string) {
-        let parts = string.split('\n**')
-        d[intro] = '';
-        parts.forEach(n => {
-          let pairs = n.split('**: ');
-          if (pairs.length < 2) {
-            d[intro] += pairs[0]
-          } else {
-            // Check that the key doesn't have a preceeding ** from not having an intro
-            key = pairs[0]
-            if (key.slice(0, 2) == "**") { key = key.slice(2) }
-
-            // Why the join here? -Hall
-            text = pairs.slice(1).join("**: ");
-
-            d[key] = text
-          }
-        });
-      }
+      let r = /\*\*(.+?)[\*:]{3}(.+)\n/g
+      let m = `**${intro}:** ${string}\n`.matchAll(r)
+      m = m.map(p => [p[1], p[2].trim()])
+      
       // Format any linked properties into a hyperlink
-      d = makeLinks(d);
-      return d;
-    }
+      return makeLinks(Object.fromEntries(m));
+    } 
 
     // @author August
     function listThese (descObj, headers = [], include = false, tail = "\n\n") {
@@ -410,9 +411,9 @@ const pkData = (function () {
      * @returns {Array<Object>} group objects for every group that member belongs to
      * @author Myr
      */
-    function getMemberGroups (id = "uioxq") {
-      let pk = getById("member", id);
-      let groups = getValue("groups");
+    function getMemberGroups (systemId, id = "uioxq") {
+      let pk = getById(systemId, "members", id);
+      let groups = getValue(systemId, "groups");
       return groups.filter(g => {
         return (g.members.includes(pk.id) || g.members.includes(pk.uuid))
       })
@@ -497,11 +498,12 @@ const pkData = (function () {
 }())
 
 // Aliases used by in pkButler
-// #todo test and later set these up to use the names directly
+// #todo test
 const systemId = "exmpl" //webhooks.pk.system // for Butler
 const headerList = pkData.headerList
 const objFromDescription = pkData.headerListToObj
 const clearSystemData = pkData.clearAll
+const checkGlobal = pkData.checkAll.bind(pkData, systemId)
 const setGlobal = pkData.setAll.bind(pkData, systemId)
 const getGlobal = pkData.getAll.bind(pkData, systemId)
 const getGroups = pkData.getAll.bind(pkData, systemId, "groups")

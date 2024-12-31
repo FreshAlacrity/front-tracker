@@ -7,6 +7,8 @@ Allows users of [Plural Kit](https://pluralkit.me/) to show, manage, analyse, an
  #todo: move these to Issues page instead
 
 ### Next
+- update pkData to use the planned syntax
+- make any functions that use API or localStorage calls async
 - [ ] add the URL parameter to the page for showing active fronters when that button is clicked
 - [ ] see what special characters are safe for url params and make sure there's a function to make them safe/convert back
 
