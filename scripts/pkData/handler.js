@@ -59,9 +59,7 @@ const pkData = (function () {
       }
     }
     
-    // #todo fix this so it works in Apps Script too
-    // var log = console.log.bind(console, "PkData: ")
-    var log = console.debug.bind(window.console, "PkData: ")
+    var log = console.log.bind(console, "PkData: ")
     function setLogFunction (fn) {
       /*
       Reference:
@@ -91,9 +89,7 @@ const pkData = (function () {
 
       */
       if (typeof fn != "function") {
-        // Reset to original function
-        throw new TypeError(`This is not a function - ${typeof fn} ${JSON.stringify(fn)}; log function reset to default`)
-        fn = console.debug.bind(window.console, "PkData:")
+        throw new TypeError(`Incorrect type passed to set as log function:\n${typeof fn}\n${JSON.stringify(fn)}`)
       }
     
       this.log = fn
@@ -282,7 +278,7 @@ const pkData = (function () {
     }
 
     function getValue (systemId, type) {
-      // Will only return a list with 0 entries if that's what it gets from the API etc
+      // Will only return a list with 0 entries if that's what it gets from the API
       checkId({ "id": systemId })
       log(`Getting ${type} for system with id ${systemId}`)
 
@@ -481,14 +477,13 @@ const pkData = (function () {
     'updateEntry': updateEntryByType,
     'hasEntry': checkIfEntryExists,
     'setAll': setValue,
-    'checkAll': checkValue, // returns what's stored, will never fetch api data
-    'getAll': getValue, // will fetch API data if it hasn't been loaded already
-    // #todo need a function to force loading API data
+    'checkValue': checkValue,
+    'getAll': getValue,
+    'getByName': getByName, // params: sysid, type, name
+    'getById': getById, // params: sysid, type, id or uuid
     
     /* SPECIALIZED */
-    'getMemberGroups': getMemberGroups, // rename? make member property? #todo
-    'objectFromName': getByName, // params: type, name
-    'objectFromId': getById,
+    'getMemberGroups': getMemberGroups,
 
     /* DESCRIPTIONS */
     'headerList': listThese,
@@ -498,20 +493,18 @@ const pkData = (function () {
 }())
 
 // Aliases used by in pkButler
-// #todo test
-const systemId = "exmpl" //webhooks.pk.system // for Butler
+const SYSTEM_ID = "lhexq"
 const headerList = pkData.headerList
 const objFromDescription = pkData.headerListToObj
 const clearSystemData = pkData.clearAll
-const checkGlobal = pkData.checkAll.bind(pkData, systemId)
-const setGlobal = pkData.setAll.bind(pkData, systemId)
-const getGlobal = pkData.getAll.bind(pkData, systemId)
-const getGroups = pkData.getAll.bind(pkData, systemId, "groups")
-const getSwitches = pkData.getAll.bind(pkData, systemId, "switches")
-const updateGroupInGlobals = pkData.updateEntry.bind(pkData, systemId, "groups")
-const updateMemberInGlobals = pkData.updateEntry.bind(pkData, systemId, "members")
-const hasEntry = pkData.hasEntry.bind(pkData, systemId)
-const getById = pkData.objectFromId.bind(pkData, systemId)
-const getByName = pkData.objectFromName.bind(pkData, systemId)
-const getMemberGroups = pkData.getMemberGroups.bind(pkData, systemId)
-
+const checkGlobal = pkData.checkValue.bind(pkData, SYSTEM_ID)
+const setGlobal = pkData.setAll.bind(pkData, SYSTEM_ID)
+const getGlobal = pkData.getAll.bind(pkData, SYSTEM_ID)
+const getGroups = pkData.getAll.bind(pkData, SYSTEM_ID, "groups")
+const getSwitches = pkData.getAll.bind(pkData, SYSTEM_ID, "switches")
+const updateGroupInGlobals = pkData.updateEntry.bind(pkData, SYSTEM_ID, "groups")
+const updateMemberInGlobals = pkData.updateEntry.bind(pkData, SYSTEM_ID, "members")
+const hasEntry = pkData.hasEntry.bind(pkData, SYSTEM_ID)
+const getById = pkData.getById.bind(pkData, SYSTEM_ID)
+const getByName = pkData.getByName.bind(pkData, SYSTEM_ID)
+const getMemberGroups = pkData.getMemberGroups.bind(pkData, SYSTEM_ID)
