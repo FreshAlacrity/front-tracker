@@ -65,9 +65,7 @@ Allows users of [Plural Kit](https://pluralkit.me/) to show, manage, analyse, an
 - [ ] (Low Priority) When using CTRL + click on a fused headmate, pull up a popup that shows split options/previews the split (that disappears when CTRL is released - split to digits - or an option is clicked)
 - [ ] add a color picker for member colors
   - see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/color
-- [ ] search by emojis and emoji names
-  - how to allow search by near miss?
-- allow inputting a Picrew URL and auto download + crop avatar from image on that page (would still need to be uploaded somewhere, but a preview + crop function could be nice?)
+- [ ] allow inputting a Picrew URL and auto download + crop avatar from image on that page (would still need to be uploaded somewhere, but a preview + crop function could be nice?)
 
 #### UI & Styling
 - [ ] fix background colors to work with * proxies
@@ -76,8 +74,6 @@ Allows users of [Plural Kit](https://pluralkit.me/) to show, manage, analyse, an
 - [ ] plaintext/screen reader friendsly mode that loads no images
 - [ ] dots around the rim in 12 hour clock positions for digits
   - [ ] test out doing sigil-style connections between them over portraits and for members with no portrait
-- [ ] 
-  - [ ] 
 - [ ] styling for alt portraits for members with no unique alt profile image
   - [ ] CSS class for this
   - [ ] decide on an effect
