@@ -24,12 +24,13 @@
 */
 /*
 ## Syntax: 
-- `checkFoo()` retrieves the currently loaded value (or maybe `peekFoo()`?)
-- `updateFoo()` will update the currently loaded value (or maybe `pokeFoo()`?)
+- `peekFoo()` retrieves the currently loaded value
+- `pokeFoo()` will update the currently loaded value
 - `loadFoo()` is async and will load from localForage etc
 - `saveFoo()` is async and will save to localForage etc
 - `fetchFoo()` is async and will always use the API
 - `pushFoo()` is async and will always use the API
+- `updateFoo()` will update the currently loaded value, then push to API
 - `getFoo()` is async will use localForage (if present) or the API (as a fallback)
 - `setFoo()` will store to loaded values, localForage, *and* push to the API
 - `importFoo()` is async and will prompt the user to select a file to import (if possible) or prompt for pasted data
@@ -122,7 +123,7 @@ const pkData = (function () {
       }
     }).join("\n")
   }
-  function checkId(systemObj) {
+  function checkForId(systemObj) {
     // Note that systems (and members and groups etc) can both have a uuid instead
     // The API can use ID, UUID, or the ID of a Discord account linked to the system, so really any of those should work for this purpose
     // #later maybe add support for those, not now :)
@@ -130,19 +131,19 @@ const pkData = (function () {
     if (!systemObj['id']) { throw new TypeError(`No id found in system object: ${systemDataReport(systemObj)}`) }
     return systemObj && systemObj['id']
   }
-  function listSystemIds() { return Object.keys(SYSTEM_STORAGE) }
-  function isStored(systemObj) { return !!SYSTEM_STORAGE[systemObj["id"]] }
-  function overrideSystemData(systemObj) {
-    checkId(systemObj)
-    // If a system object was entered, overwrite the system data entirely using a copy of that object
-    SYSTEM_STORAGE[systemObj['id']] = copy(systemObj)
-    return SYSTEM_STORAGE[systemObj['id']];
-  }
   function clearSystemData(systemId) {
-    checkId({ "id": systemId })
     return overrideSystemData({
       "id": systemId
     })
+  }
+  const newSystem = clearSystemData
+  function listSystemIds() { return Object.keys(SYSTEM_STORAGE) }
+  function isStored(systemObj) { return !!SYSTEM_STORAGE[systemObj["id"]] }
+  function overrideSystemData(systemObj) {
+    checkForId(systemObj)
+    // If a system object was entered, overwrite the system data entirely using a copy of that object
+    SYSTEM_STORAGE[systemObj['id']] = copy(systemObj)
+    return SYSTEM_STORAGE[systemObj['id']]
   }
   function clearAllSystemData(systemId) { SYSTEM_STORAGE = {} }
 
@@ -160,41 +161,33 @@ const pkData = (function () {
       return `${m.id || m.uuid || m.timestamp}`
     }
   }
-  function setValue(systemId, type, data) {
+  function require(systemId) {
+    if (!isStored({ id: systemId })) {
+      throw new ReferenceError(`System with id "${systemId}" not found (use pkData.newSystem(systemId) to initialize)`)
+    }
+  }
+  function pokeAt(systemId, type, data) {
+    require(systemId)
     // Overrides values
     //log(`Setting ${type} ${about(data)}`) // makes a LOT of logs on import
     let newData = copy(data)
-    let systemStored = Object.hasOwn(SYSTEM_STORAGE, systemId)
-    if (!systemStored) {
-      log(`System with id ${systemId} not found in storage, adding it now...`)
-      SYSTEM_STORAGE[systemId] = {}
-    }
     SYSTEM_STORAGE[systemId][type] = newData;
     return newData;
   }
-  function checkValue(systemId, type) {
-    // Will not go fetch new data
-    let systemStored = Object.hasOwn(SYSTEM_STORAGE, systemId)
-    if (!systemStored) {
-      throw new Error(`System with id ${systemId} not found in storage`)
-    } else {
-      let typeStored = Object.hasOwn(SYSTEM_STORAGE[systemId], type)
-      if (!typeStored) {
-        throw new Error(`No ${type} data stored for system with id ${systemId}`)
-      } else {
-        return SYSTEM_STORAGE[systemId][type]
-      }
-    }
+  function peekAt(systemId, type) {
+    require(systemId)
+    // Only looks at previously loaded values, will not go fetch new data
+    return SYSTEM_STORAGE[systemId][type]
   }
   function getIndexOfMatch(systemId, type, obj, matchBy = "id") {
-    return checkValue(systemId, type).map(m => m[matchBy]).indexOf(obj[matchBy])
+    return peekAt(systemId, type).map(m => m[matchBy]).indexOf(obj[matchBy])
   }
   function countMatching(systemId, type, obj) {
     let matchBy = obj.id ? 'id' : 'uuid'
     if (!obj[matchBy]) {
       throw new TypeError(`This object has no id or uuid value:\n${pretty(obj)}`)
     }
-    let currentList = checkValue(systemId, type)
+    let currentList = peekAt(systemId, type)
     if (!currentList || !Array.isArray(currentList)) {
       throw new TypeError(`Trying to look for matches, but this isn't an array:\n${pretty(currentValue)}`)
     }
@@ -206,12 +199,12 @@ const pkData = (function () {
   }
   function addEntry(systemId, type, m) {
     log(`Adding ${type} ${about(m)}`) // temp #todo remove
-    let currentValue = checkValue(systemId, type)
+    let currentValue = peekAt(systemId, type)
     if (!Array.isArray(currentValue)) {
       throw new TypeError(`Trying to add an entry, but this isn't an array:\n${pretty(currentValue)}`)
     }
     currentValue.push(m) // Remember that this returns *length* of new array
-    setValue(systemId, type, currentValue)
+    pokeAt(systemId, type, currentValue)
     return true
   }
   function updateEntryObject(oldEntry, newObj) {
@@ -252,39 +245,37 @@ const pkData = (function () {
     } else {
       let index = getIndexOfMatch(systemId, type, obj)
       log(`Updating ${type} ${about(obj)} at index ${index}`)
-      let currentList = checkValue(systemId, type)
+      let currentList = peekAt(systemId, type)
       obj = updateEntryObject(currentList[index], obj)
       currentList[index] = obj
-      setValue(systemId, type, currentList)
+      pokeAt(systemId, type, currentList)
     }
     return obj // this now includes any data that was present but not overwritten
   }
   function exportSystemData(systemId = listSystemIds()[0]) {
-    if (isStored({ id: systemId })) {
-      return copy(SYSTEM_STORAGE[systemId])
-    } else {
-      throw new ReferenceError(`System with id "${systemId}" not found`)
-    }
+    require(systemId)
+    // #later, remove token from system data if included?
+    return copy(SYSTEM_STORAGE[systemId])
   }
   function importSystemData(systemObj) {
-    checkId(systemObj)
+    checkForId(systemObj)
 
     // Get the system Id from the object
     let systemId = systemObj['id']
 
     // If this system has not been previously imported, start with a clean slate
-    if (!isStored(systemObj)) { clearSystemData(systemId) }
+    if (!isStored(systemObj)) { newSystem(systemId) }
 
     // Add without overwriting
     for ([type, data] of Object.entries(systemObj)) {
       // If there are any stored values for lists, merge them
       // note: this should include the properties "accounts", "switches", "groups", "members"
 
-      let currentValue = checkValue(systemId, type)
+      let currentValue = peekAt(systemId, type)
       if (Array.isArray(data) && currentValue && currentValue.length != 0) {
         data.forEach(entry => updateEntryByType(systemId, type, entry))
       } else {
-        setValue(systemId, type, data)
+        pokeAt(systemId, type, data)
       }
     }
 
@@ -293,15 +284,19 @@ const pkData = (function () {
   }
 
   function getValue(systemId, type) {
-    // Will only return a list with 0 entries if that's what it gets from the API
-    checkId({ "id": systemId })
+    // Will only return a list with 0 entries for somewthing that can be fetched through the API if that's what it gets from the API #todo
+    require(systemId)
     log(`Getting ${type} for system with id ${systemId}`)
 
     // If the data isn't present and can be gotten through the API, fetch it using an API call instead
-    let stored = checkValue(systemId, type)
-    let canFetch = ["switches", "groups", "members"] // #todo expand these when API functions are included
+    let stored = peekAt(systemId, type)
+    let canFetch = [] // ["switches", "groups", "members"] // #todo expand these when API functions are included
     if (!stored && canFetch.includes(type)) {
+      // #todo this needs to be async and similarly every use of getValue needs to be as well
+      log("API CALLS NOT IMPLEMENTED YET, WIP")
       return fetchSystemData(systemId, type)
+    } else if (!stored) {
+      throw new Error(`No ${type} data stored for system with id ${systemId}`)
     } else {
       return stored;
     }
@@ -473,15 +468,16 @@ const pkData = (function () {
     'hello': sayHello,
     'prettyPrint': pretty,
     'copy': copy,
-    'exportSystem': exportSystemData, // note that this is not the same as the PK system export, but maybe it could be?
-    'clearSystem': clearSystemData,
-    'clearAll': clearAllSystemData, // deletes everything stored for all systems
+    'exportSystem': exportSystemData, // note that this is not the same as the PK system export #later see if we can make that happen
+    'newSystem': clearSystemData,
+    'clearSystem': clearSystemData, // #later differentiate from newSystem?
+    'clearAll': clearAllSystemData, // WARNING: deletes everything stored for all systems
 
     /* SYSTEMS */
     'listSystemIds': listSystemIds,
 
     /* SYSTEM DATA (all expect system object as the first parameter) */
-    'checkId': checkId,
+    'checkId': checkForId,
     'describe': systemDataReport,
     'importSystem': importSystemData,
     'overrideSystem': overrideSystemData,
@@ -491,8 +487,8 @@ const pkData = (function () {
     'addEntry': addEntry,
     'updateEntry': updateEntryByType,
     'hasEntry': checkIfEntryExists,
-    'setAll': setValue,
-    'checkValue': checkValue,
+    'setAll': pokeAt,
+    'checkValue': peekAt,
     'getAll': getValue,
     'getByName': getByName, // params: sysid, type, name
     'getById': getById, // params: sysid, type, id or uuid
