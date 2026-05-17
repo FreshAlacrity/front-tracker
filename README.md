@@ -11,6 +11,8 @@ Names and callsigns will pull up members; adding a + to a callsign or name will 
  #todo: move these to Issues page instead
 
 ### Next
+- [ ] log to toasts (for now)
+- [ ] put UI functions in their own file
 - get it working again
   - [x] problem seems to be with url params? yeah, identified and commented it out
   - [x] new problem: clearing local storage isn't working effectively
@@ -19,12 +21,12 @@ Names and callsigns will pull up members; adding a + to a callsign or name will 
     - it can be, by toggling on and off the 'live' checkbox to run loadFromPk()
     - member list shown is a system model
       - disable the system model, just show the existing member list
-- show what headers are commonly in descriptions
+- [ ] set up a unique prefix for each file and wrap the functions within it so for example makeCheckboxes() becomes ui.makeCheckboxes()
 - [ ] add the URL parameter to the page for showing active fronters when that button is clicked
 - [ ] add a "donate"/<3 button and link it to Patreon (for now)
 - [ ] add a "View Source" button and link to the repository
 - [ ] Have one button for sign in/sign out and change the button text based on if a valid token is active
-- [ ] get levenstein name recognition from active list working
+- [ ] get Levenshtein distance name recognition from active list working
 - [ ] better names for checkbox toggles, so available -> "Show members available to front" etc
 
 ### Support for Other Systems
