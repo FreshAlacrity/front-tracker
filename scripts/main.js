@@ -28,11 +28,6 @@ var data = {
   ids_by_ref: {}
 }
 
-
-function toggleEditing () {
-  // #todo #later
-}
-
 function init () {
   ui_setFooter("Footer Test");
   info("Welcome");
