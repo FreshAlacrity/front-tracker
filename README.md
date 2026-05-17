@@ -11,7 +11,8 @@ Names and callsigns will pull up members; adding a + to a callsign or name will 
 
 ### Next
 - [ ] log to toasts (for now)
-- [ ] put UI functions in their own file
+- [x] put UI functions in their own file
+  - [ ] all DOM interactions should go here eventually
 - get it working again
   - [x] problem seems to be with url params? yeah, identified and commented it out
   - [x] new problem: clearing local storage isn't working effectively
