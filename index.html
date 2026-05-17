@@ -251,6 +251,24 @@ animation: fadein 0.5s, fadeout 0.5s 2.5s;
 
   </style>
   <script src="https://freshalacrity.github.io/misc/localforage.js"></script>
+</head>
+
+<body>
+  <div id="controls">
+    <input type="text" class="search" id="active-list" onkeyup="" placeholder="<depreciated>">
+    <button onclick="resetList()">Reset</button>
+    <button onclick="reportSwitch()">Log Switch</button>
+    <button onclick="loadFronters()">Get Fronters</button>
+    <button onclick="clearLocalData()">Clear Local Data</button>
+    <button onclick="inputToken()">Sign In</button>
+    <button onclick="clearToken()">Sign Out</button>
+    <button onclick="window.open('https://github.com/FreshAlacrity/front-tracker/issues/new', '_blank')">Report Bug/Make Suggestion</button>
+  </div>
+  <div id="members"></div>
+  <footer id="footer">Footer</footer>
+</body>
+
+</html>
   <script>
     // START UTILITIES
 function pretty (obj) {
@@ -353,7 +371,7 @@ function seeded (s) {
   // var random1 = seeded(42);
   // var random2 = seeded(random1());
   // Math.random = seeded(random2());
-  // ^ that last may cause serious issues but could also be handy  
+  // ^ that last may cause serious issues but could also be handy
   return function () {
     // tinkering with the number of 0s can tweak the distribution
     s = Math.sin(s) * 10000; return s - Math.floor(s);
@@ -386,11 +404,11 @@ function sortByCallsign (arr) {
     function c (d, i) {
       return digitIndex((d + '').charAt(i));
     }
-    if (x.length !== y.length) { 
-      return x.length - y.length; 
+    if (x.length !== y.length) {
+      return x.length - y.length;
     } else {
       for(i = 0; i <= x.length; i++){
-        if (c(x, i) !== c(y, i)) { 
+        if (c(x, i) !== c(y, i)) {
           return c(x, i) - c(y, i);
         }
       }
@@ -430,7 +448,7 @@ function updatedDescription (pk) {
 }
 function newMemberPkFromCallsign (callsign) {
   // #todo update
-  // #todo add defaults for alt accounts also  
+  // #todo add defaults for alt accounts also
   // if alt, add a parenthetical to name with nickname from main
   // #todo if alt has same name as main, add the alt suffix after the pk.name to avoid duplicates
   if (isMainProxy(callsign)) {
@@ -466,8 +484,8 @@ function regExFromDisplayName (exp, pk, index = 0) {
   let fallback = "Unknown {?} they/them"
   let name = pk.display_name || pk.name || fallback;
   let match = exp.exec(name)
-  if (match && match[index]) { 
-    return match[index] 
+  if (match && match[index]) {
+    return match[index]
   } else {
     log(`Using fallback value for ${name} with regex ${exp}`)
     return exp.exec(fallback)[index]
@@ -529,15 +547,15 @@ function getSideSibsList (cs) {
 }
 function getAllSibsList (cs) {
   let h = data.structure.relatives;
-  if (!h.hasOwnProperty(cs)) { 
-    //log(cs + " has no sibling entry") 
+  if (!h.hasOwnProperty(cs)) {
+    //log(cs + " has no sibling entry")
     return [];
   } else {
     let all = [].concat(h[cs].sibs, h[cs].lil_sibs, h[cs].big_sibs);
     return sortByCallsign(all).reverse();
   }
 }
-function isMainProxy (callsign) {  
+function isMainProxy (callsign) {
   return (callsign == mainCallsign(callsign));
 }
 
@@ -569,7 +587,7 @@ function updatePkInfo (pk, noSave = false) {
 
   if (!noSave) {
     //log(`Saving member to localForage: ${pk.id}`)
-    localforage.setItem(pk.id, pk).catch(err => error);    
+    localforage.setItem(pk.id, pk).catch(err => error);
   }
 }
 async function updateDataFromMemberList (list = exported.members) {
@@ -608,7 +626,7 @@ function makeInitialList () {
         newMember(key);
       }
       headmates[key].lil_sibs = [a, b].concat(A, B, C);
-      
+
       headmates[a].big_sibs.push(key);
       headmates[b].big_sibs.push(key);
     }
@@ -630,7 +648,7 @@ function makeInitialList () {
       }
     }
   }
-  
+
   // make an initial generation then recursively combine
   digits().forEach(newMember);
   for (g = 0; g < cap; g++) {
@@ -657,7 +675,7 @@ function makeInitialList () {
         headmates[a].big_sibs.forEach(addSibs);
       });
     }
-    
+
     // deduplicate and sort the sibling array
     sibs = sortByCallsign(sibs);
 
@@ -665,10 +683,10 @@ function makeInitialList () {
     if (sibs.indexOf(key) >= 0) {
       sibs.splice(sibs.indexOf(key), 1);
     }
-    
+
     headmates[key].sibs = sibs;
   }
-  
+
   let allNumericalCallsigns = copy(Object.keys(headmates));
   allNumericalCallsigns.forEach(fillInSiblings)
 
@@ -694,7 +712,7 @@ function fusionNote (callsign) {
   if (numDigits === callsign.length) {
     if (callsign.length === 1 && callsign !== "*") {
       return `Represents district ${callsign} on our internal council`
-    } else if (callsign === "*") {      
+    } else if (callsign === "*") {
       return `Non-representative, non-voting adviser to the council`
     } else {
       let districtList = oxfordCommaList((callsign + '').split('').filter(d => (d !== "*")))
@@ -777,7 +795,7 @@ function checkMemberObject (pk, autoUpload = true) {
   // #todo update to take edit mode into account better
   // used in util.js updatePkInfo()
   let editMode = getToggle("editing");
-  autoUpload = (false && editMode); // while testing #later remove this  
+  autoUpload = (false && editMode); // while testing #later remove this
   let edits = {}
   let callsign = getCallsign(pk);
   let isMain = isMainProxy(callsign);
@@ -788,7 +806,7 @@ function checkMemberObject (pk, autoUpload = true) {
       error(`${pk.display_name} with id '${pk.id}' ${issue} ${property}`);
     }
   }
-  
+
   function checkNames () {
     // #todo check name format, #### | Nickname
 
@@ -918,7 +936,7 @@ var data = {
           available:   { action: updateOnToggle, default: true },
           unavailable: { action: updateOnToggle },
           live:        { action: toggleLive, default: false }, // #todo revert this to true when deploying
-          editing:     { action: toggleEditing  }
+          editing:     { action: true  }
         }
       },
       setup: {
@@ -1076,7 +1094,7 @@ async function newMember (callsign, details) {
       Authorization: basicAuth().headers.Authorization
     },
     body: JSON.stringify(memberData)
-  }  
+  }
   // if alt, set entirely private
   // if alt, add to group zdytf
   try {
@@ -1155,7 +1173,7 @@ async function reportSwitch (active = getActive(), system = 'lhexq') {
 
   // ONLY REPORT MAIN IDs, NEVER ALT IDs:
   active = active.map(mainCallsign);
-  
+
   function validateSwitch () {
     let ok = true;
     digits().forEach(d => {
@@ -1204,7 +1222,7 @@ function getMemberId (searchTerm) {
   return data.ids_by_ref[searchTerm.toLowerCase()]
 }
 function validMember (searchTerm) {
-  if (["+","-"].includes(searchTerm.slice(-1))) { 
+  if (["+","-"].includes(searchTerm.slice(-1))) {
     //log(`Recognized as wild ref: ${searchTerm}`);
     return false
   } else if (data.ids_by_ref[searchTerm.toLowerCase()]) {
@@ -1217,7 +1235,7 @@ function validMember (searchTerm) {
 }
 function listRelated (activeList, allMembers = getMemberList()) {
   // Takes as input an array of pkIds to look for relations of and a list of members to search within and returns a list of pkIds for all members in the second array unrelated to members of the first array
-  
+
   // Get just the letters from the active member's callsigns
   let activeAtoms = activeList.map(pkId => getCallsign(getPkObject(pkId))).join("").match(/(\w)/g)
 
@@ -1227,7 +1245,7 @@ function listRelated (activeList, allMembers = getMemberList()) {
     // Check for overlap
     return intersect(getAtoms(pkId), activeAtoms).length != 0
   });
-  
+
   return unrelatedMembers
 }
 function listActive (searchString = data.page.active_list.value) {
@@ -1238,7 +1256,7 @@ function listActive (searchString = data.page.active_list.value) {
   // #todo make this less redundant/better organized later as this is also called in updateTileClasses()
 
   let foundMembers = searchTerms.filter(validMember).map(getMemberId)
-  
+
   if (foundMembers.length == 0) { showMessage(`No direct matches found from search terms "${searchTerms.join('", "')}"`); }
   return [...new Set(foundMembers)] // deduplicates list just for neatness
 }
@@ -1258,12 +1276,12 @@ function listElligible (searchTerms, memberList) {
       // Check for overlap
       return intersect(getCallsignChars(pkId), callsignChars).length == required
     });
-    
+
     return relatedMembers
   }
-  
+
   let wildTerms = searchTerms.filter(t => t.slice(-1) == "+").map(t => t.slice(0, -1))
-  if (wildTerms.length > 0) {    
+  if (wildTerms.length > 0) {
     log("Wild search terms: [\"" + wildTerms.join('", "') + '"]')
     let foundMembers = []
 
@@ -1285,7 +1303,7 @@ function updateTileClasses (overrideList = []) {
   // Either use the override list directly or parse the search terms
   let activeMembers = []
   let unavailableMembers = []
-  
+
   if (overrideList.length != 0) {
     // Set as active only members in the override list
     activeMembers = overrideList
@@ -1301,13 +1319,13 @@ function updateTileClasses (overrideList = []) {
     // If no members qualify as active, bump up available members to active
     if (activeMembers.length == 0) {
       // This means there are no direct matches to the prompt
-    
+
       // Set elligible members as active:
       //log("Search terms: [\"" + searchTerms.join('", "') + '"]')
       activeMembers = listElligible(searchTerms, getMemberList())
     } else {
       // #todo rewrite this to require less computation
-    
+
       // Set as unavailable any inelligible members
       let elligible = listElligible(searchTerms, getMemberList())
       unavailableMembers.push(...getMemberList().filter(m => !elligible.includes(m)))
@@ -1336,7 +1354,7 @@ function updateTileClasses (overrideList = []) {
   });
 }
 // END STATUS
-    
+
 // START UI
 
 function htmlIdStringByPkId (pkId) {
@@ -1504,12 +1522,17 @@ function flipTiles () {
   });
   tilesFlipped = !tilesFlipped;
 }
-    
+
 function ui_toast (newText = "", level = 0, type = "success") {
     /* @author https://www.w3schools.com/howto/howto_js_snackbar.asp */
 
-    // Get the snackbar DIV
+    // Get the alerts DIV
     var x = document.getElementById("alerts");
+    if (!x) {
+      x = document.createElement("div");
+      x.id = "alerts";
+      document.body.appendChild(x);
+    }
 
     if (type == "error") {
         newText = "⚠️ " + newText
@@ -1606,8 +1629,8 @@ function ui_addListInputListener () {
 }
 // END UI
     // START UPDATES
-function loadFronters () {  
-  getFronters().then(d => {  
+function loadFronters () {
+  getFronters().then(d => {
     ui_toast("Loaded switch logged at: " + d.timestamp) // #later note the time logged and how long ago that was in a message
     log("Updating active members: " + d.members.map(d => d.id).join(", "))
 
@@ -1655,7 +1678,7 @@ function update_fromUrlParameters (localForageSuccessBool) {
   // Stores applicable url parameter values to data.page properties
   // see https://codepen.io/eahartmann/pen/bGvaMvy
   const urlParams = new URLSearchParams(window.location.search);
-  
+
   if (urlParams.has('token')) {
     if (validateToken(urlParams.get('token'))) {
       saveToken(urlParams.get('token'))
@@ -1676,7 +1699,7 @@ function update_fromUrlParameters (localForageSuccessBool) {
       unavailable: (viewing === "all")
     }
 
-    let checkbox = document.getElementById("toggle-" + toggle);    
+    let checkbox = document.getElementById("toggle-" + toggle);
     if (urlParams.has(toggle)) {
       if (toggleStates[toggle]) {
         checkbox.checked = toggleStates[toggle];
@@ -1686,7 +1709,7 @@ function update_fromUrlParameters (localForageSuccessBool) {
     } else {
       checkbox.checked = !!data.page.toggles[toggle].default;
     }
-    
+
   });
 
   if (urlParams.has('active')) {
@@ -1726,7 +1749,7 @@ function onDoubleClick (event) {
 
   if (getToggle("editing")) {
     if (event.target.id.slice(0, "icon-front-".length) === "icon-front-") {
-      
+
       if (id) {
         window.open(`https://dash.pluralkit.me/dash/m/${id}`, "_blank");
       } else {
@@ -1776,7 +1799,7 @@ function nameChange (event) {
   if (newName !== '' && newName !== oldName) {
     let callsign = event.target.id.slice("name-for-".length)
     let isAlt = (event.target.id.slice("alt-name-".length) === "alt-name");
-    if (isAlt) { callsign += "'" } // #later make this more elegant    
+    if (isAlt) { callsign += "'" } // #later make this more elegant
     if (idFromCallsign(callsign)) {
       log(`Name change event fired for existing member with callsign ${callsign}...`)
       // a proxy exists:
@@ -1829,45 +1852,26 @@ function nameChange (event) {
 // END UPDATES
 // START INIT
 function init () {
-  ui_setFooter("Footer Test");
-  info("Welcome");
+  try {
+    ui_setFooter("Footer Test");
+    info("Welcome");
 
-  // Build/setup for the interactive parts of the UI
-  ui_makeCheckboxes();
-  ui_addListInputListener();
+    // Build/setup for the interactive parts of the UI
+    ui_makeCheckboxes();
+    ui_addListInputListener();
 
-  // make the base member list and add tiles for each member
-  // #todo make this dynamic so it adds a tile for each PK ID instead
-  sortByCallsign(makeInitialList()).forEach(addHeadmateTile);
+    // make the base member list and add tiles for each member
+    // #todo make this dynamic so it adds a tile for each PK ID instead
+    sortByCallsign(makeInitialList()).forEach(addHeadmateTile);
 
-  // Disabling url params while troubleshooting
-  //update_fromUrlParameters();
+    // Disabling url params while troubleshooting
+    //update_fromUrlParameters();
 
-  storage_loadAll();
+    storage_loadAll();
 
-  info("End init");
+    info("End init");
+  } catch (e) { error(e.message + "\n" + e.stack) }
 }
 init()
 // END INIT
   </script>
-  
-
-</head>
-
-<body>
-  <div id="alerts"></div>
-  <div id="controls">
-    <input type="text" class="search" id="active-list" onkeyup="" placeholder="<depreciated>">
-    <button onclick="resetList()">Reset</button>
-    <button onclick="reportSwitch()">Log Switch</button>
-    <button onclick="loadFronters()">Get Fronters</button>
-    <button onclick="clearLocalData()">Clear Local Data</button>
-    <button onclick="inputToken()">Sign In</button>
-    <button onclick="clearToken()">Sign Out</button>
-    <button onclick="window.open('https://github.com/FreshAlacrity/front-tracker/issues/new', '_blank')">Report Bug/Make Suggestion</button>
-  </div>
-  <div id="members"></div>
-  <footer id="footer">Footer</footer>
-</body>
-
-</html>
