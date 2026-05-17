@@ -111,17 +111,17 @@ body {
 }
 
 .unavailable .icon {
-  opacity: 20%;
+  opacity: 0.2;
   filter: grayscale(100%);
 }
 
 .available .icon {
-  opacity: 40%;
+  opacity: 0.4;
   filter: none;
 }
 
 .present .icon {
-  opacity: 100%;
+  opacity: 1;
   filter: none;
 }
 
@@ -129,7 +129,7 @@ body {
   font-size: 1rem;
   min-width: 6rem;
   min-height: 7rem;
-  opacity: 100%;
+  opacity: 1;
 }
 
 .active {
