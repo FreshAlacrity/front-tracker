@@ -34,6 +34,7 @@ function toggleEditing () {
 }
 
 function init () {
+  ui_setFooter("Footer Test");
   info("Welcome");
 
   // Build/setup for the interactive parts of the UI

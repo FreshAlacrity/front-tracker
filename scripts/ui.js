@@ -17,6 +17,11 @@ function ui_toast (newText = "", level = 0, type = "success") {
     setTimeout(function(){ x.className = x.className.replace("show", ""); }, 6000);
 }
 
+function ui_setFooter (newText) {
+    var x = document.getElementById("footer");
+    x.innerText = newText;
+}
+
 // Flavored toasts for easy use
 function log (text = "?", level = 0) {
     ui_toast(text, level);
