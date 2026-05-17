@@ -1,3 +1,5 @@
+// #todo move to ui.js
+
 function htmlIdStringByPkId (pkId) {
   // #todo consider if we need this at all when using PK Ids
   // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
@@ -66,7 +68,7 @@ function updateHeadmateTile (pkId) {
     element.innerHTML = getCallsign(pk, 0);
 
     // Make editable nickname field
-    let nickname = getNickname(pk);    
+    let nickname = getNickname(pk);
     let nicknameElement = document.createElement("div");
     if (getToggle("editing")) {
       nicknameElement = document.createElement("input");
@@ -86,11 +88,11 @@ function updateHeadmateTile (pkId) {
       } else {
         nicknameElement.placeholder = nickname;
       }
-    } else {      
+    } else {
       nicknameElement.textContent = nickname; // for non-editing mode
     }
     nicknameElement.classList.add("name");
-    
+
     if (type === "front") {
       nicknameElement.id = `name-for-${idString}`
     } else {
@@ -101,7 +103,7 @@ function updateHeadmateTile (pkId) {
     /*
     let lastname = document.createElement("div");
     lastname.className = "last-name"
-    lastname.innerHTML += `${lastNameGenerator(mainCs)}`;    
+    lastname.innerHTML += `${lastNameGenerator(mainCs)}`;
     element.appendChild(lastname);
     */
     return element;
@@ -114,11 +116,11 @@ function updateHeadmateTile (pkId) {
     // #todo detect broken image urls
     if (url) {
       element.style.backgroundImage = `url('${url}')`
-      //element.onerror = function(e){ console.log("broken") } // not working
+      //element.onerror = function(e){ log("broken") } // not working
       element.style.boxShadow = "none";
     } else {
       // @later add default image (color shifted glitter lattice?)
-      element.style.boxShadow = "inset 1em 1em 1em black"; 
+      element.style.boxShadow = "inset 1em 1em 1em black";
       // syntax: h-shadow v-shadow blur spread color
     }
     element.style.backgroundColor = getBgColor(pk.id);
@@ -152,7 +154,7 @@ function flipTiles () {
   // @todo get this working
   let elements = [...document.getElementsByClassName("flip-coin-inner")]
   if (elements.length === 0) {
-    console.log("no elements found"); // @todo
+    log("no elements found"); // @todo
   }
   elements.forEach(t => {
     if (tilesFlipped) {

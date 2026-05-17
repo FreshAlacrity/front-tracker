@@ -96,7 +96,7 @@ function checkMemberObject (pk, autoUpload = true) {
 
   function objection (property, issue = "has no") {
     if (editMode) {
-      console.warn(`${pk.display_name} with id '${pk.id}' ${issue} ${property}`);
+      error(`${pk.display_name} with id '${pk.id}' ${issue} ${property}`);
     }
   }
   

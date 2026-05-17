@@ -6,6 +6,7 @@ let currentRequests = 0;
 let requestAfter = 0;
 let rootUrl = "https://api.pluralkit.me/v2"
 
+
 function basicAuth (neccessary) {
   if (data.setup.token === '' && neccessary) {
     // #todo add a better way to resolve invalid token input here
@@ -22,7 +23,7 @@ async function delayedFetch (url, data) {
   let num = totalRequests;
   currentRequests++
   if (currentRequests > 10) {
-    console.log(`There's ${currentRequests} requests stacked up so let's export and re-import instead maybe? That's a lot to do all at once.`)
+    log(`There's ${currentRequests} requests stacked up so let's export and re-import instead maybe? That's a lot to do all at once.`, 9)
   } else {
     let min = 1500;
     let now = new Date().getTime();
@@ -33,14 +34,18 @@ async function delayedFetch (url, data) {
     } else {
       requestAfter = now + min;
     }
-    console.log(`Setting up request ${totalRequests} with delay: ${waitFor} (${currentRequests} requests cued up)`)
+    log(`Setting up request ${totalRequests} with delay: ${waitFor} (${currentRequests} requests cued up)`)
     await new Promise(resolve => setTimeout(resolve, waitFor));
-    console.log(`Sending API request ${num}`);
+    log(`Sending API request ${num}`);
     let result = await fetch(url, data);
-    console.log(`Received API request ${num}`);
+    log(`Received API request ${num}`);
     currentRequests--
     return result;
   }
+}
+
+function apiErr(e) {
+  error(error, 5, "error");
 }
 
 async function getSystemInfo (system = 'lhexq') {
@@ -48,27 +53,21 @@ async function getSystemInfo (system = 'lhexq') {
   try {
     let res = await delayedFetch(url, basicAuth())
     return await res.json();
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (e) { apiErr(e) }
 }
 async function getMemberObjectList (system = 'lhexq') {
   let url = rootUrl + `/systems/${system}/members`
   try {
     let res = await delayedFetch(url, basicAuth())
     return await res.json();
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (e) { apiErr(e) }
 }
 async function getMember (id = 'qkxux') { // Lucky's member ID
   let url = rootUrl + "/members/" + id
   try {
     let res = await delayedFetch(url, basicAuth())
     return await res.json();
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (e) { apiErr(e) }
 }
 
 async function newMember (callsign, details) {
@@ -91,16 +90,14 @@ async function newMember (callsign, details) {
     let pk = await res.json()
     updatePkInfo(pk); // update current data with new member
     return pk;
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (e) { apiErr(e) }
 }
 
 async function reportBack (comment, data) {
   // @todo test
   let json = await data
   if (!json) {
-    console.error(comment + ": " + "No value returned")
+    error(comment + ": " + "No value returned")
   } else {
     log(comment + ": " + pretty(json));
   }
@@ -118,8 +115,8 @@ async function editMember (id, obj) {
   try {
     delayedFetch(url, etc).then(d => reportBack("Member edited", d.json()));
     return true;
-  } catch (error) {
-    console.log(error);
+  } catch (e) {
+    apiErr(e);
     return false;
   }
 }
@@ -143,12 +140,14 @@ async function getFronters (system = 'lhexq') {
     let fronters = await response.json()
     //log(pretty(fronters))
     return fronters;
-  } catch (error) {
-    error(error);
+
+  } catch (e) {
+    apiErr(e);
     return { members: [] };
   }
 }
-// #todo rewrite
+
+// #todo rewrite and move to different file:
 async function isMember (m) {
   if (!idFromCallsign(m)) {
     let nm = await newMember(m);
@@ -166,7 +165,7 @@ async function reportSwitch (active = getActive(), system = 'lhexq') {
     let ok = true;
     digits().forEach(d => {
       if (occurs(active.join(''), d) > 1) {
-        error(`${d} cannot be in two fusions at once!`);
+        error(`${d} cannot be in two fusions at once!`, 10);
         ok = false;
       }
     });

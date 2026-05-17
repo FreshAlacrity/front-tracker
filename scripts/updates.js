@@ -203,7 +203,7 @@ function nameChange (event) {
       log(`Name change event fired for new member with callsign ${callsign}...`)
       // #todo test
       if (confirm(`${callsign} doesn't have a registered proxy. Create one with this name: '${newName}'?`)) {
-        console.log(`${callsign} doesn't have a registered proxy. Creating one with name ${newName} now...`);
+        log(`${callsign} doesn't have a registered proxy. Creating one with name ${newName} now...`);
         event.target.placeholder = newName;
         newMember(callsign, {
           name: newName,

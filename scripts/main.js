@@ -43,8 +43,9 @@ function init () {
   // make the base member list and add tiles for each member
   // #todo make this dynamic so it adds a tile for each PK ID instead
   sortByCallsign(makeInitialList()).forEach(addHeadmateTile)
+
   loadUrlParameters();
 
-  storage_loadAll()
+  storage_loadAll();
 }
 init()

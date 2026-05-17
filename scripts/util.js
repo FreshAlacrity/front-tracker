@@ -2,8 +2,10 @@
 function pretty (obj) {
   return JSON.stringify(obj, null, 2);
 }
-function quickTest (t1, t2, comment) {
-  console.assert(t1 === t2, `${comment}failed: ${pretty(t1)} should be equal to ${pretty(t2)}`);
+function quickTest (t1, t2, comment, level = 5) {
+  if (t1 !== t2) {
+    error(`${comment}failed: ${pretty(t1)} should be equal to ${pretty(t2)}`, level);
+  }
 }
 function oxfordCommaList (arr) {
   if (arr.length < 3) {
@@ -26,42 +28,13 @@ function assignDown (target, source) {
   let n = copy(target);
   for (const [k1, v1] of Object.entries(copy(source))) {
     for (const [k2, v2] of Object.entries(v1)) {
-      //console.log(`k1:${k1} k2:${k2} v2:${v2}`);
+      //log(`k1:${k1} k2:${k2} v2:${v2}`);
       n[k1][k2] = v2;
     }
   }
   return n
 }
-function log (info = "--------------") {
-  /*
-  console.groupCollapsed("log examples:")
-  console.log("log");
-  console.debug("debug");
-  console.assert(false, "assert");
-  console.dir({ fancy: { foo: 1, bar: 2 }});
-  console.error("error")
-  console.info("info")
-  console.profile("profile")
-  console.profileEnd("profile") 
-  console.table([[1, 2], [3, 4]])
-  console.time("time")
-  console.timeEnd("time")
-  console.timeLog("time")
-  console.timeStamp("time stamp")
-  console.trace("trace")
-  console.warn("warn")
-  console.groupEnd()
-  */
-  if (typeof info === "string") {
-    console.info("%c" + info, "color: hsl(158, 50%, 30%)");
-  } else {
-    console.info(info);
-  }
-  return info;
-}
-function error (err) {
-  console.error(err);
-}
+
 function reflow () {
   // see https://gist.github.com/paulirish/5d52fb081b3570c81e3a
   let foo = window.scrollX;
@@ -346,9 +319,7 @@ function updatePkInfo (pk, noSave = false) {
   }
 }
 async function updateDataFromMemberList (list = exported.members) {
-  console.groupCollapsed("Updating from member list:");
+  log("Updating from member list:");
 
   list.forEach(updatePkInfo);
-
-  console.groupEnd();
 }
