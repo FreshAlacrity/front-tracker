@@ -252,6 +252,7 @@ animation: fadein 0.5s, fadeout 0.5s 2.5s;
   </style>
   <script src="https://freshalacrity.github.io/misc/localforage.js"></script>
   <script>
+    // START STORAGE
     // TRANSIENT STORAGE
     // keep total storage under 700 mb (including all the files)
 var data = {
@@ -282,6 +283,62 @@ var data = {
       ids_by_ref: {}
 }
 
+    function saveToken (input) {
+    data.setup.token = input;
+    localforage.setItem('token', input).then(function (value) {
+        // Do other things once the value has been saved.
+        log("Token saved to local storage");
+    }).catch(function(err) {
+        // This code runs if there were any errors
+        log(err);
+    });
+}
+
+function validateToken (input) {
+    // #later actually check this with the PK server
+    return (input.length === 64)
+}
+
+function clearToken () {
+    data.setup.token = "";
+    localforage.removeItem('token').then(function() {
+        // Run this code once the key has been removed.
+        alert("Token cleared.");
+    }).catch(function(err) {
+        // This code runs if there were any errors
+        alert("Issue clearing token: " + err);
+    });
+}
+
+
+function storage_loadAll () {
+    localforage.iterate(function (pk, id, iterationNumber) {
+        if (id !== "token") {
+            // load any member objects that have been cached
+            // currently all non-token values saved to storage are pk member objects
+            updatePkInfo(pk, true); // bool prevents immediately re-saving
+        } else {
+            if (validateToken(pk)) {
+                log("Saved token validated");
+                saveToken(pk);
+            } else {
+                log("Saved token invalid");
+            }
+        }
+    }).then(function () {
+        updateAllHeadmateTiles();
+        activeListInput();
+        log("Locally cached member data loaded"); // #todo #debug
+    }).catch(err => { error(err) })
+
+    // load in from PK and update tiles unless that's actively prevented
+    if (getToggle("live")) { loadFromPk() } else {
+        log("Loading remote data prevented by url parameter 'live=false'");
+    }
+}
+
+// END STORAGE
+// START PK API
 // see https://www.javascripttutorial.net/javascript-fetch-api/
 // requires an auth token set to pkToken variable
 
@@ -290,7 +347,6 @@ let currentRequests = 0;
 let requestAfter = 0;
 let rootUrl = "https://api.pluralkit.me/v2"
 
-// START PK API
 function basicAuth (neccessary) {
   if (data.setup.token === '' && neccessary) {
     // #todo add a better way to resolve invalid token input here
