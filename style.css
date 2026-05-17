@@ -213,8 +213,8 @@ button:hover {
 /* The snackbar - position it at the bottom and in the middle of the screen */
 #snackbar {
 visibility: visible; /* Hidden by default. Visible on click */
-min-width: 250px; /* Set a default minimum width */
-margin-left: -125px; /* Divide value of min-width by 2 */
+min-width: 30em; /* Set a default minimum width */
+margin-left: -15em; /* Divide value of min-width by 2 */
 background-color: #333; /* Black background color */
 color: #fff; /* White text color */
 text-align: center; /* Centered text */
