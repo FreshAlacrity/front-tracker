@@ -3,6 +3,8 @@
 ## About
 Allows users of [Plural Kit](https://pluralkit.me/) to show, manage, analyse, and track member information for large systems. Currenty in development/alpha release; feedback and questions are welcome and can be submitted through the [GitHub Issues page](https://github.com/FreshAlacrity/front-tracker/issues/new).
 
+Many thanks to Cre8or for instructions on this workaround, it worked for me on Kubuntu: https://gist.github.com/Cre8or/2f2d5bb88751f783bb6d81298aa697b0
+
 ### Active List Syntax
 Names and callsigns will pull up members; adding a + to a callsign or name will look for all members that are fusions of that callsign and mark those available; adding - to a callsign or name will mark those members unavailable
 
