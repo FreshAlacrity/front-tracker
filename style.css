@@ -209,6 +209,11 @@ button:hover {
   background-color: hsla(0, 0%, 50%, 40%);
 }
 
+#footer {
+  border: 2px dotted blue;
+  padding: 2em;
+}
+
 /* via https://www.w3schools.com/howto/howto_js_snackbar.asp */
 #snackbar {
 visibility: visible; /* Hidden by default. Visible on click */
