@@ -2,7 +2,7 @@ function ui_toast (newText = "", level = 0, type = "success") {
     /* @author https://www.w3schools.com/howto/howto_js_snackbar.asp */
 
     // Get the snackbar DIV
-    var x = document.getElementById("snackbar");
+    var x = document.getElementById("alerts");
 
     if (type == "error") {
         newText = "⚠️ " + newText
