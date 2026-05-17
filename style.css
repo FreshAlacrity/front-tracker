@@ -213,6 +213,7 @@ button:hover {
   border: 2px dotted blue;
   color:purple;
   padding: 2em;
+  font-style: italic;
 }
 
 /* via https://www.w3schools.com/howto/howto_js_snackbar.asp */
