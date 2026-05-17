@@ -45,28 +45,6 @@ function init () {
   sortByCallsign(makeInitialList()).forEach(addHeadmateTile)
   loadUrlParameters();
 
-  // load any member objects that have been cached
-  localforage.iterate(function (pk, id, iterationNumber) {
-      if (id !== "token") {
-        // currently all non-token values saved to storage are pk member objects
-        updatePkInfo(pk, true); // bool prevents immediately re-saving
-      } else {
-        if (validateToken(pk)) { 
-          log("Saved token validated");
-          saveToken(pk);
-        } else {
-          log("Saved token invalid");
-        }
-      }
-    }).then(function () {
-      updateAllHeadmateTiles();
-      activeListInput();
-      log("Locally cached member data loaded"); // #todo #debug
-    }).catch(err => { error(err) })
-
-    // load in from PK and update tiles unless that's actively prevented
-    if (getToggle("live")) { loadFromPk() } else {
-      log("Loading remote data prevented by url parameter 'live=false'");
-    }
+  storage_loadAll()
 }
 init()

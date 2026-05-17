@@ -9,16 +9,6 @@ function saveToken (input) {
     });
 }
 
-function inputToken () {
-    let input = window.prompt("Enter your PK Token:","Use `pk;token` to have the PK bot DM yours to you or request it from an admin.");
-    if (validateToken(input)) {
-        saveToken(input)
-        alert("Thank you.")
-    } else {
-        alert("Sorry, that is not a valid token.")
-    }
-}
-
 function validateToken (input) {
     // #later actually check this with the PK server
     return (input.length === 64)
@@ -33,4 +23,31 @@ function clearToken () {
         // This code runs if there were any errors
         alert("Issue clearing token: " + err);
     });
+}
+
+
+function storage_loadAll () {
+    localforage.iterate(function (pk, id, iterationNumber) {
+        if (id !== "token") {
+            // load any member objects that have been cached
+            // currently all non-token values saved to storage are pk member objects
+            updatePkInfo(pk, true); // bool prevents immediately re-saving
+        } else {
+            if (validateToken(pk)) {
+                log("Saved token validated");
+                saveToken(pk);
+            } else {
+                log("Saved token invalid");
+            }
+        }
+    }).then(function () {
+        updateAllHeadmateTiles();
+        activeListInput();
+        log("Locally cached member data loaded"); // #todo #debug
+    }).catch(err => { error(err) })
+
+    // load in from PK and update tiles unless that's actively prevented
+    if (getToggle("live")) { loadFromPk() } else {
+        log("Loading remote data prevented by url parameter 'live=false'");
+    }
 }

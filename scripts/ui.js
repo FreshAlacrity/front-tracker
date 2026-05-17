@@ -1,16 +1,31 @@
-function toast (newText) {
+function toast (newText, type = "success") {
     /* @author https://www.w3schools.com/howto/howto_js_snackbar.asp */
 
     // Get the snackbar DIV
     var x = document.getElementById("snackbar");
+
+    if (type == "error") {
+        newText = "⚠️ " + newText
+    }
 
     x.innerText = newText;
 
     // Add the "show" class to DIV
     x.className = "show";
 
-    // After 3 seconds, remove the show class from DIV
-    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    // After 6 seconds, remove the show class from DIV
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 6000);
+}
+
+function inputToken () {
+    // #todo make this a UI element
+    let input = window.prompt("Enter your PK Token:","Use `pk;token` to have the PK bot DM yours to you or request it from an admin.");
+    if (validateToken(input)) {
+        saveToken(input)
+        toast("Thank you.")
+    } else {
+        toast("Sorry, that is not a valid token.", "error")
+    }
 }
 
 function makeCheckboxes () {
