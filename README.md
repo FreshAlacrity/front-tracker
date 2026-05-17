@@ -3,16 +3,15 @@
 ## About
 Allows users of [Plural Kit](https://pluralkit.me/) to show, manage, analyse, and track member information for large systems. Currenty in development/alpha release; feedback and questions are welcome and can be submitted through the [GitHub Issues page](https://github.com/FreshAlacrity/front-tracker/issues/new).
 
-Many thanks to Cre8or for instructions on this workaround, it worked for me on Kubuntu: https://gist.github.com/Cre8or/2f2d5bb88751f783bb6d81298aa697b0
-
-### Active List Syntax
-Names and callsigns will pull up members; adding a + to a callsign or name will look for all members that are fusions of that callsign and mark those available; adding - to a callsign or name will mark those members unavailable
+Many thanks to Cre8or for instructions on this workaround, it worked for me on Kubuntu: https://gist.github.com/Cre8or/2f2d5bb88751f783bb6d81298aa697b0 (however, I do need to use the command line or Kate to push any commits, it's not working through GitHub Desktop and I'm not sure why)
 
 ## Planned
- #todo: move these to Issues page instead
+- move To Do items to Issues page instead
+- instead of a single text field to list active members or search input, this will be using a member/group based UI soon
 
 ### Next
-- [ ] log to toasts (for now)
+- [x] log to toasts (for now)
+  - [ ] add a way to show toast history
 - [x] put UI functions in their own file
   - [ ] all DOM interactions should go here eventually
 - get it working again
@@ -25,7 +24,7 @@ Names and callsigns will pull up members; adding a + to a callsign or name will 
       - disable the system model, just show the existing member list
 - [ ] set up a unique prefix for each file and wrap the functions within it so for example makeCheckboxes() becomes ui.makeCheckboxes()
 - [ ] add the URL parameter to the page for showing active fronters when that button is clicked
-- [ ] add a "donate"/<3 button and link it to Patreon (for now)
+- [ ] add a "donate"/<3 button and link to GitHub Sponsors
 - [ ] add a "View Source" button and link to the repository
 - [ ] Have one button for sign in/sign out and change the button text based on if a valid token is active
 - [ ] get Levenshtein distance name recognition from active list working

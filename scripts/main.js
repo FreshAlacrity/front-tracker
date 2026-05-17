@@ -45,7 +45,8 @@ function init () {
   // #todo make this dynamic so it adds a tile for each PK ID instead
   sortByCallsign(makeInitialList()).forEach(addHeadmateTile);
 
-  update_fromUrlParameters();
+  // Disabling url params while troubleshooting
+  //update_fromUrlParameters();
 
   storage_loadAll();
 
