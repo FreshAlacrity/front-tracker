@@ -19,7 +19,7 @@ function ui_toast (newText = "", level = 0, type = "success") {
 
 function ui_setFooter (newText) {
     var x = document.getElementById("footer");
-    x.innerText = newText;
+    //x.innerText = newText;
 }
 
 // Flavored toasts for easy use
