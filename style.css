@@ -211,6 +211,7 @@ button:hover {
 
 #footer {
   border: 2px dotted blue;
+  color:purple;
   padding: 2em;
 }
 
