@@ -6,7 +6,6 @@ Allows users of [Plural Kit](https://pluralkit.me/) to show, manage, analyse, an
 ### Active List Syntax
 Names and callsigns will pull up members; adding a + to a callsign or name will look for all members that are fusions of that callsign and mark those available; adding - to a callsign or name will mark those members unavailable
 
-
 ## Planned
  #todo: move these to Issues page instead
 
