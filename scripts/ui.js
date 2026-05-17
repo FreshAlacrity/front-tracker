@@ -1,3 +1,18 @@
+function toast (newText) {
+    /* @author https://www.w3schools.com/howto/howto_js_snackbar.asp */
+
+    // Get the snackbar DIV
+    var x = document.getElementById("snackbar");
+
+    x.innerText = newText;
+
+    // Add the "show" class to DIV
+    x.className = "show";
+
+    // After 3 seconds, remove the show class from DIV
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
 function makeCheckboxes () {
     // #todo add more informative titles + labels for the checkboxes
     // #todo add this to toggles instead:
