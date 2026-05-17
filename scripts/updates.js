@@ -1,10 +1,6 @@
-function showMessage (text) {
-  // #later have this show on the page in a designated area and support different background colors
-  log(text)
-}
 function loadFronters () {  
   getFronters().then(d => {  
-    showMessage("Loaded switch logged at: " + d.timestamp) // #later note the time logged and how long ago that was in a message
+    ui_toast("Loaded switch logged at: " + d.timestamp) // #later note the time logged and how long ago that was in a message
     log("Updating active members: " + d.members.map(d => d.id).join(", "))
 
     // Without changing the search box to names it's harder to search for possible copilots, but this is clunky
@@ -149,7 +145,7 @@ function updateOnToggle (event) {
 function toggleLive (event) {
   if (event.target.checked) {
     updatePage(); // #todo why is this called here?
-    showMessage("Loading in most recent data from PK")
+    ui_toast("Loading in most recent data from PK", 1)
     loadFromPk();
   } else {
     updatePage();
