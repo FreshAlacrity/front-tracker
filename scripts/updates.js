@@ -47,7 +47,7 @@ function loadFromPk () {
   log("Loading all members directly from PK");
   getMemberObjectList().then(loadFromPkMemberList);
 }
-function loadUrlParameters (localForageSuccessBool) {
+function update_fromUrlParameters (localForageSuccessBool) {
   // Stores applicable url parameter values to data.page properties
   // see https://codepen.io/eahartmann/pen/bGvaMvy
   const urlParams = new URLSearchParams(window.location.search);

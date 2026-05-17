@@ -1,4 +1,4 @@
-// GLOBAL STORAGE
+// TRANSIENT STORAGE
 // keep total storage under 700 mb (including all the files)
 var data = {
   page: {
@@ -8,7 +8,7 @@ var data = {
     toggles: {
       available:   { action: updateOnToggle, default: true },
       unavailable: { action: updateOnToggle },
-      live:        { action: toggleLive, default: false }, // #todo revert this to true for
+      live:        { action: toggleLive, default: false }, // #todo revert this to true when deploying
       editing:     { action: toggleEditing  }
     }
   },
@@ -34,18 +34,20 @@ function toggleEditing () {
 }
 
 function init () {
-  toast("Welcome");
+  info("Welcome");
 
   // Build/setup for the interactive parts of the UI
-  makeCheckboxes();
-  addListInputListener();
+  ui_makeCheckboxes();
+  ui_addListInputListener();
 
   // make the base member list and add tiles for each member
   // #todo make this dynamic so it adds a tile for each PK ID instead
-  sortByCallsign(makeInitialList()).forEach(addHeadmateTile)
+  sortByCallsign(makeInitialList()).forEach(addHeadmateTile);
 
-  loadUrlParameters();
+  update_fromUrlParameters();
 
   storage_loadAll();
+
+  info("End init");
 }
 init()
