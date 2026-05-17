@@ -50,10 +50,6 @@ body {
   align-content: stretch;
 }
 
-.note {
-  padding-bottom: 2rem; 
-}
-
 /* see https://www.w3schools.com/howto/howto_css_flip_card.asp */
 
 /* The flip card container - set the width and height to whatever you want. We have added the border property to demonstrate that the flip itself goes out of the box on hover (remove perspective if you don't want the 3D effect */
@@ -236,7 +232,7 @@ top: 50px; /* 30px from the bottom */
 }
 
 /* Show the snackbar when clicking on a button (class added with JavaScript) */
-#snackbar.show {
+#alerts.show {
 visibility: visible; /* Show the snackbar */
 /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
  * However, delay the fade out process for 2.5 seconds */
@@ -270,8 +266,8 @@ animation: fadein 0.5s, fadeout 0.5s 2.5s;
 </head>
 
 <body>
-  <div id="alerts">Toast</div>
-  <div id="controls" class="note">
+  <div id="alerts"></div>
+  <div id="controls">
     <input type="text" class="search" id="active-list" onkeyup="" placeholder="<depreciated>">
     <button onclick="resetList()">Reset</button>
     <button onclick="reportSwitch()">Log Switch</button>
@@ -281,7 +277,6 @@ animation: fadein 0.5s, fadeout 0.5s 2.5s;
     <button onclick="clearToken()">Sign Out</button>
     <button onclick="window.open('https://github.com/FreshAlacrity/front-tracker/issues/new', '_blank')">Report Bug/Make Suggestion</button>
   </div>
-  <div id="messages" class="note"></div>
   <div id="members"></div>
   <footer id="footer">Footer</footer>
 </body>
