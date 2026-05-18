@@ -1569,7 +1569,7 @@ function info (text = "?", level = 1) {
 }
 function error (e, level = 3) {
     if (e.stack) {
-      let shortStack = e.stack.replaceAll(/content.+\/(.+?html)/g, (a, p1) => p1 || a);
+      let shortStack = e.stack.replaceAll(/content.+\/(.+?html)/g, (full, p1) => (p1 || full));
       e = e.message + "\n" + shortStack;
     }
     ui_toast(e, level, "error");
