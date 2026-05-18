@@ -1569,7 +1569,7 @@ function info (text = "?", level = 1) {
 }
 function error (e, level = 3) {
     if (e.stack) {
-      e = e.message + "\n" + e.stack.replaceAll(/content.+?/(.+?\.html)/g, (a, p1) => p1 || a);
+      e = e.message + "\n" + e.stack //e.stack.replaceAll(/content.+?/(.+?\.html)/g, (a, p1) => p1 || a);
       // 
       // Source - https://stackoverflow.com/a/7072361
 // Posted by Ray Toal, modified by community. See post 'Timeline' for change history
