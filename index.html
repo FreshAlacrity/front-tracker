@@ -1602,7 +1602,7 @@ function ui_makeCheckboxes () {
     // #todo add this to toggles instead:
     // flip to alt accounts
     //if (urlParams.has('alts') === true) { flipTiles() }
-    let toggles = data.page.toggles
+    let toggles = [] //data.page.toggles
     for (const [key, value] of Object.entries(toggles)) {
         let checkbox = document.createElement("input");
         checkbox.type = "checkbox";
