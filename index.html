@@ -253,6 +253,7 @@ animation: fadein 0.5s, fadeout 0.5s 2.5s;
 </head>
 
 <body>
+  <div id="alerts"></div>
   <div id="controls">
     <input type="text" class="search" id="active-list" onkeyup="" placeholder="<depreciated>">
     <button onclick="resetList()">Reset</button>
@@ -1761,17 +1762,12 @@ function ui_toast (newText = "", level = 0, type = "success") {
 
     // Get the alerts DIV
     var x = document.getElementById("alerts");
-    if (!x) {
-      x = document.createElement("div");
-      x.id = "alerts";
-      document.body.appendChild(x);
-    }
+  
+    let n = document.createElement("div");
+    x.appendChild(x);
 
-    if (type == "error") {
-        newText = "⚠️ " + newText
-    }
-
-    x.innerText = newText;
+    if (type == "error") { newText = "⚠️ " + newText }
+    n.innerText = newText;
 
     // Add the "show" class to DIV
     x.className = "show";
