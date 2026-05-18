@@ -1580,21 +1580,15 @@ function warn (text, level = 2) {
     return text;
 }
 
-var console = (function(oldCons){
-    // Source - https://stackoverflow.com/a/42651511
-    // @author Ludovic Feltz
-    // Retrieved 2026-05-17, License - CC BY-SA 3.0
-    // define a new console
-    return {
+
+
+// Substitute console functions with toasts instead
+window.console =  {
         log:   (text) => log(text),
         info:  (text) => info(text),
         warn:  (text) => warn(text),
         error: (text) => error(text)
     };
-}(window.console));
-
-// Substitute console functions with toasts instead
-window.console = console;
 
 function inputToken () {
     // #todo make this a UI element
