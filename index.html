@@ -268,8 +268,9 @@ animation: fadein 0.5s, fadeout 0.5s 2.5s;
 </body>
 
 </html>
-  <script>
-    // START UTILITIES
+
+<script>
+// START UTILITIES
 function pretty (obj) {
   return JSON.stringify(obj, null, 2);
 }
@@ -1860,7 +1861,7 @@ function init () {
     ui_addListInputListener();
 
     // make the base member list and add tiles for each member
-    // #todo make this dynamic so it adds a tile for each PK ID instead
+    // #todo add a tile for each PK ID instead
     sortByCallsign(makeInitialList()).forEach(addHeadmateTile);
 
     // Disabling url params while troubleshooting
