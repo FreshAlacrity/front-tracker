@@ -987,9 +987,9 @@ function clearToken () {
 }
 }
 // END SETTINGS
- 
 const storage = (function () {
   function loadAll () {
+    // Spins off an async process, #later make the whole function async?
     localforage.iterate(function (pk, id, iterationNumber) {
         if (id !== "token") {
             // load any member objects that have been cached
@@ -1006,6 +1006,7 @@ const storage = (function () {
     }).then(function () {
         updateAllHeadmateTiles();
         //activeListInput();
+        // #todo alternate message if no local data is found
         info("Locally cached member data loaded");
     }).catch(e => { error(e) })
   }
