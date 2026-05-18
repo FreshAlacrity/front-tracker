@@ -1168,11 +1168,10 @@ async function getFronters (system = 'lhexq') {
     }
   }
   try {
-    let response = await delayedFetch(url, data)
-    let fronters = await response.json()
+    let response = await delayedFetch(url, data);
+    let fronters = await response.json();
     //log(pretty(fronters))
     return fronters;
-
   } catch (e) {
     apiErr(e);
     return { members: [] };
@@ -1390,7 +1389,7 @@ function loadFronters () {
     data.page.active_list.value = d.members.map(d => getNickname(d))
     // #todo alert if no fronters found
     updatePage(d.members.map(d => d.id))
-  });
+  }).catch(function (e) { error(e) });
 }
 function activeListInput () {
   // Runs on Enter key or when focus leaves active list text box
@@ -1473,10 +1472,7 @@ function clearLocalData () {
   localforage.clear().then(function () {
     // Run this code once the database has been entirely deleted.
     log('Local storage cleared');
-  }).catch(function (e) {
-    // This code runs if there were any errors
-    error(e);
-  });
+  }).catch(function (e) { error(e) });
 }
 
 function resetList () { updatePage(digits(), true) }
@@ -1573,7 +1569,7 @@ function nameChange (event) {
           { prefix: null, suffix: " -" + newName },
           { prefix: newName + ": ", suffix: null }
         );
-        editMember(m.id, edits)
+        editMember(m.id, edits);
       } else {
         resetNameField();
       }
