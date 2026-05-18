@@ -1159,6 +1159,7 @@ async function setDisplayName (id, newName) {
 
 // see https://pluralkit.me/api/endpoints/#switches
 async function getFronters (system = 'lhexq') {
+  info("here1")
   let url = rootUrl + "/systems/" + system + "/fronters"
   let etc = {
     method: 'GET', // GET, POST, PUT, DELETE, etc.
