@@ -1062,9 +1062,7 @@ async function delayedFetch (url, data) {
   }
 }
 
-function apiErr(e) {
-  error(error, 5, "error");
-}
+function apiErr(e) { error(error, 5, "error") }
 
 async function getSystemInfo (system = 'lhexq') {
   let url = rootUrl + `/systems/${system}`
@@ -1209,8 +1207,8 @@ async function reportSwitch (active = getActive(), system = 'lhexq') {
         delayedFetch(url, etc)
       });
       return true;
-    } catch (error) {
-      alert(error);
+    } catch (e) {
+      error(e);
       return false;
     }
   } else {
