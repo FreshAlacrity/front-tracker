@@ -1764,7 +1764,7 @@ function ui_toast (newText = "", level = 0, type = "success") {
     var x = document.getElementById("alerts");
   
     let n = document.createElement("div");
-    x.appendChild(x);
+    x.appendChild(n);
 
     if (type == "error") { newText = "⚠️ " + newText }
     n.innerText = newText;
