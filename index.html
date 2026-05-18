@@ -224,8 +224,7 @@ button:hover {
   margin: 0.1em;
 }
 
-/* via https://www.w3schools.com/howto/howto_js_snackbar.asp */
-#alerts {
+#alert_wrapper {
   visibility: visible; /* Hidden by default. Visible on click */
   z-index: 1; /* Add a z-index if needed */
   top: 1em; /* 30px from the bottom */
@@ -233,8 +232,15 @@ button:hover {
   min-width: 40em; /* Set a default minimum width */
   margin-left: -20em; /* Divide value of min-width by 2 */
   left: 50%; /* Center the snackbar */
+  overflow:auto;
+  display:flex;
+  flex-direction:column-reverse;
   max-height: 10em;
   overflow-y: auto;
+}
+    
+/* via https://www.w3schools.com/howto/howto_js_snackbar.asp */
+#alerts {
 }
 
 /* Show the snackbar when clicking on a button (class added with JavaScript) */
@@ -259,7 +265,7 @@ animation: fadein 0.5s, fadeout 0.5s 2.5s;
 </head>
 
 <body>
-  <div id="alerts"></div>
+  <div id="alert_wrapper"><div id="alerts"></div></div>
   <div id="controls">
     <input type="text" class="search" id="active-list" onkeyup="" placeholder="<depreciated>">
     <button onclick="resetList()">Reset</button>
