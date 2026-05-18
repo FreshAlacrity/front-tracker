@@ -927,7 +927,7 @@ function makeInitialList () {
   }
 }
 // END VALIDATE
-// START STORAGE
+// START SETTINGS
 {
     // TRANSIENT STORAGE
     // keep total storage under 700 mb (including all the files)
@@ -985,9 +985,11 @@ function clearToken () {
         alert("Issue clearing token: " + err);
     });
 }
-
-
-function storage_loadAll () {
+}
+// END SETTINGS
+ 
+const storage = (function () {
+  function loadAll () {
     localforage.iterate(function (pk, id, iterationNumber) {
         if (id !== "token") {
             // load any member objects that have been cached
@@ -1006,14 +1008,13 @@ function storage_loadAll () {
         activeListInput();
         log("Locally cached member data loaded"); // #todo #debug
     }).catch(err => { error(err) })
+}
+  
+  return {
+      loadAll: loadAll
+  }
+}()) // end storage
 
-    // load in from PK and update tiles unless that's actively prevented
-    if (getToggle("live")) { loadFromPk() } else {
-        log("Loading remote data prevented by url parameter 'live=false'");
-    }
-}
-}
-// END STORAGE
 // START PK API
 {
 // see https://www.javascripttutorial.net/javascript-fetch-api/
@@ -1874,12 +1875,13 @@ function init () {
     // #todo add a tile for each PK ID instead
     sortByCallsign(makeInitialList()).forEach(addHeadmateTile);
 
+    //loadFromPk();
+    storage.loadAll();
+
     // Disabling url params while troubleshooting
     //update_fromUrlParameters();
-
-    storage_loadAll();
-
-    info("End init");
+    
+    info("Startup Complete");
   } catch (e) { error(e.message + "\n" + e.stack) }
 }
 init()
