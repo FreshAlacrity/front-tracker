@@ -1159,7 +1159,7 @@ async function setDisplayName (id, newName) {
 
 // see https://pluralkit.me/api/endpoints/#switches
 async function getFronters (system = 'lhexq') {
-  info("here1")
+  log("here1")
   let url = rootUrl + "/systems/" + system + "/fronters"
   let etc = {
     method: 'GET', // GET, POST, PUT, DELETE, etc.
@@ -1882,6 +1882,8 @@ function init () {
 
     //loadFromPk();
     storage.loadAll();
+
+    getFronters();
 
     // Disabling url params while troubleshooting
     //update_fromUrlParameters();
