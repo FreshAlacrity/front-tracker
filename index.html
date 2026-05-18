@@ -578,6 +578,7 @@ function getToggle (string) {
   return document.getElementById("toggle-" + string).checked;
 }
 function updatePkInfo (pk, noSave = false) {
+  log("Updating info for " + pk.name)
   // #todo use this when changing callsign/name/etc also
   pk = checkMemberObject(pk);
   let callsign = getCallsign(pk);
@@ -1874,7 +1875,7 @@ function init () {
     info("Welcome");
 
     // Build/setup for the interactive parts of the UI
-    ui_makeCheckboxes();
+    //ui_makeCheckboxes();
     //ui_addListInputListener();
 
     // make the base member list and add tiles for each member
@@ -1887,15 +1888,6 @@ function init () {
     // Disabling url params while troubleshooting
     //update_fromUrlParameters();
     
-    info("Startup Complete");
-    info("Startup Complete");
-    info("Startup Complete");
-    info("Startup Complete");
-    info("Startup Complete");
-    info("Startup Complete");
-    info("Startup Complete");
-    info("Startup Complete");
-    info("Startup Complete");
   } catch (e) { error(e) }
 }
 init()
