@@ -1032,7 +1032,7 @@ const storage = (function () {
 }()) // end storage
 
 // START PK API
-{
+
 // see https://www.javascripttutorial.net/javascript-fetch-api/
 // requires an auth token set to pkToken variable
 
@@ -1231,7 +1231,7 @@ async function reportSwitch (active = getActive(), system = 'lhexq') {
     return false;
   }
 }
-}
+
 // END PK API
 // START STATUS
 {
@@ -1882,8 +1882,6 @@ function init () {
 
     //loadFromPk();
     storage.loadAll();
-
-    getFronters();
 
     // Disabling url params while troubleshooting
     //update_fromUrlParameters();
