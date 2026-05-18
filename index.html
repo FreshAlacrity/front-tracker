@@ -1567,8 +1567,11 @@ function info (text = "?", level = 1) {
     ui_toast(text, level);
     return text;
 }
-function error (text, level = 3) {
-    ui_toast(text, level, "error");
+function error (e, level = 3) {
+    if (e.stack) {
+      e = e.message + "\n" + e.stack;
+    }
+    ui_toast(e, level, "error");
     return text;
 }
 function warn (text, level = 2) {
@@ -1730,9 +1733,9 @@ function clearLocalData () {
   localforage.clear().then(function () {
     // Run this code once the database has been entirely deleted.
     log('Local storage cleared');
-  }).catch(function (err) {
+  }).catch(function (e) {
     // This code runs if there were any errors
-    error(err);
+    error(e);
   });
 }
 
@@ -1880,7 +1883,7 @@ function init () {
     //update_fromUrlParameters();
     
     info("Startup Complete");
-  } catch (e) { error(e.message + "\n" + e.stack) }
+  } catch (e) { error(e) }
 }
 init()
 // END INIT
