@@ -271,6 +271,7 @@ animation: fadein 0.5s, fadeout 0.5s 2.5s;
 
 <script>
 // START UTILITIES
+{
 function pretty (obj) {
   return JSON.stringify(obj, null, 2);
 }
@@ -702,7 +703,7 @@ function makeInitialList () {
   data.structure.relatives = headmates;
   return Object.keys(headmates);
 }
-
+}
 // END UTILITIES
     // START VALIDATE
 function fusionNote (callsign) {
