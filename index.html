@@ -1006,8 +1006,8 @@ const storage = (function () {
     }).then(function () {
         updateAllHeadmateTiles();
         activeListInput();
-        log("Locally cached member data loaded"); // #todo #debug
-    }).catch(err => { error(err) })
+        info("Locally cached member data loaded");
+    }).catch(e => { error(e) })
 }
   
   return {
@@ -1580,10 +1580,8 @@ function warn (text, level = 2) {
     return text;
 }
 
-
-
 // Substitute console functions with toasts instead
-window.console =  {
+window.console = {
         log:   (text) => log(text),
         info:  (text) => info(text),
         warn:  (text) => warn(text),
