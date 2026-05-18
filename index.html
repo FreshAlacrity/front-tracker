@@ -217,9 +217,7 @@ button:hover {
 }
 
 .message {
-  min-width: 40em; /* Set a default minimum width */
-  margin-left: -20em; /* Divide value of min-width by 2 */
-  left: 50%; /* Center the snackbar */
+
   background-color: #555; /* Black background color */
   color: #fff; /* White text color */
   text-align: center; /* Centered text */
@@ -232,6 +230,9 @@ button:hover {
   z-index: 1; /* Add a z-index if needed */
   top: 1em; /* 30px from the bottom */
   position: fixed; /* Sit on top of the screen */
+  min-width: 40em; /* Set a default minimum width */
+  margin-left: -20em; /* Divide value of min-width by 2 */
+  left: 50%; /* Center the snackbar */
 }
 
 /* Show the snackbar when clicking on a button (class added with JavaScript) */
