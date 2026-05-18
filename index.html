@@ -1214,6 +1214,7 @@ async function reportSwitch (active = getActive(), system = 'lhexq') {
 }
 // END PK API
 // START STATUS
+{
 function splitIntoTerms (searchString) {
   log(`Search string input: "${searchString}"`)
   // Break the search string into separate terms
@@ -1354,10 +1355,10 @@ function updateTileClasses (overrideList = []) {
     }
   });
 }
+}
 // END STATUS
-
 // START UI
-
+{
 function htmlIdStringByPkId (pkId) {
   // #todo consider if we need this at all when using PK Ids
   // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
@@ -1628,8 +1629,10 @@ function ui_addListInputListener () {
         }
     });
 }
+}
 // END UI
-    // START UPDATES
+// START UPDATES
+{
 function loadFronters () {
   getFronters().then(d => {
     ui_toast("Loaded switch logged at: " + d.timestamp) // #later note the time logged and how long ago that was in a message
@@ -1850,11 +1853,12 @@ function nameChange (event) {
     }
   }
 }
+}
 // END UPDATES
 // START INIT
 function init () {
   try {
-    ui_setFooter("Footer Test");
+    ui_setFooter("");
     info("Welcome");
 
     // Build/setup for the interactive parts of the UI
