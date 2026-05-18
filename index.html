@@ -1366,6 +1366,7 @@ function updateTileClasses (overrideList = []) {
 // START UPDATES
 {
 function loadFronters () {
+  info("Fetching current fronters");
   getFronters().then(d => {
     info("Loaded switch logged at: " + d.timestamp) // #later note the time logged and how long ago that was in a message
     log("Updating active members: " + d.members.map(d => d.id).join(", "))
