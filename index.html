@@ -1381,6 +1381,7 @@ function updateTileClasses (overrideList = []) {
 function loadFronters () {
   info("Fetching current fronters");
   getFronters().then(d => {
+    info("here");
     info("Loaded switch logged at: " + d.timestamp) // #later note the time logged and how long ago that was in a message
     log("Updating active members: " + d.members.map(d => d.id).join(", "))
 
@@ -1388,8 +1389,8 @@ function loadFronters () {
     // #todo sort out how to preload this in a nice way and then include as a search result match + add a css class for fronters to show that nicely
     data.page.active_list.value = d.members.map(d => getNickname(d))
     // #todo alert if no fronters found
-    updatePage(d.members.map(d => d.id))
-  }).catch(function (e) { error(e) });
+    updatePage(d.members.map(d => d.id));
+  }).catch((e) => { error(e) });
 }
 function activeListInput () {
   // Runs on Enter key or when focus leaves active list text box
